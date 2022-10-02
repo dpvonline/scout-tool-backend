@@ -1,52 +1,69 @@
-# go to backend folder
+# Enter Backend Directory
+
 `cd backend/`
 
-# create venv
+# Create Virtual Environment
+
 `virtualenv venv`
 
-# activate venv
+# Activate Virtual Environment
+
+Mac, Linux:
+
 `source venv/bin/activate`
 
-Mac, Linux: ( `pipenv install` )
-             `pipenv shell`
+Windows
 
-# install
+`venv\Scripts\activate`
+
+# Installation 
+
 `pip install -r requirements.txt`
 
 `python manage.py makemigrations`
 
 `python manage.py migrate`
 
-`python manage.py add_users`
+# Load Example Data
+
+1) `python manage.py add_users`
 
 Mac, Linux:
-`python manage.py loaddata data/main/*.json`
-`python manage.py loaddata data/test/*.json`
 
-Windows: `python manage.py add_fixtures test-data`
+2) `python manage.py loaddata data/main/*.json`
+3) `python manage.py loaddata data/test/*.json`
+
+Windows:
+
+2) `python manage.py add_fixtures data\main\`
+3) `python manage.py add_fixtures data\test\`
+
+Run Server
 
 `python manage.py runserver`
 
 # deactivate venv
+
 `deactivate`
 
-# PostGres for MacOS
-`brew install postgresql`
-
 # Dumpdata
-Contenttypes: `python -Xutf8 manage.py dumpdata contenttypes.contenttype -o data\main\0_contenTypes.json`
 
-Descriptions: `python -Xutf8 manage.py dumpdata basic.description -o data\main\0_contenTypes.json`
+Contenttypes: 
 
-Basic: `python -Xutf8 manage.py dumpdata basic --exclude=basic.MessageType --exclude=basic.ZipCode --exclude=basic.description --exclude=basic.ScoutOrgaLevel --exclude=basic.ScoutHierarchy -o data\test\1_completeBasic.json`
+`python -Xutf8 manage.py dumpdata contenttypes.contenttype -o data\main\0_contenTypes.json`
 
-Email: `python -Xutf8 manage.py dumpdata email_services -o data\test\2_completeEmail.json`
+Descriptions:
 
-Event: `python -Xutf8 manage.py dumpdata event -o data\test\3_completeEvent.json`
+`python -Xutf8 manage.py dumpdata basic.description -o data\main\0_contenTypes.json`
 
+Basic: 
 
-# Test mails
-`send_mail('Subject here', 'Here is the message.', 'test@anmelde-tool.de', ['robert@hratuga.de'], fail_silently=False)`
+`python -Xutf8 manage.py dumpdata basic --exclude=basic.MessageType --exclude=basic.ZipCode --exclude=basic.description --exclude=basic.ScoutOrgaLevel --exclude=basic.ScoutHierarchy -o data\test\1_completeBasic.json`
 
-# save new packages
-`pip freeze > requirements.txt`
+Email: 
+
+`python -Xutf8 manage.py dumpdata email_services -o data\test\2_completeEmail.json`
+
+Event: 
+
+`python -Xutf8 manage.py dumpdata event -o data\test\3_completeEvent.json`
