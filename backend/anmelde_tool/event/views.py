@@ -1,7 +1,6 @@
 from copy import deepcopy
 from datetime import datetime
 
-from celery.result import AsyncResult
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,15 +9,13 @@ from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from basic import models as basic_models
-from basic import serializers as basic_serializers
 from anmelde_tool.event import api_exceptions as event_api_exceptions
 from anmelde_tool.event import helper as event_helper
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
-
-from .sample_task import create_task
+from basic import models as basic_models
+from basic import serializers as basic_serializers
 
 
 def add_event_module(module: event_models.EventModuleMapper,
@@ -335,6 +332,7 @@ class AssignedEventModulesViewSet(viewsets.ModelViewSet):
 class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = event_serializers.EventOverviewSerializer
+
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("pk", None)
         if (event_id):
@@ -403,22 +401,3 @@ class ScoutHierarchyViewSet(mixins.CreateModelMixin,
                 parent_id=self.request.user.userextended.scout_organisation.id)
         else:
             return []
-
-
-class TestViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-
-    def create(self, request, *args, **kwargs):
-        task_type = request.data.get("type", 1)
-        task = create_task.delay(int(task_type))
-        return Response({"task_id": task.id}, status=202)
-
-    def retrieve(self, request, *args, **kwargs):
-        task_id = kwargs.get("pk", None)
-        print(task_id)
-        task_result = AsyncResult(task_id)
-        result = {
-            "task_id": task_id,
-            "task_status": task_result.status,
-            "task_result": task_result.result
-        }
-        return Response(result, status=200)

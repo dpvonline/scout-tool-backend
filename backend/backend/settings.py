@@ -9,7 +9,7 @@ env = environ.Env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # reading .env file
-environ.Env.read_env()
+environ.Env.read_env('backend/.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -240,9 +240,9 @@ GRAPHENE = {
 CELERY_BROKER_URL = env('CELERY_BROKER')
 CELERY_RESULT_BACKEND = env('CELERY_BROKER')
 
-CELERY_BEAT_SCHEDULE = {
-    "sample_task": {
-        "task": "event.sample_task.sample_task",
-        "schedule": crontab(minute="*/1"),
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     "sample_task": {
+#         "task": "event.sample_task.sample_task",
+#         "schedule": crontab(minute="*/1"),
+#     },
+# }

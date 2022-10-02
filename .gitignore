@@ -198,3 +198,4 @@ zappa_settings.json
 /backend/static/
 /.idea/
 /backend/data/db/
+/backend/backend/.env.dev
