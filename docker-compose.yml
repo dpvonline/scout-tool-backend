@@ -3,13 +3,11 @@ version: '3.9'
 services:
   web:
     container_name: backend
-    restart: unless-stopped
+    restart: always
     build: ./backend
-    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+    command: /start.sh
     volumes:
       - ./backend/:/usr/src/app/
-      - .:/backend/
-      - .:/db.sqlite3
     expose:
       - "8000"
     env_file:
@@ -48,28 +46,27 @@ services:
 
   celery:
     build: ./backend
-    command: celery -A backend worker -l info
+    command: /start-celeryworker.sh
     volumes:
       - ./backend/:/usr/src/app
     env_file:
       - .env
     depends_on:
       - web
-      - redis
 
   celery-beat:
     build: ./backend
-    command: celery -A backend beat -l info
+    command: /start-celerybeat.sh
     volumes:
       - ./backend/:/usr/src/app/
     env_file:
       - .env
     depends_on:
-      - redis
+      - web
 
   flower:
     build: ./backend
-    command: celery -A backend flower
+    command: /start-flower.sh
     ports:
       - "5555:5555"
     volumes:
@@ -77,7 +74,6 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis
       - celery
       - celery-beat
 
