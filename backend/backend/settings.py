@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import environ
-from celery.schedules import crontab
 
 env = environ.Env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -173,6 +172,7 @@ else:
 # STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
+CSRF_TRUSTED_ORIGINS = env.list("CORS_ORIGIN_WHITELIST")
 
 CORS_ORIGIN_ALLOW_ALL = False
 SECURE_SSL_REDIRECT = False
