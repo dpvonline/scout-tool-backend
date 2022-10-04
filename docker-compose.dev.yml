@@ -6,8 +6,8 @@ services:
     restart: always
     build: ./backend
     command: /start.sh
-    volumes:
-      - ./backend/:/usr/src/app/
+    #    volumes:
+    #      - ./backend/:/usr/src/app/
     #      - .:/backend/
     #      - .:/db.sqlite3
     ports:

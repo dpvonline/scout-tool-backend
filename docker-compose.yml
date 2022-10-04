@@ -3,11 +3,11 @@ version: '3.9'
 services:
   web:
     container_name: backend
-    restart: unless-stopped
+    restart: always
     build: ./backend
     command: /start.sh
-    volumes:
-      - ./backend/:/usr/src/app/
+#    volumes:
+#      - ./backend/:/usr/src/app/
     expose:
       - "8000"
     env_file:

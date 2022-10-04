@@ -10,6 +10,9 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
+#Copy backend directory
+COPY ./ .
+
 #COPY ./entrypoint.sh /entrypoint.sh
 #RUN sed -i 's/\r$//g' /entrypoint
 #RUN chmod +x /entrypoint.sh
