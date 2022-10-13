@@ -27957,1048 +27957,917 @@
     "model": "basic.travelattribute",
     "pk": 21,
     "fields": {
-      "type_field": null,
-      "time_field": null
+      "type_field": null
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 22,
     "fields": {
-      "type_field": null,
-      "time_field": null
+      "type_field": null
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 59,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 79,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 101,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 110,
     "fields": {
-      "type_field": "T",
-      "time_field": "B"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 136,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 147,
     "fields": {
-      "type_field": "T",
-      "time_field": "B"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 183,
     "fields": {
-      "type_field": "O",
-      "time_field": "N"
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 205,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 248,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 255,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 279,
     "fields": {
-      "type_field": "T",
-      "time_field": "B"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 299,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 310,
     "fields": {
-      "type_field": "T",
-      "time_field": "B"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 343,
     "fields": {
-      "type_field": "O",
-      "time_field": "B"
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 365,
     "fields": {
-      "type_field": "C",
-      "time_field": null
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 388,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 395,
     "fields": {
-      "type_field": "B",
-      "time_field": null
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 409,
     "fields": {
-      "type_field": "C",
-      "time_field": null
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 415,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 446,
     "fields": {
-      "type_field": "B",
-      "time_field": null
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 453,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 462,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 474,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 485,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 491,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 503,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 513,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 527,
     "fields": {
-      "type_field": "B",
-      "time_field": null
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 545,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 565,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 604,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 622,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 627,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 634,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 649,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 672,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 689,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 718,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 736,
     "fields": {
-      "type_field": "C",
-      "time_field": null
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 744,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 756,
     "fields": {
-      "type_field": "B",
-      "time_field": null
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 767,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 777,
     "fields": {
-      "type_field": "T",
-      "time_field": "SL"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 785,
     "fields": {
-      "type_field": "B",
-      "time_field": null
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 795,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 812,
     "fields": {
-      "type_field": "O",
-      "time_field": "E"
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 814,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 824,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 828,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 832,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 838,
     "fields": {
-      "type_field": "C",
-      "time_field": "E"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 842,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 852,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 862,
     "fields": {
-      "type_field": "O",
-      "time_field": "L"
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 869,
     "fields": {
-      "type_field": "C",
-      "time_field": null
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 873,
     "fields": {
-      "type_field": "B",
-      "time_field": "L"
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 884,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 891,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 895,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 934,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 936,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 948,
     "fields": {
-      "type_field": "C",
-      "time_field": null
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 972,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 995,
     "fields": {
-      "type_field": "C",
-      "time_field": "E"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1051,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1064,
     "fields": {
-      "type_field": "B",
-      "time_field": "L"
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1074,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1088,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1090,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1100,
     "fields": {
-      "type_field": "T",
-      "time_field": "SL"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1110,
     "fields": {
-      "type_field": "T",
-      "time_field": "SL"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1137,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1148,
     "fields": {
-      "type_field": "T",
-      "time_field": null
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1154,
     "fields": {
-      "type_field": "T",
-      "time_field": "SL"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1164,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1172,
     "fields": {
-      "type_field": "B",
-      "time_field": "L"
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1175,
     "fields": {
-      "type_field": "O",
-      "time_field": null
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1189,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1199,
     "fields": {
-      "type_field": "O",
-      "time_field": "L"
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1209,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1247,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1253,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1259,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1261,
     "fields": {
-      "type_field": "B",
-      "time_field": "N"
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1277,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1287,
     "fields": {
-      "type_field": "T",
-      "time_field": "B"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1297,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1307,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1321,
     "fields": {
-      "type_field": "T",
-      "time_field": "B"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1331,
     "fields": {
-      "type_field": "T",
-      "time_field": "B"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1341,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1347,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1357,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1371,
     "fields": {
-      "type_field": "C",
-      "time_field": "SL"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1377,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1393,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1407,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1417,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1427,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1445,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1447,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1462,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1484,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1494,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1508,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1518,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1524,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1538,
     "fields": {
-      "type_field": "O",
-      "time_field": "E"
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1556,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1562,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1611,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1617,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1623,
     "fields": {
-      "type_field": "B",
-      "time_field": "N"
+      "type_field": "B"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1649,
     "fields": {
-      "type_field": "C",
-      "time_field": "B"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1651,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1661,
     "fields": {
-      "type_field": "C",
-      "time_field": "SL"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1663,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1674,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1684,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1700,
     "fields": {
-      "type_field": "O",
-      "time_field": "L"
+      "type_field": "O"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1715,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1725,
     "fields": {
-      "type_field": "C",
-      "time_field": "N"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1739,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1754,
     "fields": {
-      "type_field": "C",
-      "time_field": "E"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1764,
     "fields": {
-      "type_field": "C",
-      "time_field": "L"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1777,
     "fields": {
-      "type_field": "T",
-      "time_field": "E"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1810,
     "fields": {
-      "type_field": "T",
-      "time_field": "L"
+      "type_field": "T"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1820,
     "fields": {
-      "type_field": "C",
-      "time_field": "O"
+      "type_field": "C"
     }
   },
   {
     "model": "basic.travelattribute",
     "pk": 1837,
     "fields": {
-      "type_field": "T",
-      "time_field": "N"
+      "type_field": "T"
     }
   },
   {
@@ -29279,174 +29148,6 @@
       "info": "#2196F3",
       "success": "#4CAF50",
       "warning": "#FFC107"
-    }
-  },
-  {
-    "model": "basic.messagetype",
-    "pk": 1,
-    "fields": {
-      "sorting": 1,
-      "created_at": "2022-04-16T21:16:02.608Z",
-      "updated_at": "2022-04-16T21:16:02.608Z",
-      "name": "Verbesserungsvorschlag",
-      "is_comment": false,
-      "description": ""
-    }
-  },
-  {
-    "model": "basic.messagetype",
-    "pk": 2,
-    "fields": {
-      "sorting": null,
-      "created_at": null,
-      "updated_at": null,
-      "name": "Verbesserungsvorschlag",
-      "is_comment": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "basic.messagetype",
-    "pk": 3,
-    "fields": {
-      "sorting": null,
-      "created_at": null,
-      "updated_at": null,
-      "name": "Fehlermeldung",
-      "is_comment": false,
-      "description": ""
-    }
-  },
-  {
-    "model": "basic.messagetype",
-    "pk": 4,
-    "fields": {
-      "sorting": 4,
-      "created_at": "2022-04-16T21:16:48.803Z",
-      "updated_at": "2022-04-16T21:16:48.803Z",
-      "name": "Frage zu einer Veranstaltung",
-      "is_comment": false,
-      "description": ""
-    }
-  },
-  {
-    "model": "basic.messagetype",
-    "pk": 5,
-    "fields": {
-      "sorting": 5,
-      "created_at": "2022-04-16T21:45:17.080Z",
-      "updated_at": "2022-04-16T21:45:17.080Z",
-      "name": "Ich möchte im Team mitmachen",
-      "is_comment": false,
-      "description": ""
-    }
-  },
-  {
-    "model": "basic.messagetype",
-    "pk": 7,
-    "fields": {
-      "sorting": null,
-      "created_at": null,
-      "updated_at": null,
-      "name": "Rechtsschreibfehler",
-      "is_comment": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "basic.messagetype",
-    "pk": 8,
-    "fields": {
-      "sorting": null,
-      "created_at": null,
-      "updated_at": null,
-      "name": "Sonstiges",
-      "is_comment": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "basic.message",
-    "pk": 1,
-    "fields": {
-      "created_at": null,
-      "updated_at": "2022-07-26T15:05:47.013Z",
-      "created_by_email": null,
-      "supervisor": 1,
-      "message_type": 2,
-      "message_body": "Test Message 0",
-      "internal_comment": "",
-      "is_processed": false
-    }
-  },
-  {
-    "model": "basic.message",
-    "pk": 2,
-    "fields": {
-      "created_at": "2022-04-21T11:36:21.734Z",
-      "updated_at": "2022-07-26T15:05:47.013Z",
-      "created_by_email": null,
-      "supervisor": 1,
-      "message_type": 4,
-      "message_body": "Test Message 1",
-      "internal_comment": "",
-      "is_processed": true
-    }
-  },
-  {
-    "model": "basic.message",
-    "pk": 3,
-    "fields": {
-      "created_at": "2022-04-24T17:41:34.550Z",
-      "updated_at": "2022-07-26T15:05:47.014Z",
-      "created_by_email": null,
-      "supervisor": 1,
-      "message_type": 2,
-      "message_body": "Test Message 2",
-      "internal_comment": "",
-      "is_processed": true
-    }
-  },
-  {
-    "model": "basic.message",
-    "pk": 4,
-    "fields": {
-      "created_at": "2022-05-02T15:54:19.691Z",
-      "updated_at": "2022-07-26T15:05:47.014Z",
-      "created_by_email": null,
-      "supervisor": 1,
-      "message_type": 4,
-      "message_body": "Test Message 3",
-      "internal_comment": "",
-      "is_processed": true
-    }
-  },
-  {
-    "model": "basic.message",
-    "pk": 5,
-    "fields": {
-      "created_at": "2022-05-14T07:54:14.707Z",
-      "updated_at": "2022-07-26T15:05:47.015Z",
-      "created_by_email": null,
-      "supervisor": 1,
-      "message_type": 2,
-      "message_body": "Test Message 4",
-      "internal_comment": "",
-      "is_processed": true
-    }
-  },
-  {
-    "model": "basic.message",
-    "pk": 6,
-    "fields": {
-      "created_at": "2022-06-02T12:36:39.887Z",
-      "updated_at": "2022-07-26T15:05:47.015Z",
-      "created_by_email": null,
-      "supervisor": 1,
-      "message_type": 5,
-      "message_body": "Test Message 5",
-      "internal_comment": "",
-      "is_processed": true
     }
   }
 ]

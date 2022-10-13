@@ -4,14 +4,15 @@ services:
   web:
     container_name: backend
     restart: always
-    build: ./backend
+    build: ./
     command: /start.sh
-#    volumes:
-#      - ./backend/:/usr/src/app/
     expose:
       - "8000"
     env_file:
       - .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - redis
 
@@ -27,6 +28,8 @@ services:
       - html:/usr/share/nginx/html
       - vhost:/etc/nginx/vhost.d
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - web
 
@@ -41,43 +44,48 @@ services:
       - html:/usr/share/nginx/html
       - vhost:/etc/nginx/vhost.d
       - acme:/etc/acme.sh
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - nginx-proxy
 
   celery:
-    build: ./backend
+    build: ./
     command: /start-celeryworker.sh
     restart: unless-stopped
-    volumes:
-      - ./backend/:/usr/src/app
     env_file:
       - .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - redis
       - web
 
   celery-beat:
-    build: ./backend
+    build: ./
     command: /start-celerybeat.sh
     restart: unless-stopped
-    volumes:
-      - ./backend/:/usr/src/app/
     env_file:
       - .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - redis
       - web
 
   flower:
-    build: ./backend
+    build: ./
     command: /start-flower.sh
     restart: unless-stopped
     ports:
       - "5555:5555"
-    volumes:
-      - ./backend/:/usr/src/app/
     env_file:
       - .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - redis
       - celery
