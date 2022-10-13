@@ -126,12 +126,6 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='email'
     )
-    vegan_count = serializers.SerializerMethodField()
-    veggi_count = serializers.SerializerMethodField()
-    veggi_count = serializers.SerializerMethodField()
-    wolf_count = serializers.SerializerMethodField()
-    sippling_count = serializers.SerializerMethodField()
-    rover_count = serializers.SerializerMethodField()
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
@@ -145,30 +139,10 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
                   'price',
                   'registrationparticipant_set',
                   'tags',
-                  'vegan_count',
-                  'veggi_count',
-                  'wolf_count',
-                  'sippling_count',
-                  'rover_count',
                   )
 
     def get_participant_count(self, registration: event_models.Registration) -> int:
         return registration.registrationparticipant_set.count()
-
-    def get_vegan_count(self, registration: event_models.Registration) -> int:
-        return registration.registrationparticipant_set.filter(eat_habit__id__contains=2).count()
-
-    def get_veggi_count(self, registration: event_models.Registration) -> int:
-        return registration.registrationparticipant_set.filter(eat_habit__id__contains=1).count()
-
-    def get_wolf_count(self, registration: event_models.Registration) -> int:
-        return registration.registrationparticipant_set.filter(scout_level='W').count()
-
-    def get_sippling_count(self, registration: event_models.Registration) -> int:
-        return registration.registrationparticipant_set.filter(scout_level='S').count()
-
-    def get_rover_count(self, registration: event_models.Registration) -> float:
-        return registration.registrationparticipant_set.filter(scout_level='R').count()
 
     def get_price(self, registration: event_models.Registration) -> float:
         return registration.registrationparticipant_set.aggregate(
