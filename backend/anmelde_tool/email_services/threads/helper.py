@@ -2,8 +2,8 @@ from django.db.models import Sum, QuerySet
 from django.template import Template
 import html
 from backend import settings
-from email_services import models as email_services_models
-from email_services.choices import EmailType
+from anmelde_tool.email_services import models as email_services_models
+from anmelde_tool.email_services.choices import EmailType
 from anmelde_tool.event import models as event_models
 
 url = getattr(settings, 'FRONT_URL', '')

@@ -6,8 +6,8 @@ from django.template.context import make_context
 from rest_framework.generics import get_object_or_404
 
 from backend import settings
-from email_services.choices import EmailType
-from email_services.threads.helper import get_email, get_headers, get_event_pronoun, get_html_participant_list, \
+from anmelde_tool.email_services.choices import EmailType
+from anmelde_tool.email_services.threads.helper import get_email, get_headers, get_event_pronoun, get_html_participant_list, \
     get_participant_count, get_scout_organisation_text
 from anmelde_tool.event import models as event_models
 

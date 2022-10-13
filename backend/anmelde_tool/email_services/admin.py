@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from email_services.models import Email, EmailAttachment, EmailPicture, StandardEmailSet, StandardEmailRegistrationSet
+from anmelde_tool.email_services.models import Email, EmailAttachment, EmailPicture, StandardEmailSet, StandardEmailRegistrationSet
 
 admin.site.register(Email)
 admin.site.register(EmailAttachment)

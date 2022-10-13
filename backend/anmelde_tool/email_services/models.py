@@ -4,7 +4,7 @@ from django.db import models
 
 from backend.storage_backends import PublicMediaStorage, EmailAttachmentMediaStorage
 from basic import models as basic_models
-from email_services import choices as email_choices
+from anmelde_tool.email_services import choices as email_choices
 
 
 class EmailAttachment(basic_models.TimeStampMixin):
