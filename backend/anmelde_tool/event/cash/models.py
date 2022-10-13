@@ -1,11 +1,11 @@
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from anmelde_tool.event import models as event_models
 
+User = get_user_model()
 
-# Create your models here.
 
 class CashIncome(models.Model):
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)

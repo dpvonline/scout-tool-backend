@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.formats import date_format
 from openpyxl import load_workbook, Workbook
@@ -7,9 +7,12 @@ from basic.models import StringAttribute
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event.file_generator.generators import helper
 from anmelde_tool.event.file_generator.generators.abstract_generator import AbstractGenerator
-from anmelde_tool.event.file_generator.generators.helper import get_participants_by_registration
+from anmelde_tool.event.file_generator.generators.helper import get_participants_by_registration, \
+    get_booking_options_name, get_formatted_booking_option
 from anmelde_tool.event.file_generator.models import FileTemplate
 from anmelde_tool.event.summary.serializers import RegistrationCashSummarySerializer
+
+User = get_user_model()
 
 
 class InvoiceGenerator(AbstractGenerator):

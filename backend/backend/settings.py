@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'polymorphic',
     'drf_api_logger',
     'basic',
-    'email_services',
+    'anmelde_tool.email_services',
     'anmelde_tool.event',
     'anmelde_tool.event.summary',
     'anmelde_tool.event.registration',
@@ -168,6 +168,8 @@ else:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 # STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+
+AUTH_USER_MODEL = 'authentication.CustomUser'
 
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
 CSRF_TRUSTED_ORIGINS = env.list("CORS_ORIGIN_WHITELIST")

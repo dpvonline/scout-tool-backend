@@ -1,7 +1,7 @@
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 
-from email_services.services import send_custom_mail
+from anmelde_tool.email_services.services import send_custom_mail
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.email.serializers import CustomMailSerializer
 

@@ -36,7 +36,8 @@ class TagAdmin(admin.ModelAdmin):
 class ScoutHierarchyAdmin(admin.ModelAdmin):
     list_display = ('name', 'level', 'zip_code', 'parent')
     list_filter = ('level',)
-    search_fields = ('name',)
+    search_fields = ('name', 'zip_code__zip_code', 'zip_code__city', 'abbreviation')
+    ordering = ('name',)
 
 
 @admin.register(ZipCode)

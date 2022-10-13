@@ -3,7 +3,7 @@ from copy import deepcopy
 from datetime import timezone
 
 from dateutil.relativedelta import relativedelta
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -20,6 +20,7 @@ from anmelde_tool.event.choices import choices as event_choices
 from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.event.registration import serializers as registration_serializers
 
+User = get_user_model()
 
 def create_missing_eat_habits(request) -> [str]:
     eat_habits = request.data.get('eat_habit', [])

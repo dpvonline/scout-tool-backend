@@ -1,10 +1,12 @@
 import uuid
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from basic import models as basic_models
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event.choices.choices import FileGenerationStatus, FileType, FileExtension
 from backend.storage_backends import FileTemplateMediaStorage, GeneratedFilesStorage
+
+User = get_user_model()
 
 
 class FileTemplate(models.Model):

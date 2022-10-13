@@ -1,19 +1,30 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from rest_framework import serializers
 
-from authentication.serializers import UserExtendedGetSerializer, UserExtendedScoutHierarchySerializer
+from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
 from basic.models import EatHabit
 from anmelde_tool.event import models as event_models
 
+User = get_user_model()
+
 
 class CurrentUserSerializer(serializers.ModelSerializer):
-    userextended = UserExtendedGetSerializer(many=False, read_only=True)
-
     class Meta:
         model = User
-        fields = ('id', 'email', 'userextended', 'first_name', 'last_name')
+        fields = (
+            'id',
+            'email',
+            'userextended',
+            'first_name',
+            'last_name',
+            'id',
+            'mobile_number',
+            'scout_name',
+            'scout_organisation',
+            'dsgvo_confirmed'
+        )
 
 
 class RegistrationPostSerializer(serializers.ModelSerializer):
@@ -40,17 +51,18 @@ class RegistrationPutSerializer(serializers.ModelSerializer):
 class RegistrationGetSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     tags = basic_serializers.TagShortSerializer(many=True, read_only=True)
-    scout_organisation =  UserExtendedScoutHierarchySerializer()
-
+    scout_organisation = UserScoutHierarchySerializer()
 
     class Meta:
         model = event_models.Registration
         fields = '__all__'
 
+
 class RegistrationSummaryBookingOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.BookingOption
         fields = ('name', 'price')
+
 
 class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
     booking_option = RegistrationSummaryBookingOptionSerializer(many=False, read_only=True)
@@ -107,8 +119,6 @@ class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
 class RegistrationParticipantGroupSerializer(serializers.Serializer):
     number = serializers.CharField(required=True)
     avoid_manual_check = serializers.BooleanField(required=False, default=False)
-
-
 
 
 class RegistrationSummaryParticipantSerializer(serializers.ModelSerializer):

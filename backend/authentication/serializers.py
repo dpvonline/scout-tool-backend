@@ -1,11 +1,13 @@
 from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from basic.models import ScoutHierarchy
-from .models import UserExtended
+
+User = get_user_model()
 
 
-class UserExtendedScoutHierarchySerializer(serializers.ModelSerializer):
+class UserScoutHierarchySerializer(serializers.ModelSerializer):
     """
     Serializer of the ScoutHierarchy model as extension for the UserExtended serializers
     including a serializer for `bund` where the name is picked up by iterating through the parents
@@ -30,29 +32,29 @@ class UserExtendedScoutHierarchySerializer(serializers.ModelSerializer):
             iterator = iterator.parent
 
 
-class UserExtendedShortSerializer(serializers.ModelSerializer):
+class UserShortSerializer(serializers.ModelSerializer):
     """
-    Serializer for the UserExtended model containing only name and mobile number
+    Serializer for the User model containing only name and mobile number
     """
 
     class Meta:
-        model = UserExtended
+        model = User
         fields = (
             'mobile_number',
             'scout_name',
         )
 
 
-class ResponsablePersonSerializer(serializers.ModelSerializer):
+class ResponsiblePersonSerializer(serializers.ModelSerializer):
     """
-    Serializer for the UserExtended model for searching users
+    Serializer for the User model for searching users
     and selecting them as responsible person in events/registrations
     """
     email = serializers.SerializerMethodField()
     stamm = serializers.SerializerMethodField()
 
     class Meta:
-        model = UserExtended
+        model = User
         fields = (
             'scout_name',
             'email',
@@ -61,7 +63,7 @@ class ResponsablePersonSerializer(serializers.ModelSerializer):
         )
 
     @staticmethod
-    def get_email(obj: UserExtended) -> str:
+    def get_email(obj: User) -> str:
         """
         @param obj: UserExtended instance
         @return: email of connected user as str
@@ -69,7 +71,7 @@ class ResponsablePersonSerializer(serializers.ModelSerializer):
         return obj.user.email
 
     @staticmethod
-    def get_stamm(obj: UserExtended) -> str:
+    def get_stamm(obj: User) -> str:
         """
         @param obj: UserExtended instance
         @return: name of scout organisation of connected user as str
@@ -80,14 +82,14 @@ class ResponsablePersonSerializer(serializers.ModelSerializer):
         return ''
 
 
-class UserExtendedGetSerializer(serializers.ModelSerializer):
+class UserGetSerializer(serializers.ModelSerializer):
     """
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
-    scout_organisation = UserExtendedScoutHierarchySerializer()
+    scout_organisation = UserScoutHierarchySerializer()
 
     class Meta:
-        model = UserExtended
+        model = User
         fields = (
             'id',
             'mobile_number',
@@ -97,14 +99,14 @@ class UserExtendedGetSerializer(serializers.ModelSerializer):
         )
 
 
-class UserExtendedPostSerializer(serializers.ModelSerializer):
+class UserPostSerializer(serializers.ModelSerializer):
     """
     Serializer for the UserExtended model for create/update/patch requests
     containing less information that the get pendent
     """
 
     class Meta:
-        model = UserExtended
+        model = User
         fields = (
             'mobile_number',
             'scout_name',
@@ -117,6 +119,7 @@ class GroupSerializer(serializers.ModelSerializer):
     """
     Serializer for the Group model
     """
+
     class Meta:
         model = Group
         fields = ('id', 'name',)
@@ -127,6 +130,7 @@ class EmailSettingsSerializer(serializers.ModelSerializer):
     Serializer for the UserExtended model containing only email and sms notifications, so that they can be changed
     without being logged in
     """
+
     class Meta:
-        model = UserExtended
+        model = User
         fields = ('email_notifaction', 'sms_notifcation')

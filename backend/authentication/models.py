@@ -10,29 +10,26 @@ from django.db import models
 from authentication.choices import EmailNotificationType
 from basic.models import ScoutHierarchy
 
-from anmelde_tool.event.choices import choices as event_choices
 
+class CustomUser(AbstractUser):
+    scout_organisation = models.ForeignKey(ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
+    mobile_number = models.CharField(max_length=20, blank=True)
+    scout_name = models.CharField(max_length=20, blank=True)
+    dsgvo_confirmed = models.BooleanField(default=False)
+    email_notification = models.CharField(max_length=10, choices=EmailNotificationType.choices,
+                                          default=EmailNotificationType.FULL)
+    sms_notification = models.BooleanField(default=True)
 
     def __str__(self):
         return self.username
 
-    class Meta:
-        abstract = True
-
-class BundesPostTextChoice(models.TextChoices):
-    """
-    Choices a user can select, how often he wants to receive emails"
-    """
-    NOTHING = 'nothing', _('Keine Bundespost')
-    DIGITAL = 'digital', _('Nur Digital')
-    DIGITAL_POST = 'digital_post', _('Digital und Post')
-    POST = 'post', _('Nur per Post')
 
 class Person(TimeStampMixin):
     """
     Model to save a natural person with or without login
     """
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
     scout_name = models.CharField(max_length=100, blank=True, null=True)
     first_name = models.CharField(max_length=100, default="")
     last_name = models.CharField(max_length=100, default="")

@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets, mixins
@@ -7,9 +8,11 @@ from rest_framework.response import Response
 
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.permissions import IsStaffOrReadOnly
-from .models import UserExtended, EmailNotificationType
-from .serializers import UserExtendedGetSerializer, UserExtendedPostSerializer, GroupSerializer, \
-    EmailSettingsSerializer, ResponsablePersonSerializer
+from .models import EmailNotificationType
+from .serializers import UserGetSerializer, UserPostSerializer, GroupSerializer, \
+    EmailSettingsSerializer, ResponsiblePersonSerializer
+
+User = get_user_model()
 
 
 class PersonalData(viewsets.ViewSet):
@@ -24,8 +27,8 @@ class PersonalData(viewsets.ViewSet):
         @param request: request information
         @return: Response with serialized UserExtended instance of the user requesting the personal data
         """
-        queryset = UserExtended.objects.get(user=request.user)
-        serializer = UserExtendedGetSerializer(queryset, many=False)
+        queryset = User.objects.get(user=request.user)
+        serializer = UserGetSerializer(queryset, many=False)
         return Response(serializer.data)
 
     # pylint: disable=no-self-use
@@ -33,11 +36,11 @@ class PersonalData(viewsets.ViewSet):
         """
         Create UserExtended instance
         @param request: standard django request information
-                        containg the UserExtendedPostSerializer values in the data field
-        @return: new userextended instance
+                        containing the UserExtendedPostSerializer values in the data field
+        @return: new user instance
         """
-        queryset = UserExtended.objects.get(user=request.user)
-        serializer = UserExtendedPostSerializer(queryset, data=request.data, many=False)
+        queryset = User.objects.get(user=request.user)
+        serializer = UserPostSerializer(queryset, data=request.data, many=False)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -67,30 +70,30 @@ class PersonalDataCheck(viewsets.ViewSet):
         @param request: standard django request information
         @return: Reponse wether user data is complete or not
         """
-        queryset = UserExtended.objects.get(user=request.user)
-        serializer = UserExtendedGetSerializer(queryset, many=False)
+        queryset = User.objects.get(user=request.user)
+        serializer = UserGetSerializer(queryset, many=False)
         if not serializer.data['scout_organisation'] or not serializer.data['dsgvo_confirmed']:
             return Response({'status': "init required"}, status=status.HTTP_426_UPGRADE_REQUIRED)
 
         return Response({'status': "user ok"}, status=status.HTTP_200_OK)
 
 
-class ResponsablePersonViewSet(viewsets.ModelViewSet):
+class ResponsiblePersonViewSet(viewsets.ModelViewSet):
     """
-    Viewset for filtering responsable persons
+    Viewset for filtering responsible persons
     """
     permission_classes = [IsStaffOrReadOnly]
-    serializer_class = ResponsablePersonSerializer
+    serializer_class = ResponsiblePersonSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['user__email', 'scout_name', ]
 
     def list(self, request, *args, **kwargs) -> Response:
-        queryset = UserExtended.objects.all()
+        queryset = User.objects.all()
         search_param = request.GET.get('search')
         queryset = queryset.filter(Q(scout_name__icontains=search_param)
                                    | Q(user__email__icontains=search_param)
                                    | Q(scout_organisation__name__icontains=search_param))
-        serializer = ResponsablePersonSerializer(queryset, many=True)
+        serializer = ResponsiblePersonSerializer(queryset, many=True)
         response_len = len(serializer.data)
         if response_len > 10:
             raise TooManySearchResults
@@ -124,7 +127,7 @@ class EmailSettingsViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, v
         """
         @return: UserExtended instance of the user requesting the email settings
         """
-        return UserExtended.objects.filter(id=self.request.user.userextended.id)
+        return User.objects.filter(id=self.request.user.userextended.id)
 
 
 class EmailNotificationTypeViewSet(viewsets.ViewSet):

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Q
 from django.utils import timezone
 from rest_framework import serializers
@@ -7,6 +7,8 @@ from basic import serializers as basic_serializers
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.choices import choices as event_choices
+
+User = get_user_model()
 
 
 class EventLocationSummarySerializer(serializers.ModelSerializer):
@@ -221,7 +223,7 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         return False
 
     def get_registration_options(self, obj: event_models.Event) -> dict:
-        user: User = self.context['request'].user
+        user = self.context['request'].user
 
         group_id = None
         single_id = None

@@ -1,5 +1,5 @@
 from anmelde_tool.event import models as event_models
-from email_services import services
+from anmelde_tool.email_services import services
 
 
 def pre_delete_registration(sender, instance: event_models.Registration, **kwargs):

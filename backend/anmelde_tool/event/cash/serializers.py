@@ -1,6 +1,8 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from anmelde_tool.event.cash import models as cash_models
+
+User = get_user_model()
 
 
 class CashIncomeSerializer(serializers.ModelSerializer):
@@ -17,5 +19,5 @@ class CashIncomeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MailReminderSerializer(serializers.Serializer): # noqa
+class MailReminderSerializer(serializers.Serializer):  # noqa
     event_id = serializers.UUIDField()

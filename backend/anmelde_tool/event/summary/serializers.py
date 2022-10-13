@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Sum, Count, F
 from rest_framework import serializers
 
@@ -8,6 +8,8 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializer
 from anmelde_tool.event.cash import serializers as cash_serializers
 from anmelde_tool.event.registration import serializers as registration_serializers
+
+User = get_user_model()
 
 
 class WorkshopEventSummarySerializer(serializers.ModelSerializer):
@@ -74,7 +76,7 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
     def get_responsible_persons_extended(self, registration: event_models.Registration) -> str:
         return_string = ''
         for person in registration.responsible_persons.all():
-            return_string = return_string + f'{person.userextended.scout_name} (Tel:{person.userextended.mobile_number}) '
+            return_string = return_string + f'{person.scout_name} (Tel:{person.mobile_number}) '
         return return_string
 
 
