@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from basic import models as basic_models
 from .polymorphic_serializer import PolymorphicSerializer
-from django.contrib.auth.models import User
 
 """
 # noqa turn off pycharm warnings about missing abstract methods, which is a bug of pycharm
@@ -117,19 +116,9 @@ class FloatAttributeGetSerializer(serializers.ModelSerializer):  # noqa
 class TravelAttributeGetSerializer(serializers.ModelSerializer):  # noqa
     type = TagTypeShortSerializer(many=False)
     type_field = serializers.CharField(source='get_type_field_display')
-    time_field = serializers.CharField(source='get_time_field_display')
 
     class Meta:
         model = basic_models.TravelAttribute
-        exclude = ('template', 'polymorphic_ctype', 'in_summary')
-
-
-class TravelAttributeV2GetSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
-    type_field = serializers.CharField(source='get_type_field_display')
-
-    class Meta:
-        model = basic_models.TravelAttributeV2
         exclude = ('template', 'polymorphic_ctype', 'in_summary')
 
 
@@ -148,7 +137,6 @@ class AbstractAttributeGetPolymorphicSerializer(PolymorphicSerializer):
         basic_models.TimeAttribute: TimeAttributeGetSerializer,
         basic_models.BooleanAttribute: BooleanAttributeGetSerializer,
         basic_models.TravelAttribute: TravelAttributeGetSerializer,
-        basic_models.TravelAttributeV2: TravelAttributeV2GetSerializer,
         basic_models.StringAttribute: StringAttributeGetSerializer
     }
 
@@ -180,12 +168,6 @@ class FloatAttributePutSerializer(serializers.ModelSerializer):
 class TravelAttributePutSerializer(serializers.ModelSerializer):
     class Meta:
         model = basic_models.TravelAttribute
-        fields = ('type_field', 'time_field')
-
-
-class TravelAttributeV2PutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = basic_models.TravelAttributeV2
         fields = ('type_field', 'date_time_field', 'number_persons', 'description')
 
 
@@ -202,7 +184,6 @@ class AbstractAttributePutPolymorphicSerializer(PolymorphicSerializer):
         basic_models.TimeAttribute: TimeAttributePutSerializer,
         basic_models.BooleanAttribute: BooleanAttributePutSerializer,
         basic_models.TravelAttribute: TravelAttributePutSerializer,
-        basic_models.TravelAttributeV2: TravelAttributeV2PutSerializer,
         basic_models.StringAttribute: StringAttributePutSerializer
     }
 
@@ -244,14 +225,6 @@ class TravelAttributeTemplatePostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = basic_models.TravelAttribute
-        fields = ('type_field', 'time_field', 'resourcetype', 'template_id')
-
-
-class TravelAttributeV2TemplatePostSerializer(serializers.ModelSerializer):
-    resourcetype = serializers.CharField()
-
-    class Meta:
-        model = basic_models.TravelAttributeV2
         fields = ('type_field', 'date_time_field', 'persons', 'description', 'resourcetype', 'template_id')
 
 
@@ -270,7 +243,6 @@ class AbstractAttributeTemplatePostPolymorphicSerializer(PolymorphicSerializer):
         basic_models.TimeAttribute: TimeAttributeTemplatePostSerializer,
         basic_models.BooleanAttribute: BooleanAttributeTemplatePostSerializer,
         basic_models.TravelAttribute: TravelAttributeTemplatePostSerializer,
-        basic_models.TravelAttributeV2: TravelAttributeV2TemplatePostSerializer,
         basic_models.StringAttribute: StringAttributeTemplatePostSerializer
     }
 
@@ -311,12 +283,6 @@ class TravelAttributePostSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TravelAttributeV2PostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = basic_models.TravelAttributeV2
-        fields = '__all__'
-
-
 class StringAttributePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = basic_models.StringAttribute
@@ -330,7 +296,6 @@ class AbstractAttributePostPolymorphicSerializer(PolymorphicSerializer):
         basic_models.TimeAttribute: TimeAttributePostSerializer,
         basic_models.BooleanAttribute: BooleanAttributePostSerializer,
         basic_models.TravelAttribute: TravelAttributePostSerializer,
-        basic_models.TravelAttributeV2: TravelAttributeV2PostSerializer,
         basic_models.StringAttribute: StringAttributePostSerializer
     }
 
@@ -394,23 +359,3 @@ class ScoutHierarchyDetailedSerializer(serializers.ModelSerializer):
             iterator = iterator.parent
 
         return ''
-
-
-class MessageTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = basic_models.MessageType
-        fields = '__all__'
-
-
-class MessageSerializer(serializers.ModelSerializer):
-    supervisor = serializers.SlugRelatedField(
-        many=False,
-        required=False,
-        read_only=False,
-        slug_field='email',
-        queryset=User.objects.all()
-    )
-
-    class Meta:
-        model = basic_models.Message
-        fields = '__all__'
