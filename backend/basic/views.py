@@ -2,7 +2,7 @@ from django.db.models import Q, QuerySet
 from django_filters import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 from rest_framework import viewsets, status
-from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -144,14 +144,3 @@ class FrontendThemeViewSet(viewsets.ModelViewSet):
     serializer_class = basic_serializers.FrontendThemeSerializer
     permission_classes = [IsAuthenticated]
 
-class MessageViewSet(viewsets.ModelViewSet):
-    queryset = basic_models.Message.objects.all().order_by('created_at')
-    serializer_class = basic_serializers.MessageSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ['message_type', 'is_processed']
-    search_fields = ['created_by_email', 'message_body', 'internal_comment']
-
-
-class MessageTypeViewSet(viewsets.ModelViewSet):
-    queryset = basic_models.MessageType.objects.all()
-    serializer_class = basic_serializers.MessageTypeSerializer

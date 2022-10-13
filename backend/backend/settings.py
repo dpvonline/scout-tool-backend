@@ -21,10 +21,7 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
-CORS_ALLOW_CREDENTIALS = True
-
 # Application definition
-
 INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
@@ -42,17 +39,18 @@ INSTALLED_APPS = [
     'mozilla_django_oidc',
     'colorfield',
     'polymorphic',
-    'basic',
-    'authentication',
-    'anmelde_tool.event',
-    'email_services',
     'drf_api_logger',
+    'basic',
+    'email_services',
+    'anmelde_tool.event',
     'anmelde_tool.event.summary',
     'anmelde_tool.event.registration',
     'anmelde_tool.event.choices',
     'anmelde_tool.event.cash',
     'anmelde_tool.event.file_generator',
-    'anmelde_tool.event.email'
+    'anmelde_tool.event.email',
+    'authentication',
+    'messaging'
 ]
 
 MIDDLEWARE = [
@@ -173,7 +171,7 @@ else:
 
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
 CSRF_TRUSTED_ORIGINS = env.list("CORS_ORIGIN_WHITELIST")
-
+CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True

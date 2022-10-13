@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from polymorphic.models import PolymorphicModel
 
-from basic.choices import TravelType, TravelSlots, DescriptionType, StateChoices
+from basic.choices import TravelType, DescriptionType, StateChoices
 
 
 class TimeStampMixin(models.Model):
@@ -92,11 +92,6 @@ class StringAttribute(AbstractAttribute):
 
 
 class TravelAttribute(AbstractAttribute):
-    type_field = models.CharField(max_length=1, choices=TravelType.choices, null=True, blank=True)
-    time_field = models.CharField(max_length=2, choices=TravelSlots.choices, null=True, blank=True)
-
-
-class TravelAttributeV2(AbstractAttribute):
     number_persons = models.IntegerField(default=0)
     type_field = models.CharField(max_length=1, choices=TravelType.choices, null=True, blank=True)
     date_time_field = models.DateTimeField(blank=True, null=True)
@@ -156,34 +151,3 @@ class FrontendTheme(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class MessageType(TimeStampMixin):
-    id = models.AutoField(auto_created=True, primary_key=True)
-    name = models.CharField(max_length=30)
-    is_comment = models.BooleanField(default=False)
-    description = models.CharField(max_length=100, blank=True)
-    sorting = models.IntegerField(
-        blank=False, auto_created=True, unique=True, null=True)
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.__str__()
-
-
-class Message(TimeStampMixin):
-    id = models.AutoField(auto_created=True, primary_key=True)
-    created_by_email = models.CharField(max_length=60, blank=True, null=True)
-    supervisor = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    message_type = models.ForeignKey(MessageType, on_delete=models.CASCADE)
-    message_body = models.CharField(max_length=10000)
-    internal_comment = models.CharField(max_length=10000, blank=True, null=True)
-    is_processed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.message_body
-
-    def __repr__(self):
-        return self.__str__()
