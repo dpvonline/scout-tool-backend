@@ -9,7 +9,8 @@ from django.utils import timezone
 
 from anmelde_tool.event.choices.choices import ParticipantActionConfirmation
 from anmelde_tool.event.models import RegistrationParticipant, Workshop, Event
-from basic.models import StringAttribute, Message
+from basic.models import StringAttribute
+from messaging.models import Message
 
 User = get_user_model()
 
@@ -19,8 +20,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for i, participant in enumerate(RegistrationParticipant.objects.all()):
-            participant.scout_name = 'Teilnehmender'
-            participant.first_name = 'Teilnehmender'
+            participant.scout_name = 'Teilnehmende(r)'
+            participant.first_name = 'Teilnehmende(r)'
             participant.last_name = i
             participant.street = f'Straße {i}'
             participant.scout_group = None

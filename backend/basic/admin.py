@@ -5,13 +5,11 @@ from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicParentModel
 
 from .models import ScoutHierarchy, ZipCode, ScoutOrgaLevel, TagType, AbstractAttribute, Tag, \
     BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, TravelAttribute, StringAttribute, Description, \
-    EatHabit, FrontendTheme, Message, MessageType, TravelAttributeV2
+    EatHabit, FrontendTheme
 
 admin.site.register(ScoutOrgaLevel)
 admin.site.register(Description)
 admin.site.register(FrontendTheme)
-admin.site.register(Message)
-admin.site.register(MessageType)
 
 
 @admin.register(EatHabit)
@@ -86,10 +84,6 @@ class FloatAttributeAdmin(AbstractAttributeChildAdmin):
 class TravelAttributeAdmin(AbstractAttributeChildAdmin):
     base_model = TravelAttribute
 
-@admin.register(TravelAttributeV2)
-class TravelAttributeV2Admin(AbstractAttributeChildAdmin):
-    base_model = TravelAttributeV2
-
 
 @admin.register(StringAttribute)
 class StringAttributeAdmin(AbstractAttributeChildAdmin):
@@ -100,6 +94,8 @@ class StringAttributeAdmin(AbstractAttributeChildAdmin):
 class AbstractAttributeParentAdmin(PolymorphicParentModelAdmin):
     """ The parent model admin """
     base_model = AbstractAttribute  # Optional, explicitly set here.
-    child_models = (BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, TravelAttribute, TravelAttributeV2, StringAttribute)
+    child_models = (
+        BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, TravelAttribute,
+        StringAttribute)
     list_filter = (PolymorphicChildModelFilter,)  # This is optional.
     list_display = ('name', 'type', 'template')
