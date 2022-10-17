@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import models
 
+from anmelde_tool.attributes.models import AbstractAttribute
 from basic import models as basic_models
 from anmelde_tool.email_services import models as email_services_model
 from anmelde_tool.event.choices import choices as event_choices
@@ -56,7 +57,7 @@ class AttributeEventModuleMapper(models.Model):
     tooltip = extra description which appears when hovering above the element
     """
     id = models.AutoField(primary_key=True)
-    attribute = models.ForeignKey(basic_models.AbstractAttribute, on_delete=models.PROTECT, null=True)
+    attribute = models.ForeignKey(AbstractAttribute, on_delete=models.PROTECT, null=True)
     title = models.CharField(max_length=1000, null=True)
     text = models.CharField(max_length=10000, null=True)
     is_required = models.BooleanField(default=False)
@@ -194,7 +195,7 @@ class Registration(basic_models.TimeStampMixin):
     is_confirmed = models.BooleanField(default=False)
     is_accepted = models.BooleanField(default=False)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
-    tags = models.ManyToManyField(basic_models.AbstractAttribute, blank=True)
+    tags = models.ManyToManyField(AbstractAttribute, blank=True)
     single = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -231,18 +232,26 @@ class RegistrationParticipant(basic_models.TimeStampMixin):
     email = models.EmailField(null=True, blank=True)
     birthday = models.DateTimeField(null=True, blank=True)
     registration = models.ForeignKey(Registration, on_delete=models.CASCADE, null=True, blank=True)
-    tags = models.ManyToManyField(basic_models.AbstractAttribute, blank=True)
     booking_option = models.ForeignKey(BookingOption, on_delete=models.SET_NULL, blank=True, null=True)
     gender = models.CharField(max_length=1, choices=event_choices.Gender.choices, default=event_choices.Gender.Nothing)
     deactivated = models.BooleanField(default=False)
     generated = models.BooleanField(default=False)
-    needs_confirmation = models.CharField(max_length=2, choices=event_choices.ParticipantActionConfirmation.choices,
-                                          default=event_choices.ParticipantActionConfirmation.Nothing)
+    needs_confirmation = models.CharField(
+        max_length=2,
+        choices=event_choices.ParticipantActionConfirmation.choices,
+        default=event_choices.ParticipantActionConfirmation.Nothing
+    )
     eat_habit = models.ManyToManyField(basic_models.EatHabit, blank=True)
-    leader = models.CharField(max_length=6, choices=event_choices.LeaderTypes.choices,
-                              default=event_choices.LeaderTypes.KeineFuehrung)
-    scout_level = models.CharField(max_length=6, choices=event_choices.ScoutLevelTypes.choices,
-                                   default=event_choices.ScoutLevelTypes.Unbekannt)
+    leader = models.CharField(
+        max_length=6,
+        choices=event_choices.LeaderTypes.choices,
+        default=event_choices.LeaderTypes.KeineFuehrung
+    )
+    scout_level = models.CharField(
+        max_length=6,
+        choices=event_choices.ScoutLevelTypes.choices,
+        default=event_choices.ScoutLevelTypes.Unbekannt
+    )
     allow_permanently = models.BooleanField(default=False)
 
     def __str__(self):
@@ -259,8 +268,11 @@ class Workshop(basic_models.TimeStampMixin):
     max_person = models.IntegerField(blank=True, null=True)
     supervisor = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     registration = models.ForeignKey(Registration, on_delete=models.CASCADE)
-    type = models.CharField(max_length=1, choices=event_choices.WorkshopType.choices,
-                            default=event_choices.WorkshopType.Workshop)
+    type = models.CharField(
+        max_length=1,
+        choices=event_choices.WorkshopType.choices,
+        default=event_choices.WorkshopType.Workshop
+    )
     duration = models.IntegerField(default=60)
     can_be_repeated = models.BooleanField(default=False)
 
@@ -278,20 +290,43 @@ class StandardEventTemplate(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     event = models.ForeignKey(Event, null=True, on_delete=models.SET_NULL, related_name='event')
-    introduction = models.ForeignKey(EventModuleMapper, null=True, on_delete=models.SET_NULL,
-                                     related_name='introduction')
-    summary = models.ForeignKey(EventModuleMapper, null=True, on_delete=models.SET_NULL,
-                                related_name='confirmation')
-    registration = models.ForeignKey(EventModuleMapper, null=True, on_delete=models.SET_NULL,
-                                     related_name='group_registration')
-    personal_registration = models.ForeignKey(EventModuleMapper, null=True, on_delete=models.SET_NULL,
-                                              related_name='personal_registration')
-    letter = models.ForeignKey(EventModuleMapper, null=True, on_delete=models.SET_NULL,
-                               related_name='letter')
+    introduction = models.ForeignKey(
+        EventModuleMapper,
+        null=True, on_delete=models.SET_NULL,
+        related_name='introduction'
+    )
+    summary = models.ForeignKey(
+        EventModuleMapper,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='confirmation'
+    )
+    registration = models.ForeignKey(
+        EventModuleMapper,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='group_registration'
+    )
+    personal_registration = models.ForeignKey(
+        EventModuleMapper,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='personal_registration'
+    )
+    letter = models.ForeignKey(
+        EventModuleMapper,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='letter'
+    )
     planer_modules = models.ManyToManyField(EventPlanerModule, blank=True)
-
-    other_required_modules = models.ManyToManyField(EventModuleMapper, blank=True,
-                                                    related_name='other_required_modules')
-
-    other_optional_modules = models.ManyToManyField(EventModuleMapper, blank=True,
-                                                    related_name='other_optional_modules')
+    other_required_modules = models.ManyToManyField(
+        EventModuleMapper,
+        blank=True,
+        related_name='other_required_modules'
+    )
+    other_optional_modules = models.ManyToManyField(
+        EventModuleMapper,
+        blank=True,
+        related_name='other_optional_modules'
+    )

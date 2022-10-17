@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import display
 
-from basic.models import AbstractAttribute
+from anmelde_tool.attributes.models import AbstractAttribute
 from anmelde_tool.event.models import EventLocation, Event, BookingOption, EventModule, EventModuleMapper, \
     AttributeEventModuleMapper, StandardEventTemplate, Registration, RegistrationParticipant, EventPlanerModule, \
     Workshop, WorkshopParticipant

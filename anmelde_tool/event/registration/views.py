@@ -19,6 +19,8 @@ from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.choices import choices as event_choices
 from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.event.registration import serializers as registration_serializers
+from anmelde_tool.attributes import models as attributes_model
+from anmelde_tool.attributes import serializers as attributes_serializer
 
 User = get_user_model()
 
@@ -37,8 +39,8 @@ def create_missing_eat_habits(request) -> [str]:
     return result
 
 
-def add_event_attribute(attribute: basic_models.AbstractAttribute) -> basic_models.AbstractAttribute:
-    new_attribute: basic_models.AbstractAttribute = deepcopy(attribute)
+def add_event_attribute(attribute: attributes_model.AbstractAttribute) -> attributes_model.AbstractAttribute:
+    new_attribute: attributes_model.AbstractAttribute = deepcopy(attribute)
     new_attribute.pk = None
     new_attribute.id = None
     new_attribute.template = False
@@ -322,33 +324,19 @@ class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
             return Response(f'number: {number} is higher or equal than current participantc count {participant_count}',
                             status=status.HTTP_400_BAD_REQUEST)
 
-    def participant_group_initialization(self, request) -> event_models.Registration:
-        input_serializer = registration_serializers.RegistrationParticipantGroupSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        registration_id = self.kwargs.get("registration_pk", None)
-        registration: event_models.Registration = get_object_or_404(event_models.Registration, id=registration_id)
-
-        if registration.event.registration_start > timezone.now():
-            raise event_api_exceptions.TooEarly
-        elif self.action != 'destroy' and registration.event.last_possible_update < timezone.now():
-            raise event_api_exceptions.TooLate
-
-        return registration
-
 
 class RegistrationAttributeViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
     def create(self, request, *args, **kwargs) -> Response:
-        serializer: basic_serializers.AbstractAttributePutPolymorphicSerializer = self.get_serializer(data=request.data)
+        serializer: attributes_serializer.AbstractAttributePutPolymorphicSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         registration_id = self.kwargs.get("registration_pk", None)
         registration: event_models.Registration = get_object_or_404(event_models.Registration, id=registration_id)
 
-        template_attribute: basic_models.AbstractAttribute = \
-            get_object_or_404(basic_models.AbstractAttribute, pk=serializer.data.get('template_id', -1))
+        template_attribute: attributes_model.AbstractAttribute = \
+            get_object_or_404(attributes_model.AbstractAttribute, pk=serializer.data.get('template_id', -1))
 
         new_attribute = add_event_attribute(template_attribute)
 
@@ -356,23 +344,23 @@ class RegistrationAttributeViewSet(viewsets.ModelViewSet):
 
         registration.tags.add(new_attribute.id)
 
-        json = basic_serializers.AbstractAttributeGetPolymorphicSerializer(new_attribute)
+        json = attributes_serializer.AbstractAttributeGetPolymorphicSerializer(new_attribute)
         return Response(json.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs) -> Response:
         super().update(request, *args, **kwargs)
-        json = basic_serializers.AbstractAttributeGetPolymorphicSerializer(self.get_object())
+        json = attributes_serializer.AbstractAttributeGetPolymorphicSerializer(self.get_object())
         return Response(json.data, status=status.HTTP_200_OK)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return basic_serializers.AbstractAttributePostPolymorphicSerializer
+            return attributes_serializer.AbstractAttributePostPolymorphicSerializer
         elif self.request.method == 'GET':
-            return basic_serializers.AbstractAttributeGetPolymorphicSerializer
+            return attributes_serializer.AbstractAttributeGetPolymorphicSerializer
         elif self.request.method == 'PUT':
-            return basic_serializers.AbstractAttributePutPolymorphicSerializer
+            return attributes_serializer.AbstractAttributePutPolymorphicSerializer
         else:
-            return basic_serializers.AbstractAttributePutPolymorphicSerializer
+            return attributes_serializer.AbstractAttributePutPolymorphicSerializer
 
     def get_queryset(self) -> QuerySet:
         registration_id = self.kwargs.get("registration_pk", None)
@@ -380,27 +368,27 @@ class RegistrationAttributeViewSet(viewsets.ModelViewSet):
         return registration.tags
 
 
-class AddResponsablePersonRegistrationViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class AddResponsiblePersonRegistrationViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsRegistrationResponsiblePerson]
     queryset = event_models.Registration.objects.all()
     serializer_class = registration_serializers.RegistrationPutSerializer
 
     def update(self, request, *args, **kwargs):
-        new_responsable_person = request.data.get('responsable_person')
+        new_responsible_person = request.data.get('responsible_person')
 
         # get user-id
-        new_responsable_person_id = User.objects.filter(email=new_responsable_person).first().id
+        new_responsible_person_id = User.objects.filter(email=new_responsible_person).first().id
 
         instance = self.get_object()
 
-        # prepair the return list with new user
-        responseable_person_ids = [new_responsable_person_id]
+        # prepare the return list with new user
+        responsible_person_ids = [new_responsible_person_id]
 
-        # add all exsisting users-id to list
+        # add all existing users-id to list
         for x in instance.responsible_persons.all():
-            responseable_person_ids.append(x.id)
+            responsible_person_ids.append(x.id)
 
-        request.data['responsible_persons'] = responseable_person_ids
+        request.data['responsible_persons'] = responsible_person_ids
 
         return super().update(request, *args, **kwargs)
 
@@ -451,7 +439,7 @@ class RegistrationViewSet(mixins.CreateModelMixin,
         general_code_check = False
         single_code_check = False
         group_code_check = False
-        if ((serializer.data['event_code'] == event.invitation_code) | event_permissions.IsEventSuperResponsiblePerson):
+        if serializer.data['event_code'] == event.invitation_code | event_permissions.IsEventSuperResponsiblePerson:
             general_code_check = True
         elif event.invitation_code_single and serializer.data['event_code'] == event.invitation_code_single:
             single_code_check = True
@@ -484,17 +472,19 @@ class RegistrationViewSet(mixins.CreateModelMixin,
                 filter(scout_organisation=request.user.userextended.scout_organisation, single=False)
             group_registration = existing_group_registration.filter(responsible_persons__in=[request.user.id])
 
-            if ((single_registration.exists() and serializer.data['single']) and not event_permissions.IsEventSuperResponsiblePerson):
+            if single_registration.exists() and serializer.data['single'] \
+                    and not event_permissions.IsEventSuperResponsiblePerson:
                 raise event_api_exceptions.SingleAlreadyRegistered()
             elif existing_group_registration.exists() and not group_registration.exists() \
                     and not serializer.data['single']:
                 raise event_api_exceptions.NotResponsible()
             elif existing_group_registration.exists() and not serializer.data['single']:
                 raise event_api_exceptions.GroupAlreadyRegistered
-            elif ((group_registration.exists() and serializer.data['single']) and not event_permissions.IsEventSuperResponsiblePerson):
+            elif (group_registration.exists() and serializer.data['single'])\
+                    and not event_permissions.IsEventSuperResponsiblePerson:
                 raise event_api_exceptions.SingleGroupNotAllowed
-            elif event.group_registration == event_choices.RegistrationTypeGroup.Required and \
-                    not group_registration.exists() and serializer.data['single']:
+            elif event.group_registration == event_choices.RegistrationTypeGroup.Required \
+                    and not group_registration.exists() and serializer.data['single']:
                 raise event_api_exceptions.WrongRegistrationFormat
 
         single = serializer.data['single'] if general_code_check else single_code_check

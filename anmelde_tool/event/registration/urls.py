@@ -15,7 +15,7 @@ registration_router.register(r'add-group-participants', views.RegistrationAddGro
 registration_router.register(r'attribute', views.RegistrationAttributeViewSet, basename='attribute')
 registration_router.register(r'summary', views.RegistrationSummaryViewSet, basename='summary')
 registration_router.register(r'workshop', views.WorkshopViewSet, basename='workshop')
-registration_router.register(r'add-reponsable', views.AddResponsablePersonRegistrationViewSet, basename='add-reponsable')
+registration_router.register(r'add-reponsable', views.AddResponsiblePersonRegistrationViewSet, basename='add-reponsable')
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Sum, Count, F
 from rest_framework import serializers
 
+from anmelde_tool.attributes.serializers import AbstractAttributeGetPolymorphicSerializer
 from basic import serializers as basic_serializers
 from basic.models import EatHabit
 from anmelde_tool.event import models as event_models
@@ -158,8 +159,7 @@ class RegistrationAttributeGetSerializer(serializers.ModelSerializer):
 
 
 class EventAttributeSummarySerializer(serializers.ModelSerializer):
-    attribute = basic_serializers.AbstractAttributeGetPolymorphicSerializer(
-        many=False, read_only=False)
+    attribute = AbstractAttributeGetPolymorphicSerializer(many=False, read_only=False)
     attributes = serializers.SerializerMethodField()
 
     class Meta:
@@ -168,8 +168,7 @@ class EventAttributeSummarySerializer(serializers.ModelSerializer):
 
     def get_attributes(self, mapper: event_models.AttributeEventModuleMapper) -> dict:
         event_id = self.context['view'].kwargs.get("event_pk", None)
-        registrations: QuerySet[event_models.Registration] = event_models.Registration.objects.filter(
-            event=event_id)
+        registrations: QuerySet[event_models.Registration] = event_models.Registration.objects.filter(event=event_id)
 
         registration_tags = []
         attribute_sum = 0
@@ -187,7 +186,7 @@ class EventAttributeSummarySerializer(serializers.ModelSerializer):
             serialized_registration = RegistrationAttributeGetSerializer(
                 registration, many=False).data
             for tag in tags.all():
-                serialized_tag = basic_serializers.AbstractAttributeGetPolymorphicSerializer(
+                serialized_tag = AbstractAttributeGetPolymorphicSerializer(
                     tag, many=False).data
                 result = {
                     'registration': serialized_registration,
@@ -230,10 +229,8 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
         return registration.registrationparticipant_set.count()
 
     def get_payement(self, registration: event_models.Registration) -> dict:
-        total_price = registration.registrationparticipant_set.aggregate(
-            sum=Sum('booking_option__price'))['sum'] or 0
-        paid = registration.cashincome_set.aggregate(sum=Sum('amount'))[
-                   'sum'] or 0.0
+        total_price = registration.registrationparticipant_set.aggregate(sum=Sum('booking_option__price'))['sum'] or 0
+        paid = registration.cashincome_set.aggregate(sum=Sum('amount'))['sum'] or 0.0
         difference = float(total_price) - paid
 
         return {

@@ -3,6 +3,7 @@ from django.db.models import QuerySet, Q
 from django.utils import timezone
 from rest_framework import serializers
 
+from anmelde_tool.attributes.serializers import AbstractAttributeGetPolymorphicSerializer
 from basic import serializers as basic_serializers
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
@@ -135,7 +136,7 @@ class EventPlanerSerializer(serializers.ModelSerializer):
 
 
 class AttributeEventModuleMapperSerializer(serializers.ModelSerializer):
-    attribute = basic_serializers.AbstractAttributeGetPolymorphicSerializer(many=False, read_only=False)
+    attribute = AbstractAttributeGetPolymorphicSerializer(many=False, read_only=False)
 
     class Meta:
         model = event_models.AttributeEventModuleMapper
@@ -212,7 +213,7 @@ class EventOverviewSerializer(serializers.ModelSerializer):
             filter(responsible_persons__in=[user.id])
         if reg.first():
             return reg.first().is_confirmed
-        return None
+        return False
 
     @staticmethod
     def match_registration_allowed_level(user: User, registration_level: int) -> bool:

@@ -4,7 +4,6 @@ from six import string_types
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from rest_framework import serializers
-from .models import AbstractAttribute
 
 
 class PolymorphicSerializer(serializers.Serializer):

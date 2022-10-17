@@ -1,11 +1,10 @@
 from django.db.models import Q, QuerySet
 from django_filters import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 import basic.choices
 from basic import models as basic_models
@@ -24,6 +23,7 @@ class ScoutHierarchyDetailedViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsStaffOrReadOnly]
     queryset = basic_models.ScoutHierarchy.objects.all().exclude(level=6)
     serializer_class = basic_serializers.ScoutHierarchyDetailedSerializer
+
 
 class ScoutOrgaLevelViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsStaffOrReadOnly]
@@ -74,19 +74,6 @@ class TagTypeViewSet(viewsets.ModelViewSet):
     ordering_fields = ['id', ]
 
 
-class AttributeViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = basic_models.AbstractAttribute.objects.all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['type', 'type__name']
-
-    def get_serializer_class(self):
-        if self.action == 'create' or self.action == 'update':
-            return basic_serializers.AbstractAttributePostPolymorphicSerializer
-        else:
-            return basic_serializers.AbstractAttributeGetPolymorphicSerializer
-
-
 class DescriptionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsStaffOrReadOnly]
     serializer_class = basic_serializers.DescriptionSerializer
@@ -100,39 +87,6 @@ class DescriptionViewSet(viewsets.ReadOnlyModelViewSet):
             raise NotFound
 
 
-class TravelTypeViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def list(self, request) -> Response:
-        return Response(basic.choices.TravelType.choices, status=status.HTTP_200_OK)
-
-
-class TravelSlotsViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def list(self, request) -> Response:
-        return Response(basic.choices.TravelSlots.choices, status=status.HTTP_200_OK)
-
-
-class AttributeTypeViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def inheritors(self, klass) -> [str]:
-        subclasses = set()
-        work = [klass]
-        while work:
-            parent = work.pop()
-            for child in parent.__subclasses__():
-                if child not in subclasses:
-                    subclasses.add(child.__name__)
-                    work.append(child)
-        return subclasses
-
-    def list(self, request) -> Response:
-        choices = self.inheritors(basic_models.AbstractAttribute)
-        return Response(choices, status=status.HTTP_200_OK)
-
-
 class EatHabitViewSet(viewsets.ModelViewSet):
     queryset = basic_models.EatHabit.objects.all()
     serializer_class = basic_serializers.EatHabitSerializer
@@ -143,4 +97,3 @@ class FrontendThemeViewSet(viewsets.ModelViewSet):
     queryset = basic_models.FrontendTheme.objects.all()
     serializer_class = basic_serializers.FrontendThemeSerializer
     permission_classes = [IsAuthenticated]
-

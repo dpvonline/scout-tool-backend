@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'anmelde_tool.event.cash',
     'anmelde_tool.event.file_generator',
     'anmelde_tool.event.email',
+    'anmelde_tool.attributes',
     'authentication',
     'messaging'
 ]

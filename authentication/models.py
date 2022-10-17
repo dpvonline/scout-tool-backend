@@ -41,16 +41,28 @@ class Person(TimeStampMixin):
     phone_number_verified = models.BooleanField(default=0)
     email = models.EmailField(null=True, blank=True)
     email_verified = models.BooleanField(default=0)
-    bundespost = models.CharField(max_length=13, choices=BundesPostTextChoice.choices,
-                                  default=BundesPostTextChoice.NOTHING)
+    bundespost = models.CharField(
+        max_length=13,
+        choices=BundesPostTextChoice.choices,
+        default=BundesPostTextChoice.NOTHING
+    )
     birthday = models.DateField(null=True, blank=True)
-    tags = models.ManyToManyField(basic_models.AbstractAttribute, blank=True)
-    gender = models.CharField(max_length=1, choices=event_choices.Gender.choices, default=event_choices.Gender.Nothing)
+    gender = models.CharField(
+        max_length=1,
+        choices=event_choices.Gender.choices,
+        default=event_choices.Gender.Nothing
+    )
     active = models.BooleanField(default=False)
     person_verified = models.BooleanField(default=False)
     eat_habits = models.ManyToManyField(basic_models.EatHabit, blank=True)
-    leader = models.CharField(max_length=6, choices=event_choices.LeaderTypes.choices,
-                              default=event_choices.LeaderTypes.KeineFuehrung)
-    scout_level = models.CharField(max_length=6, choices=event_choices.ScoutLevelTypes.choices,
-                                   default=event_choices.ScoutLevelTypes.Unbekannt)
+    leader = models.CharField(
+        max_length=6,
+        choices=event_choices.LeaderTypes.choices,
+        default=event_choices.LeaderTypes.KeineFuehrung
+    )
+    scout_level = models.CharField(
+        max_length=6,
+        choices=event_choices.ScoutLevelTypes.choices,
+        default=event_choices.ScoutLevelTypes.Unbekannt
+    )
     created_by = models.ManyToManyField(CustomUser, related_name='creator')

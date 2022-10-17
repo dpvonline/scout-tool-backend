@@ -3,7 +3,7 @@ from django.db.models import QuerySet
 from django.utils.formats import date_format
 from openpyxl import load_workbook, Workbook
 
-from basic.models import StringAttribute
+from anmelde_tool.attributes.models import StringAttribute
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event.file_generator.generators import helper
 from anmelde_tool.event.file_generator.generators.abstract_generator import AbstractGenerator

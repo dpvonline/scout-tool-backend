@@ -33,5 +33,6 @@ urlpatterns = [
     path('choices/', include('anmelde_tool.event.choices.urls')),
     path('cash/', include('anmelde_tool.event.cash.urls')),
     path('', include('anmelde_tool.event.file_generator.urls')),
-    path('', include('anmelde_tool.event.email.urls'))
+    path('', include('anmelde_tool.event.email.urls')),
+    path('attributes', include('anmelde_tool.attributes.urls'))
 ]

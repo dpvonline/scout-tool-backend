@@ -7,9 +7,9 @@ from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from anmelde_tool.attributes.models import StringAttribute
 from anmelde_tool.event.choices.choices import ParticipantActionConfirmation
 from anmelde_tool.event.models import RegistrationParticipant, Workshop, Event
-from basic.models import StringAttribute
 from messaging.models import Message
 
 User = get_user_model()
