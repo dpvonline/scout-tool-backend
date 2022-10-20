@@ -42,6 +42,9 @@ class ParticipantActionConfirmation(models.TextChoices):
 
 class LeaderTypes(models.TextChoices):
     KeineFuehrung = 'N', _('Kein Amt')
+    DPVFuehrung = "DPVFue", _('DPV-Führung')
+    BundesFuehrung = 'BuFue', _('Bundesführung')
+    RingFuehrung = 'RinFue', _('Ringführung')
     StammesFuehrung = 'StaFue', _('Stammesführung')
     SippenFuehrung = 'SiFue', _('Sippenführung')
     RoverrundenFuehrung = 'RoFue', _('Roverrundenführung'),
