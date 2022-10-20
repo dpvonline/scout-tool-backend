@@ -4,10 +4,13 @@ from rest_framework_nested import routers
 from . import views
 
 router = routers.SimpleRouter()
-router.register(r'responsables', views.ResponsiblePersonViewSet, basename='responsables')
+router.register(r'register', views.RegisterViewSet, basename="register")
+
+router.register(r'responsible', views.ResponsiblePersonViewSet, basename='responsible')
 router.register(r'personal-data', views.PersonalData, basename='personal-data')
 router.register(r'personal-data-check', views.PersonalDataCheck, basename='personal-data-check')
 router.register(r'groups', views.GroupViewSet, basename='groups')
+
 
 router.register(r'email-settings', views.EmailSettingsViewSet, basename='email-settings')
 router.register(r'email-notification-types', views.EmailNotificationTypeViewSet, basename='email-notification-types')
