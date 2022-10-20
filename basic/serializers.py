@@ -22,7 +22,7 @@ class ScoutHierarchySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class NamyOnlyScoutHierarchySerializer(serializers.ModelSerializer):
+class NameOnlyScoutHierarchySerializer(serializers.ModelSerializer):
     class Meta:
         model = basic_models.ScoutHierarchy
         fields = ('name',)
@@ -118,12 +118,12 @@ class ScoutHierarchyDetailedSerializer(serializers.ModelSerializer):
     def get_ring(self, obj: basic_models.ScoutHierarchy) -> str:
         return get_parent_scout_organisation(obj, 'Ring/Regional')
 
-
     def get_bund(self, obj: basic_models.ScoutHierarchy) -> str:
         return get_parent_scout_organisation(obj, 'Bund')
 
     def get_stamm(self, obj: basic_models.ScoutHierarchy) -> str:
         return get_parent_scout_organisation(obj, 'Stamm')
+
 
 class DescriptionSerializer(serializers.ModelSerializer):
     class Meta:
