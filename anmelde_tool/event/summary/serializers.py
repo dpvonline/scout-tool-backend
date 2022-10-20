@@ -143,7 +143,7 @@ class EventLocationSummarySerializer(serializers.ModelSerializer):
 
 
 class RegistrationAttributeGetSerializer(serializers.ModelSerializer):
-    scout_organisation = basic_serializers.NamyOnlyScoutHierarchySerializer(
+    scout_organisation = basic_serializers.NameOnlyScoutHierarchySerializer(
         many=False, read_only=True)
     responsible_persons = registration_serializers.CurrentUserSerializer(
         many=True, read_only=True)
