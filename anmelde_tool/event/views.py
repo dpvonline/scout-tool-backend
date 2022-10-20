@@ -342,7 +342,7 @@ class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
             return event_models.Event.objects.filter(is_public=True, end_date__gte=timezone.now())
         else:
             list_parent_organistations = []
-            iterator: basic_models.ScoutHierarchy = self.request.user.userextended.scout_organisation
+            iterator: basic_models.ScoutHierarchy = self.request.user.scout_organisation
             while iterator is not None:
                 list_parent_organistations.append(iterator)
                 iterator = iterator.parent
