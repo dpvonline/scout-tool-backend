@@ -12,13 +12,19 @@ from basic.models import ScoutHierarchy
 
 
 class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True, blank=False)
     scout_organisation = models.ForeignKey(ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
-    mobile_number = models.CharField(max_length=20, blank=True)
-    scout_name = models.CharField(max_length=20, blank=True)
-    dsgvo_confirmed = models.BooleanField(default=False)
-    email_notification = models.CharField(max_length=10, choices=EmailNotificationType.choices,
-                                          default=EmailNotificationType.FULL)
+    mobile_number = models.CharField(max_length=20, blank=True, null=True)
+    scout_name = models.CharField(max_length=20, blank=True, null=True)
+    dsgvo_confirmed = models.BooleanField(default=False, null=True)
+    email_notification = models.CharField(
+        max_length=10,
+        choices=EmailNotificationType.choices,
+        default=EmailNotificationType.FULL
+    )
+    password = models.CharField(max_length=128, blank=True, null=True)
     sms_notification = models.BooleanField(default=True)
+    keycloak_id = models.CharField(max_length=32, blank=True, null=True)
 
     def __str__(self):
         return self.username

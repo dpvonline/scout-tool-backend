@@ -1,10 +1,13 @@
-from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
+from anmelde_tool.event.choices.choices import Gender, ScoutLevelTypes, LeaderTypes
+from authentication.choices import BundesPostTextChoice
+from authentication.models import CustomUser
 from basic.models import ScoutHierarchy
 
-User = get_user_model()
+User: CustomUser = get_user_model()
 
 
 class UserScoutHierarchySerializer(serializers.ModelSerializer):
@@ -133,4 +136,39 @@ class EmailSettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email_notifaction', 'sms_notifcation')
+        fields = ('email_notification', 'sms_notification')
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'scout_name',
+            'email',
+            'scout_organisation',
+            'mobile_number',
+            'email_notification',
+            'sms_notification',
+            'dsgvo_confirmed',
+            'username',
+            'password',
+            'birth_date',
+            'address',
+            'additional_address',
+            'zip_code',
+            'gender',
+            'scout_level',
+            'leader',
+            'bundespost'
+        )
+
+    birth_date = serializers.DateField(required=False)
+    address = serializers.CharField(required=False)
+    additional_address = serializers.CharField(required=False)
+    zip_code = serializers.IntegerField(required=False)
+    gender = serializers.ChoiceField(required=False, choices=Gender.choices)
+    scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
+    leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
+    bundespost = serializers.ChoiceField(required=False, choices=BundesPostTextChoice.choices)

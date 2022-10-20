@@ -1,23 +1,26 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from keycloak import KeycloakGetError
 from rest_framework import status, viewsets, mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from backend.settings import keycloak_admin, env
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
+from basic.models import ScoutHierarchy, ZipCode
 from basic.permissions import IsStaffOrReadOnly
-from .models import EmailNotificationType
+from .models import EmailNotificationType, CustomUser, Person
 from .serializers import UserGetSerializer, UserPostSerializer, GroupSerializer, \
-    EmailSettingsSerializer, ResponsiblePersonSerializer
+    EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer
 
-User = get_user_model()
+User: CustomUser = get_user_model()
 
 
 class PersonalData(viewsets.ViewSet):
     """
-    Viewset for handling personal data, contained in the UserExtended model
+    Viewset for handling personal data, contained in the User model
     """
     permission_classes = [IsAuthenticated]
 
@@ -27,8 +30,7 @@ class PersonalData(viewsets.ViewSet):
         @param request: request information
         @return: Response with serialized UserExtended instance of the user requesting the personal data
         """
-        queryset = User.objects.get(user=request.user)
-        serializer = UserGetSerializer(queryset, many=False)
+        serializer = UserGetSerializer(request.user, many=False)
         return Response(serializer.data)
 
     # pylint: disable=no-self-use
@@ -39,8 +41,7 @@ class PersonalData(viewsets.ViewSet):
                         containing the UserExtendedPostSerializer values in the data field
         @return: new user instance
         """
-        queryset = User.objects.get(user=request.user)
-        serializer = UserPostSerializer(queryset, data=request.data, many=False)
+        serializer = UserPostSerializer(request.user, data=request.data, many=False)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -68,10 +69,10 @@ class PersonalDataCheck(viewsets.ViewSet):
     def list(self, request) -> Response:
         """
         @param request: standard django request information
-        @return: Reponse wether user data is complete or not
+        @return: Response whether user data is complete or not
         """
-        queryset = User.objects.get(user=request.user)
-        serializer = UserGetSerializer(queryset, many=False)
+
+        serializer = UserGetSerializer(request.user, many=False)
         if not serializer.data['scout_organisation'] or not serializer.data['dsgvo_confirmed']:
             return Response({'status': "init required"}, status=status.HTTP_426_UPGRADE_REQUIRED)
 
@@ -93,12 +94,13 @@ class ResponsiblePersonViewSet(viewsets.ModelViewSet):
         queryset = queryset.filter(Q(scout_name__icontains=search_param)
                                    | Q(user__email__icontains=search_param)
                                    | Q(scout_organisation__name__icontains=search_param))
-        serializer = ResponsiblePersonSerializer(queryset, many=True)
-        response_len = len(serializer.data)
+        response_len = queryset.count()
         if response_len > 10:
             raise TooManySearchResults
         if response_len == 0:
             raise NoSearchResults
+
+        serializer = ResponsiblePersonSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -125,9 +127,9 @@ class EmailSettingsViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, v
 
     def get_queryset(self):
         """
-        @return: UserExtended instance of the user requesting the email settings
+        @return: User instance of the user requesting the email settings
         """
-        return User.objects.filter(id=self.request.user.userextended.id)
+        return User.objects.filter(id=self.request.user.id)
 
 
 class EmailNotificationTypeViewSet(viewsets.ViewSet):
@@ -143,3 +145,116 @@ class EmailNotificationTypeViewSet(viewsets.ViewSet):
         @return: Response which EmailNotificationType choices
         """
         return Response(EmailNotificationType.choices, status=status.HTTP_200_OK)
+
+
+class RegisterViewSet(viewsets.ViewSet):
+
+    def create(self, request, *args, **kwargs):
+        serializers = RegisterSerializer(data=request.data)
+        serializers.is_valid(raise_exception=True)
+        print(serializers.data)
+
+        try:
+            new_keycloak_user: str = keycloak_admin.create_user({
+                'email': serializers.data.get('email'),
+                'username': serializers.data.get('username'),
+                'firstName': serializers.data.get('first_name'),
+                'lastName': serializers.data.get('last_name'),
+                'enabled': True,
+                'credentials': [{
+                    'value': serializers.data.get('password'),
+                    'type': 'password',
+                }],
+                'requiredActions': [
+                    'VERIFY_EMAIL',
+                ],
+                # 'attributes': {
+                #     'verband': serializers.data.get('scout_organisation'),
+                #     'fahrtenname': serializers.data.get('scout_name'),
+                #     'bund': serializers.data.get('scout_organisation'),
+                #     'stamm': serializers.data.get('scout_organisation'),
+                # }
+            }, exist_ok=False)
+        except KeycloakGetError as e:
+            print(f'Error within registration:\n{e}')
+            return Response({
+                'status': 'failed',
+                'error': e
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(f'Error within registration:\n{e}')
+            return Response({
+                'status': 'failed',
+                'error': e
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        print(f'{new_keycloak_user=}')
+
+        if serializers.data.get('scout_organisation'):
+            scout_organisation = ScoutHierarchy.objects.get(id=serializers.data.get('scout_organisation'))
+        else:
+            scout_organisation = None
+
+        if serializers.data.get('zip_code'):
+            zip_code = ZipCode.objects.get(id=serializers.data.get('zip_code'))
+        else:
+            zip_code = None
+        try:
+            new_django_user: CustomUser = User.objects.create_user(
+                username=serializers.data.get('username'),
+                email=serializers.data.get('email'),
+                scout_name=serializers.data.get('scout_name', ''),
+                scout_organisation=scout_organisation,
+                mobile_number=serializers.data.get('mobile_number', ''),
+                dsgvo_confirmed=serializers.data.get('dsgvo_confirmed', False),
+                email_notification=serializers.data.get('email_notification', EmailNotificationType.FULL),
+                sms_notification=serializers.data.get('sms_notification', True),
+                keycloak_id=new_keycloak_user
+            )
+        except Exception as exception:
+            print('failed initialising django user,removing keycloak user')
+            print(f'{exception=}')
+            keycloak_admin.delete_user(new_keycloak_user)
+            return Response({
+                'status': 'failed',
+                'error': exception
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        print(f'{new_django_user=}')
+
+        if new_keycloak_user and new_django_user:
+            print('all ok, add Person model')
+
+            try:
+                Person.objects.create(
+                    user=new_django_user,
+                    scout_name=serializers.data.get('scout_name', ''),
+                    first_name=serializers.data.get('first_name', ''),
+                    last_name=serializers.data.get('last_name', ''),
+                    address=serializers.data.get('address', ''),
+                    address_supplement=serializers.data.get('address_supplement', ''),
+                    zip_code=zip_code,
+                    scout_group=scout_organisation,
+                    phone_number=serializers.data.get('mobile_number', ''),
+                    email=serializers.data.get('email'),
+                    bundespost=serializers.data.get('bundespost', ''),
+                    birthday=serializers.data.get('birth_date'),
+                    gender=serializers.data.get('gender', ''),
+                    leader=serializers.data.get('leader', ''),
+                    scout_level=serializers.data.get('scout_level', '')
+                )
+            except Exception as exception:
+                print('failed initialising django person model,removing keycloak and django user')
+                print(f'{exception=}')
+                new_django_user.delete()  # when django user is deleted, keycloak user is deleted as well
+                return Response({
+                    'status': 'failed',
+                    'error': exception
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        verify_mail = keycloak_admin.send_verify_email(user_id=new_keycloak_user,
+                                                       client_id=env('KEYCLOAK_ADMIN_USER'),
+                                                       redirect_uri='http://127.0.0.1:8080/')
+        print(verify_mail)
+
+        return Response('ok', status=status.HTTP_200_OK)
