@@ -66,10 +66,11 @@ class MyOIDCAB(OIDCAuthenticationBackend):
             edited = True
 
         if 'anmelde_tool_team' in claims.get('roles', []):
-            edited = not user.is_staff  # if user is already staff, edited is false
-            user.is_staff = True
-        else:
-            edited = not user.is_staff  # if user is already no staff, edited is false
+            if not user.is_staff:
+                edited = True
+                user.is_staff = True
+        elif user.is_staff:
+            edited = True
             user.is_staff = False
 
         stamm = claims.get('stamm', '')

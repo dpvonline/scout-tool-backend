@@ -24,3 +24,27 @@ class StateChoices(models.TextChoices):
     ST = 'ST', _('Sachsen-Anhalt')
     SH = 'SH', _('Schleswig-Holstein')
     TH = 'TH', _('Thüringen')
+
+
+class ScoutOrganisationLevelChoices(models.TextChoices):
+    VERBAND = 'Verband', _('Verband')
+    BUND = 'Bund', _('Bund')
+    RING = 'Ring', _('Ring/Regional')
+    STAMM = 'Stamm', _('Stamm')
+    GRUPPE = 'Gruppe', _('Gruppe')
+    SCOUT = 'Scout', _('Pfadfinder*innen')
+
+    @staticmethod
+    def get_level_choice_plural(choice: str) -> str:
+        plural_dict = {
+            'Verband': 'Verbände',
+            'Bund': 'Bünde',
+            'Ringe': 'Ringe',
+            'Stamm': 'Stämme',
+            'Gruppe': 'Gruppe',
+            'Scout': 'Pfadfinder*innen'
+        }
+        if choice in plural_dict:
+            return plural_dict[choice]
+        else:
+            raise KeyError('Choice does not exist')

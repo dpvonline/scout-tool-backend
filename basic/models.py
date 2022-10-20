@@ -1,9 +1,9 @@
 from colorfield.fields import ColorField
 from django.db import models
 
-from basic.choices import DescriptionType, StateChoices
+from basic.choices import DescriptionType, StateChoices, ScoutOrganisationLevelChoices
 
-    
+
 class TimeStampMixin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
@@ -59,10 +59,52 @@ class ScoutOrgaLevel(TimeStampMixin):
 class ScoutHierarchy(TimeStampMixin):
     id = models.AutoField(auto_created=True, primary_key=True)
     level = models.ForeignKey(ScoutOrgaLevel, on_delete=models.PROTECT, null=True, blank=True)
+    level_choice = models.CharField(
+        max_length=10,
+        choices=ScoutOrganisationLevelChoices.choices,
+        default=ScoutOrganisationLevelChoices.GRUPPE
+    )
     name = models.CharField(max_length=60, blank=True)
     zip_code = models.ForeignKey(ZipCode, on_delete=models.PROTECT, null=True, blank=True)
     parent = models.ForeignKey('self', null=True, on_delete=models.PROTECT, related_name='scouthierarchy', blank=True)
     abbreviation = models.CharField(max_length=5, blank=True, null=True)
+    keycloak_id = models.CharField(max_length=100, blank=True, null=True)
+
+    def __generate_tree_name(self, lower: bool = True) -> str:
+        if lower:
+            name = self.name.lower()
+            seperator = '_'
+        else:
+            name = self.name
+            seperator = '/'
+
+        if self.parent:
+            return f'{self.parent.__generate_tree_name(lower)}{seperator}{name}'
+        else:
+            return name
+
+    @property
+    def keycloak_role_name(self) -> str:
+        return f'{self.__generate_tree_name(lower=True)}_role'
+
+    def generate_group_tree(self):
+        level_dict = {
+            3: 'Bünde',
+            4: 'Ringe',
+            5: 'Stämme'
+        }
+        if self.parent:
+            return f'{self.parent.generate_group_tree()}/{level_dict[self.level.id]}/{self.name}'
+        else:
+            return self.name
+
+    @property
+    def keycloak_group_name(self) -> str:
+        return f'/{self.generate_group_tree()}'
+
+    @property
+    def children(self):
+        return ScoutHierarchy.objects.filter(parent=self.id)
 
     def __str__(self):
         return f"{self.level} - {self.name}"
