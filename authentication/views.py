@@ -1,13 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
-from keycloak import KeycloakGetError
+from keycloak import KeycloakGetError, KeycloakAuthenticationError, KeycloakAdmin
 from rest_framework import status, viewsets, mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from backend.settings import keycloak_admin, env
+from backend.settings import env
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.models import ScoutHierarchy, ZipCode
 from basic.permissions import IsStaffOrReadOnly
@@ -154,6 +154,13 @@ class RegisterViewSet(viewsets.ViewSet):
         serializers.is_valid(raise_exception=True)
         print(serializers.data)
 
+        keycloak_admin = KeycloakAdmin(server_url=env('BASE_URI'),
+                                       client_id=env('KEYCLOAK_ADMIN_USER'),
+                                       client_secret_key=env('KEYCLOAK_ADMIN_PASSWORD'),
+                                       realm_name=env('KEYCLOAK_APP_REALM'),
+                                       user_realm_name=env('KEYCLOAK_APP_REALM'),
+                                       verify=True)
+
         try:
             new_keycloak_user: str = keycloak_admin.create_user({
                 'email': serializers.data.get('email'),
@@ -179,13 +186,19 @@ class RegisterViewSet(viewsets.ViewSet):
             print(f'Error within registration:\n{e}')
             return Response({
                 'status': 'failed',
-                'error': e
+                'error': repr(e)
             }, status=status.HTTP_400_BAD_REQUEST)
+        except KeycloakAuthenticationError as kae:
+            print(f'Error within registration:\n{kae}')
+            return Response({
+                'status': 'failed',
+                'error': repr(kae)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             print(f'Error within registration:\n{e}')
             return Response({
                 'status': 'failed',
-                'error': e
+                'error': repr(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         print(f'{new_keycloak_user=}')
@@ -217,7 +230,7 @@ class RegisterViewSet(viewsets.ViewSet):
             keycloak_admin.delete_user(new_keycloak_user)
             return Response({
                 'status': 'failed',
-                'error': exception
+                'error': repr(exception)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         print(f'{new_django_user=}')
@@ -249,7 +262,7 @@ class RegisterViewSet(viewsets.ViewSet):
                 new_django_user.delete()  # when django user is deleted, keycloak user is deleted as well
                 return Response({
                     'status': 'failed',
-                    'error': exception
+                    'error': repr(exception)
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         verify_mail = keycloak_admin.send_verify_email(user_id=new_keycloak_user,

@@ -43,7 +43,7 @@ class Person(TimeStampMixin):
     address_supplement = models.CharField(max_length=100, blank=True, null=True)
     zip_code = models.ForeignKey(basic_models.ZipCode, on_delete=models.PROTECT, null=True, blank=True)
     scout_group = models.ForeignKey(basic_models.ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
     phone_number_verified = models.BooleanField(default=0)
     email = models.EmailField(null=True, blank=True)
     email_verified = models.BooleanField(default=0)
