@@ -3,52 +3,49 @@ version: '3.9'
 services:
   web:
     container_name: backend
-    restart: unless-stopped
-    build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
+    restart: always
+    build: ./
+    command: /start.sh
     volumes:
-      - ./backend/:/usr/src/app/
-      - .:/backend/
+      - ./:/usr/src/app/
       - .:/db.sqlite3
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/backend/.env
+      - ./backend/.env
     depends_on:
       - redis
 
   celery:
-    build: ./backend
-    command: celery -A backend worker -l info
+    build: ./
+    command: /start-celeryworker.sh
     volumes:
-      - ./backend/:/usr/src/app
+      - ./:/usr/src/app
     env_file:
-      - ./backend/backend/.env
+      - ./backend/.env
     depends_on:
       - web
-      - redis
 
   celery-beat:
-    build: ./backend
-    command: celery -A backend beat -l info
+    build: ./
+    command: /start-celerybeat.sh
     volumes:
-      - ./backend/:/usr/src/app/
+      - ./:/usr/src/app/
     env_file:
-      - ./backend/backend/.env
+      - ./backend/.env
     depends_on:
-      - redis
+      - web
 
   flower:
-    build: ./backend
-    command: celery -A backend flower
+    build: ./
+    command: /start-flower.sh
     ports:
       - "5555:5555"
     volumes:
-      - ./backend/:/usr/src/app/
+      - ./:/usr/src/app/
     env_file:
-      - ./backend/backend/.env
+      - ./backend/.env
     depends_on:
-      - redis
       - celery
       - celery-beat
 
