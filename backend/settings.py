@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'anmelde_tool.event.email',
     'anmelde_tool.attributes',
     'authentication',
-    'messaging'
+    'messaging',
+    'keycloak_auth'
 ]
 
 MIDDLEWARE = [
@@ -178,8 +179,8 @@ CSRF_TRUSTED_ORIGINS = env.list("CORS_ORIGIN_WHITELIST")
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = False
 SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 SECURE_HSTS_SECONDS = 60
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True

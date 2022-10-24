@@ -2,13 +2,14 @@ import uuid
 
 from anmelde_tool.event.choices import choices as event_choices
 from authentication.choices import BundesPostTextChoice
+from backend.timestamp_mixin import TimeStampMixin
 from basic import models as basic_models
-from basic.models import TimeStampMixin
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from authentication.choices import EmailNotificationType
 from basic.models import ScoutHierarchy
+from keycloak_auth.models import KeycloakGroup
 
 
 class CustomUser(AbstractUser):
@@ -72,3 +73,12 @@ class Person(TimeStampMixin):
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
     created_by = models.ManyToManyField(CustomUser, related_name='creator')
+
+
+class RequestGroupAccess(TimeStampMixin):
+    id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, related_name='user')
+    group = models.ForeignKey(KeycloakGroup, on_delete=models.PROTECT)
+    accepted = models.BooleanField(default=False)
+    declined = models.BooleanField(default=False)
+    checked_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='checked_by')

@@ -1,8 +1,6 @@
 from django.core.management.base import BaseCommand
-from keycloak import KeycloakAdmin, KeycloakGetError
-
-from basic.choices import ScoutOrganisationLevelChoices
-from basic.models import ScoutHierarchy
+from keycloak import KeycloakAdmin
+from keycloak_auth.models import KeycloakGroup
 from backend.settings import env
 
 
@@ -25,75 +23,23 @@ class Command(BaseCommand):
         all_groups = self.keycloak_admin.get_groups()
 
         for group in all_groups:
-            self.groups[group['name']] = False
             self.get_subgroup(group)
 
-        heads = ScoutHierarchy.objects.filter(parent=None)
+    def get_subgroup(self, group, parent: KeycloakGroup = None):
+        keycloak_group: KeycloakGroup = KeycloakGroup.objects.filter(keycloak_id=group['id'])
+        if not keycloak_group.exists():
+            keycloak_group = KeycloakGroup.objects.create(
+                keycloak_id=group['id'],
+                name=group['name'],
+                parent=parent
+            )
+        elif keycloak_group.name != group['name']:
+            keycloak_group.name = group['name']
+            keycloak_group.save()
 
-        for head in heads:
-            self.recursive_group_initialisation(head)
+        if keycloak_group.parent is None or keycloak_group.parent != parent:
+            keycloak_group.parent = parent
+            keycloak_group.save()
 
-        print('')
-        print('Missing Groups:')
-        for key in self.groups:
-            if not self.groups[key]:
-                print(key)
-
-    def get_subgroup(self, group):
         for sub_group in group['subGroups']:
-            self.groups[sub_group['name']] = False
-            if sub_group['subGroups']:
-                self.get_subgroup(sub_group)
-
-    def recursive_group_initialisation(self, head: ScoutHierarchy):
-        initialized = False
-        if head.keycloak_id:
-            try:
-                group = self.keycloak_admin.get_group(group_id=head.keycloak_id)
-            except KeycloakGetError:
-                pass
-            else:
-                if group and group['name'] == head.name:
-                    initialized = True
-
-        if not initialized:
-            group = self.keycloak_admin.get_group_by_path(path=head.keycloak_group_name, search_in_subgroups=True)
-            if group:
-                initialized = True
-
-        if not initialized:
-            parent_id = None
-            if head.parent:
-                parent_normal_path = head.parent.keycloak_group_name
-                parent_special_path = f'{head.parent.keycloak_group_name}/' \
-                                      f'{ScoutOrganisationLevelChoices.get_level_choice_plural(head.level_choice)}'
-                parent = self.keycloak_admin.get_group_by_path(path=parent_special_path, search_in_subgroups=True)
-
-                if parent:
-                    parent_id = parent['id']
-                else:
-                    parent_normal = self.keycloak_admin.get_group_by_path(
-                        path=parent_normal_path,
-                        search_in_subgroups=True
-                    )
-                    parent_normal_id = parent_normal['id']
-                    payload = {'name': ScoutOrganisationLevelChoices.get_level_choice_plural(head.level_choice)}
-                    parent_special = self.keycloak_admin.create_group(payload=payload, parent=parent_normal_id)
-                    parent_id = parent_special
-
-            payload = {'name': head.name}
-            if parent_id:
-                child_group = self.keycloak_admin.create_group(payload=payload, parent=parent_id)
-            else:
-                child_group = self.keycloak_admin.create_group(payload=payload)
-
-            print(f'created group: {child_group=}')
-
-            if head.keycloak_id is None or head.keycloak_id != child_group:
-                head.keycloak_id = child_group
-                head.save()
-
-        self.groups[head.name] = True
-
-        for child in head.children:
-            self.recursive_group_initialisation(child)
+            self.get_subgroup(sub_group, keycloak_group)

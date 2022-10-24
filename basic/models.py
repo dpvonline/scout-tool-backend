@@ -1,15 +1,9 @@
 from colorfield.fields import ColorField
 from django.db import models
 
+from backend.timestamp_mixin import TimeStampMixin
 from basic.choices import DescriptionType, StateChoices, ScoutOrganisationLevelChoices
-
-
-class TimeStampMixin(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
-
-    class Meta:
-        abstract = True
+from keycloak_auth.models import KeycloakGroup
 
 
 class ZipCode(TimeStampMixin):
@@ -68,7 +62,7 @@ class ScoutHierarchy(TimeStampMixin):
     zip_code = models.ForeignKey(ZipCode, on_delete=models.PROTECT, null=True, blank=True)
     parent = models.ForeignKey('self', null=True, on_delete=models.PROTECT, related_name='scouthierarchy', blank=True)
     abbreviation = models.CharField(max_length=5, blank=True, null=True)
-    keycloak_id = models.CharField(max_length=100, blank=True, null=True)
+    keycloak = models.ForeignKey(KeycloakGroup, on_delete=models.SET_NULL, null=True)
 
     def __generate_tree_name(self, lower: bool = True) -> str:
         if lower:
