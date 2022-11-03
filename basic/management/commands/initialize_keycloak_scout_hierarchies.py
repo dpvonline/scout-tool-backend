@@ -1,9 +1,19 @@
 from django.core.management.base import BaseCommand
-from keycloak import KeycloakAdmin, KeycloakGetError
+from keycloak import KeycloakGetError
 
+from backend.settings import env
 from basic.choices import ScoutOrganisationLevelChoices
 from basic.models import ScoutHierarchy
-from backend.settings import env
+from keycloak_auth.KeycloakAdminExtended import KeycloakAdminExtended
+from keycloak_auth.models import KeycloakGroup
+
+from keycloak_auth.helper import get_or_create_keycloak_group
+
+additional_level_groups = {
+    str(ScoutOrganisationLevelChoices.BUND): ['Bundesführung', 'Stellv. Bundesführung', 'Schatzamt'],
+    str(ScoutOrganisationLevelChoices.RING): ['Ringführung', 'Stellv. Ringführung', 'Schatzamt'],
+    str(ScoutOrganisationLevelChoices.STAMM): ['Stammesführung', 'Stellv. Stammesführung', 'Schatzamt'],
+}
 
 
 class Command(BaseCommand):
@@ -11,7 +21,7 @@ class Command(BaseCommand):
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         super(Command, self).__init__(stdout, stderr, no_color, force_color)
-        self.keycloak_admin = KeycloakAdmin(
+        self.keycloak_admin = KeycloakAdminExtended(
             server_url=env('BASE_URI'),
             client_id=env('KEYCLOAK_ADMIN_USER'),
             client_secret_key=env('KEYCLOAK_ADMIN_PASSWORD'),
@@ -19,13 +29,12 @@ class Command(BaseCommand):
             user_realm_name=env('KEYCLOAK_APP_REALM'),
             verify=True
         )
-        self.groups = {}
+        self.groups_added = []
 
     def handle(self, *args, **options):
         all_groups = self.keycloak_admin.get_groups()
 
         for group in all_groups:
-            self.groups[group['name']] = False
             self.get_subgroup(group)
 
         heads = ScoutHierarchy.objects.filter(parent=None)
@@ -33,23 +42,25 @@ class Command(BaseCommand):
         for head in heads:
             self.recursive_group_initialisation(head)
 
-        print('')
-        print('Missing Groups:')
-        for key in self.groups:
-            if not self.groups[key]:
-                print(key)
+        if self.groups_added:
+            print('')
+            print('added groups:')
+            for group in self.groups_added:
+                print(group)
+
+        print('Checks completed')
 
     def get_subgroup(self, group):
         for sub_group in group['subGroups']:
-            self.groups[sub_group['name']] = False
             if sub_group['subGroups']:
                 self.get_subgroup(sub_group)
 
     def recursive_group_initialisation(self, head: ScoutHierarchy):
         initialized = False
+        group = None
         if head.keycloak_id:
             try:
-                group = self.keycloak_admin.get_group(group_id=head.keycloak_id)
+                group = self.keycloak_admin.get_group(group_id=head.keycloak.keycloak_id)
             except KeycloakGetError:
                 pass
             else:
@@ -87,13 +98,19 @@ class Command(BaseCommand):
             else:
                 child_group = self.keycloak_admin.create_group(payload=payload)
 
-            print(f'created group: {child_group=}')
+            group = self.keycloak_admin.get_group(group_id=child_group)
 
-            if head.keycloak_id is None or head.keycloak_id != child_group:
-                head.keycloak_id = child_group
-                head.save()
+            self.groups_added.append(head.name)
 
-        self.groups[head.name] = True
+            # if head.keycloak is None or head.keycloak.keycloak_id != child_group:
+            #     keycloak_group, _ = get_or_create_keycloak_group(group, parent_id)
+            #     head.keycloak = keycloak_group
+            #     head.save()
+
+        if group:
+            self.keycloak_admin.add_group_permissions(group)
+        else:
+            raise Exception('No group created or found')
 
         for child in head.children:
             self.recursive_group_initialisation(child)

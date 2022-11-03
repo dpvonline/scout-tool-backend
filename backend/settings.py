@@ -249,10 +249,3 @@ CELERY_RESULT_BACKEND = env('CELERY_BROKER')
 #         "schedule": crontab(minute="*/1"),
 #     },
 # }
-
-keycloak_admin = KeycloakAdmin(server_url=env('BASE_URI'),
-                               client_id=env('KEYCLOAK_ADMIN_USER'),
-                               client_secret_key=env('KEYCLOAK_ADMIN_PASSWORD'),
-                               realm_name=env('KEYCLOAK_APP_REALM'),
-                               user_realm_name=env('KEYCLOAK_APP_REALM'),
-                               verify=True)

@@ -175,12 +175,12 @@ class RegisterViewSet(viewsets.ViewSet):
                 'requiredActions': [
                     'VERIFY_EMAIL',
                 ],
-                # 'attributes': {
-                #     'verband': serializers.data.get('scout_organisation'),
-                #     'fahrtenname': serializers.data.get('scout_name'),
-                #     'bund': serializers.data.get('scout_organisation'),
-                #     'stamm': serializers.data.get('scout_organisation'),
-                # }
+                'attributes': {
+                    'verband': serializers.data.get('scout_organisation'),
+                    'fahrtenname': serializers.data.get('scout_name'),
+                    'bund': serializers.data.get('scout_organisation'),
+                    'stamm': serializers.data.get('scout_organisation'),
+                }
             }, exist_ok=False)
         except KeycloakGetError as e:
             print(f'Error within registration:\n{e}')
