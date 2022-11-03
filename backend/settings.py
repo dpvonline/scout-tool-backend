@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'anmelde_tool.attributes',
     'authentication',
     'messaging',
-    'keycloak_auth'
+    'keycloak_auth',
+    'food'
 ]
 
 MIDDLEWARE = [

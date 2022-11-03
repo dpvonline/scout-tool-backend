@@ -1,7 +1,3 @@
-# Enter Backend Directory
-
-`cd backend/`
-
 # Create Virtual Environment
 
 `virtualenv venv`
@@ -32,11 +28,13 @@ Mac, Linux:
 
 2) `python manage.py loaddata data/main/*.json`
 3) `python manage.py loaddata data/test/*.json`
+4) `python manage.py loaddata data/food-init/*.json`
 
 Windows:
 
 2) `python manage.py add_fixtures data\main\`
 3) `python manage.py add_fixtures data\test\`
+4) `python manage.py add_fixtures data\food-init\`
 
 Run Server
 
