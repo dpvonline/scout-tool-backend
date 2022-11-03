@@ -7,5 +7,6 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('event/', include('anmelde_tool.event.urls')),
     path('message/', include('messaging.urls')),
+    path('food/', include('food.urls')),
 ]
 
