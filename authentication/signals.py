@@ -34,12 +34,12 @@ def post_save_user(sender, instance: CustomUser, **kwargs):
                     'email': instance.email,
                     'firstName': instance.first_name,
                     'lastName': instance.last_name,
-                    'attributes': {
-                        'verband': '',
-                        'fahrtenname': instance.scout_name,
-                        'bund': '',
-                        'stamm': scout_organisation
-                    }
+                    # 'attributes': {
+                    #     'verband': '',
+                    #     'fahrtenname': instance.scout_name,
+                    #     'bund': '',
+                    #     'stamm': scout_organisation
+                    # }
                 }
             )
 

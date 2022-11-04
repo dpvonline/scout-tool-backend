@@ -6,8 +6,9 @@ from rest_framework import status, viewsets, mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
-from backend.settings import env
+from backend.settings import env, keycloak_admin
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.models import ScoutHierarchy, ZipCode
 from basic.permissions import IsStaffOrReadOnly
@@ -126,7 +127,7 @@ class RegisterViewSet(viewsets.ViewSet):
         print(serializers.data)
 
         try:
-            new_keycloak_user: str = keycloak_admin.create_user(
+            new_keycloak_user_id: str = keycloak_admin.create_user(
                 {
                     'email': serializers.data.get('email'),
                     'username': serializers.data.get('username'),
@@ -137,9 +138,10 @@ class RegisterViewSet(viewsets.ViewSet):
                         'value': serializers.data.get('password'),
                         'type': 'password',
                     }],
-                    'requiredActions': [
-                        'VERIFY_EMAIL',
-                    ],
+                    # 'requiredActions': [
+                    #     'VERIFY_EMAIL',
+                    # ],
+                    'requiredActions': [],
                     'attributes': {
                         'verband': serializers.data.get('scout_organisation'),
                         'fahrtenname': serializers.data.get('scout_name'),
@@ -173,7 +175,7 @@ class RegisterViewSet(viewsets.ViewSet):
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        print(f'{new_keycloak_user=}')
+        print(f'{new_keycloak_user_id=}')
 
         if serializers.data.get('scout_organisation'):
             scout_organisation = ScoutHierarchy.objects.get(id=serializers.data.get('scout_organisation'))
@@ -194,12 +196,12 @@ class RegisterViewSet(viewsets.ViewSet):
                 dsgvo_confirmed=serializers.data.get('dsgvo_confirmed', False),
                 email_notification=serializers.data.get('email_notification', EmailNotificationType.FULL),
                 sms_notification=serializers.data.get('sms_notification', True),
-                keycloak_id=new_keycloak_user
+                keycloak_id=new_keycloak_user_id
             )
         except Exception as exception:
             print('failed initialising django user,removing keycloak user')
             print(f'{exception=}')
-            keycloak_admin.delete_user(new_keycloak_user)
+            keycloak_admin.delete_user(new_keycloak_user_id)
             return Response(
                 {
                     'status': 'failed',
@@ -209,7 +211,7 @@ class RegisterViewSet(viewsets.ViewSet):
 
         print(f'{new_django_user=}')
 
-        if new_keycloak_user and new_django_user:
+        if new_keycloak_user_id and new_django_user:
             print('all ok, add Person model')
 
             try:
@@ -242,12 +244,12 @@ class RegisterViewSet(viewsets.ViewSet):
                 )
 
         verify_mail = keycloak_admin.send_verify_email(
-            user_id=new_keycloak_user,
+            user_id=new_keycloak_user_id,
             client_id=env('KEYCLOAK_ADMIN_USER'),
             redirect_uri='http://127.0.0.1:8080/'
         )
 
-        if scout_organisation.keycloak:
+        if scout_organisation and scout_organisation.keycloak:
             try:
                 request_group_access = RequestGroupAccess.objects.create(
                     user=new_django_user,
@@ -260,11 +262,14 @@ class RegisterViewSet(viewsets.ViewSet):
         return Response('ok', status=status.HTTP_200_OK)
 
 
-class RequestGroupAccessViewSet(viewsets.ModelViewSet):
+class RequestGroupAccessViewSet(mixins.RetrieveModelMixin,
+                                mixins.UpdateModelMixin,
+                                mixins.DestroyModelMixin,
+                                mixins.ListModelMixin,
+                                GenericViewSet):
     queryset = RequestGroupAccess.objects.all()
     serializer_class = RequestGroupAccessSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
-        super().create(request, *args, **kwargs)
+    def get_queryset(self):
+        return RequestGroupAccess.objects.filter(user=self.request.user)

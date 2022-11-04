@@ -1,3 +1,5 @@
+from abc import ABC
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -28,3 +30,13 @@ class UserListSerializer(serializers.ModelSerializer):
             'keycloak_id',
             'password'
         )
+
+
+class CreateGroupSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True)
+    parent_id = serializers.CharField(required=False)
+
+
+class UpdateGroupSerializer(serializers.Serializer):
+    name = serializers.CharField(required=False)
+    parent_id = serializers.CharField(required=False)
