@@ -5,8 +5,10 @@ ENV PYTHONUNBUFFERED=1
 # changing current working directory to /usr/src/app
 WORKDIR /usr/src/app
 
+
 # install dependencies
 RUN pip install --upgrade pip
+RUN apk add zlib-dev
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
