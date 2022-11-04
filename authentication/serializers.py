@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from anmelde_tool.event.choices.choices import Gender, ScoutLevelTypes, LeaderTypes
 from authentication.choices import BundesPostTextChoice
-from authentication.models import CustomUser
+from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.models import ScoutHierarchy
 
 User: CustomUser = get_user_model()
@@ -26,7 +26,7 @@ class UserScoutHierarchySerializer(serializers.ModelSerializer):
         """
         @param obj: model instance
         @return: name of `bund` as string
-        seaches in the ScoutHierachy for the parent having the level `Bund` and returns the filtered name
+        searches in the ScoutHierarchy for the parent having the level `Bund` and returns the filtered name
         """
         iterator: ScoutHierarchy = obj
         while iterator is not None:
@@ -85,39 +85,6 @@ class ResponsiblePersonSerializer(serializers.ModelSerializer):
         return ''
 
 
-class UserGetSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the UserExtended model for Get/list/Retrieve requests
-    """
-    scout_organisation = UserScoutHierarchySerializer()
-
-    class Meta:
-        model = User
-        fields = (
-            'id',
-            'mobile_number',
-            'scout_name',
-            'scout_organisation',
-            'dsgvo_confirmed'
-        )
-
-
-class UserPostSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the UserExtended model for create/update/patch requests
-    containing less information that the get pendent
-    """
-
-    class Meta:
-        model = User
-        fields = (
-            'mobile_number',
-            'scout_name',
-            'scout_organisation',
-            'dsgvo_confirmed'
-        )
-
-
 class GroupSerializer(serializers.ModelSerializer):
     """
     Serializer for the Group model
@@ -172,3 +139,35 @@ class RegisterSerializer(serializers.ModelSerializer):
     scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
     leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
     bundespost = serializers.ChoiceField(required=False, choices=BundesPostTextChoice.choices)
+
+
+class PersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        exclude = (
+            'active',
+            'person_verified',
+
+        )
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the UserExtended model for Get/list/Retrieve requests
+    """
+    scout_organisation = UserScoutHierarchySerializer(many=False)
+    person = PersonSerializer(many=False)
+
+    class Meta:
+        model = User
+        exclude = (
+            'keycloak_id',
+            'password'
+        )
+
+
+class RequestGroupAccessSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestGroupAccess
+        fields = '__all__'

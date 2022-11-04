@@ -77,7 +77,7 @@ class Person(TimeStampMixin):
 
 class RequestGroupAccess(TimeStampMixin):
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, related_name='user')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='user')
     group = models.ForeignKey(KeycloakGroup, on_delete=models.PROTECT)
     accepted = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)

@@ -2,7 +2,7 @@ from .models import Person
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, RequestGroupAccess
 
 
 # admin.site.register(CustomUser, UserAdmin)
@@ -21,3 +21,8 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     autocomplete_fields = ('created_by',)
+
+
+@admin.register(RequestGroupAccess)
+class RequestGroupAccessAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('user', 'group')

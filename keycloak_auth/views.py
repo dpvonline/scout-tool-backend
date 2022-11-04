@@ -1,16 +1,26 @@
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, status, mixins
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from authentication.models import CustomUser
-from authentication.serializers import UserSerializer
+from authentication.models import CustomUser, RequestGroupAccess
+from authentication.serializers import UserSerializer, RequestGroupAccessSerializer
 from backend.settings import keycloak_admin
-from keycloak_auth.api_exceptions import NoGroupId
+from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested
 from keycloak_auth.helper import check_group_id
+from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer
 
 User: CustomUser = get_user_model()
+
+
+def get_group_id(kwargs):
+    group_id = kwargs.get("group_pk", None)
+    if not group_id or not check_group_id(group_id):
+        raise NoGroupId()
+    return group_id
 
 
 class AllGroupsViewSet(viewsets.ViewSet):
@@ -31,12 +41,12 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
 
 class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserListSerializer
 
     def get_queryset(self):
         group_id = self.kwargs.get("group_pk", None)
-        if not group_id:
+        if not group_id or not check_group_id(group_id):
             raise NoGroupId()
         group_members = keycloak_admin.get_group_members(group_id=group_id)
         ids = [val['id'] for val in group_members if val['enabled']]
@@ -52,3 +62,33 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
             # 'destroy': registration_serializers.RegistrationParticipantSerializer
         }
         return serializer.get(self.action, UserListSerializer)
+
+
+class RequestGroupAccessViewSet(viewsets.ModelViewSet):
+    serializer_class = RequestGroupAccessSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        group_id = get_group_id(self.kwargs)
+        user_groups = keycloak_admin.get_user_groups(request.user.keycloak_id)
+        keycloak_group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
+
+        if any(val['id'] == keycloak_group.keycloak_id for val in user_groups):
+            raise AlreadyInGroup()
+
+        if RequestGroupAccess.objects.filter(user=request.user, group=keycloak_group).exists():
+            raise AlreadyAccessRequested()
+
+        request.data['group'] = keycloak_group.id
+        request.data['accepted'] = False
+        request.data['declined'] = False
+        if not request.data.get('user'):
+            request.data['user'] = request.user.id
+
+        return super().create(request, *args, **kwargs)
+
+    def get_queryset(self):
+        group_id = get_group_id(self.kwargs)
+        requests = RequestGroupAccess.objects.filter(group__keycloak_id=group_id)
+        print(requests)
+        return requests

@@ -8,6 +8,7 @@ router.register(r'group', views.AllGroupsViewSet, basename='group')
 
 group_router = routers.NestedSimpleRouter(router, r'group', lookup='group')
 group_router.register(r'members', views.GroupMembersViewSet, basename='members')
+group_router.register(r'requests', views.RequestGroupAccessViewSet, basename='requests')
 
 
 urlpatterns = [
