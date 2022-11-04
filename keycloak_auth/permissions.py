@@ -2,8 +2,21 @@ from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
+from .enums import PermissionType
 
 User = get_user_model()
+
+
+def request_access(request, role_name: str) -> bool:
+    if role_name not in request.user.groups:
+        return False
+
+    return True
+
+
+def request_group_access(request, group_id: str, permission_type: PermissionType) -> bool:
+    role_name = f'group-{group_id}-{permission_type.value}-role'
+    return request_access(request, role_name)
 
 
 class IsStaffOrReadOnly(permissions.BasePermission):
@@ -21,11 +34,7 @@ class CanViewClients(permissions.BasePermission):
 
     def has_permission(self, request: Request, view) -> bool:
         role_name = 'view-clients'
-
-        if role_name not in request.user.groups:
-            return False
-
-        return True
+        return request_access(request, role_name)
 
 
 class CanQueryGroups(permissions.BasePermission):
@@ -33,34 +42,28 @@ class CanQueryGroups(permissions.BasePermission):
 
     def has_permission(self, request: Request, view) -> bool:
         role_name = 'query-groups'
-
-        if role_name not in request.user.groups:
-            return False
-
-        return True
+        return request_group_access(request, role_name)
 
 
 class CanManageGroup(permissions.BasePermission):
-    message = 'Keine Berechtigung um Gruppen einzusehen'
+    message = 'Keine Berechtigung um Gruppen bearbeiten'
 
     def has_permission(self, request: Request, view) -> bool:
         group_id = request.data.get('groupId')
-        role_name = "group-" + group_id + "-admin-role"
-
-        if role_name not in request.user.groups:
-            return False
-
-        return True
+        return request_group_access(request, group_id, PermissionType.ADMIN)
 
 
 class CanManageParentGroup(permissions.BasePermission):
-    message = 'Keine Berechtigung um Gruppen einzusehen'
+    message = 'Keine Berechtigung um Gruppen zu bearbeiten'
 
     def has_permission(self, request: Request, view) -> bool:
         group_id = request.data.get('parentGroupId')
-        role_name = "group-" + group_id + "-admin-role"
+        return request_group_access(request, group_id, PermissionType.ADMIN)
 
-        if role_name not in request.user.groups:
-            return False
 
-        return True
+class CanViewGroup(permissions.BasePermission):
+    message = 'Keine Berechtigung um Gruppen zu einzusehen'
+
+    def has_permission(self, request: Request, view) -> bool:
+        group_id = request.data.get('groupId')
+        return request_group_access(request, group_id, PermissionType.VIEW)

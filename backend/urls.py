@@ -8,5 +8,6 @@ urlpatterns = [
     path('event/', include('anmelde_tool.event.urls')),
     path('message/', include('messaging.urls')),
     path('food/', include('food.urls')),
+    path('keycloak/', include('keycloak_auth.urls')),
 ]
 

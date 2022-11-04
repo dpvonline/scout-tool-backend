@@ -5,8 +5,6 @@ Dataclasses for communication with keycloak
 from dataclasses import dataclass
 from typing import List, Optional
 
-from dataclasses_json import dataclass_json
-
 from keycloak_auth.enums import Logic, PolicyType, DecisionStrategy
 
 
@@ -26,13 +24,11 @@ class RoleRepresentation:
     containerId: Optional[str] = None
 
 
-@dataclass_json
 @dataclass
 class PolicyRoleRepresentation:
     id: str
 
 
-@dataclass_json
 @dataclass
 class PolicyRepresentation:
     decisionStrategy: Optional[DecisionStrategy] = None

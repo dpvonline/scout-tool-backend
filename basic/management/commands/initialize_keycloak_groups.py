@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from backend.settings import env
-from keycloak_auth.KeycloakAdminExtended import KeycloakAdminExtended
+from backend.settings import keycloak_admin
 from keycloak_auth.helper import get_or_create_keycloak_group
 from keycloak_auth.models import KeycloakGroup
 
@@ -11,14 +10,6 @@ class Command(BaseCommand):
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         super(Command, self).__init__(stdout, stderr, no_color, force_color)
-        self.keycloak_admin = KeycloakAdminExtended(
-            server_url=env('BASE_URI'),
-            client_id=env('KEYCLOAK_ADMIN_USER'),
-            client_secret_key=env('KEYCLOAK_ADMIN_PASSWORD'),
-            realm_name=env('KEYCLOAK_APP_REALM'),
-            user_realm_name=env('KEYCLOAK_APP_REALM'),
-            verify=True
-        )
         self.groups = {}
         self.groups_added = []
         self.groups_deleted = []
@@ -31,7 +22,7 @@ class Command(BaseCommand):
             self.groups[name] = False
 
         print('checking keycloak groups')
-        all_groups = self.keycloak_admin.get_groups()
+        all_groups = keycloak_admin.get_groups()
         for group in all_groups:
             self.get_subgroup(group)
 
