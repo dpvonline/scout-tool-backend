@@ -1,10 +1,7 @@
 from django.contrib import admin
 
-from .models import MeasuringUnit, Price, Tag, TagCategory, Ingredient, Recipe, Portion, Retailer, Package, RecipeItem, Hint
-
-from django.contrib import admin
-from django.contrib.auth.models import User, Group
-
+from .models import MeasuringUnit, Price, Tag, TagCategory, Ingredient, Recipe, Portion, Retailer, Package, \
+    RecipeItem, Hint
 
 admin.site.register(MeasuringUnit)
 admin.site.register(Tag)
@@ -157,8 +154,7 @@ admin.site.register(Retailer)
 
 @admin.register(Hint)
 class EventModuleAdmin(admin.ModelAdmin):
-    search_fields = ['name', 'description',]
+    search_fields = ['name', 'description', ]
     list_display = ('name', 'description', 'parameter',
                     'min_max', 'value', 'hint_level',)
-    search_fields = ('name', 'description',)
     list_filter = ('parameter',)
