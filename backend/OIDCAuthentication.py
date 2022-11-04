@@ -36,7 +36,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
 
     def set_user_info(self, user, claims):
         edited = False
-        if user.username is not claims.get('preferred_username', ''):
+        if user.username != claims.get('preferred_username', ''):
             user.username = claims.get('preferred_username', '')
             edited = True
 
@@ -45,23 +45,23 @@ class MyOIDCAB(OIDCAuthenticationBackend):
                 user.scout_name = claims.get('fahrtenname', '')
                 edited = True
         else:
-            if user.scout_name is not claims.get('given_name', ''):
+            if user.scout_name != claims.get('given_name', ''):
                 user.scout_name = claims.get('given_name', '')
                 edited = True
 
-        if user.email is not claims.get('email', ''):
+        if user.email != claims.get('email', ''):
             user.email = claims.get('email', '')
             edited = True
 
-        if user.first_name is not claims.get('given_name', ''):
+        if user.first_name != claims.get('given_name', ''):
             user.first_name = claims.get('given_name', '')
             edited = True
 
-        if user.last_name is not claims.get('family_name', ''):
+        if user.last_name != claims.get('family_name', ''):
             user.last_name = claims.get('family_name', '')
             edited = True
 
-        if user.last_name is not claims.get('family_name', ''):
+        if user.last_name != claims.get('family_name', ''):
             user.last_name = claims.get('family_name', '')
             edited = True
 

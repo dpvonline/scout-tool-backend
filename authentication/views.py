@@ -124,7 +124,6 @@ class RegisterViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         serializers = RegisterSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
-        print(serializers.data)
 
         try:
             new_keycloak_user_id: str = keycloak_admin.create_user(
@@ -138,10 +137,9 @@ class RegisterViewSet(viewsets.ViewSet):
                         'value': serializers.data.get('password'),
                         'type': 'password',
                     }],
-                    # 'requiredActions': [
-                    #     'VERIFY_EMAIL',
-                    # ],
-                    'requiredActions': [],
+                    'requiredActions': [
+                        'VERIFY_EMAIL',
+                    ],
                     'attributes': {
                         'verband': serializers.data.get('scout_organisation'),
                         'fahrtenname': serializers.data.get('scout_name'),
@@ -174,8 +172,6 @@ class RegisterViewSet(viewsets.ViewSet):
                     'error': repr(e)
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        print(f'{new_keycloak_user_id=}')
 
         if serializers.data.get('scout_organisation'):
             scout_organisation = ScoutHierarchy.objects.get(id=serializers.data.get('scout_organisation'))

@@ -28,20 +28,20 @@ def post_save_user(sender, instance: CustomUser, **kwargs):
 
         if keycloak_user['username'] == instance.username:
             scout_organisation = instance.scout_organisation and instance.scout_organisation.name
-
-            keycloak_admin.update_user(
-                instance.keycloak_id, {
-                    'email': instance.email,
-                    'firstName': instance.first_name,
-                    'lastName': instance.last_name,
-                    # 'attributes': {
-                    #     'verband': '',
-                    #     'fahrtenname': instance.scout_name,
-                    #     'bund': '',
-                    #     'stamm': scout_organisation
-                    # }
-                }
-            )
+            # print(instance)
+            # keycloak_admin.update_user(
+            #     instance.keycloak_id, {
+            #         'email': instance.email,
+            #         'firstName': instance.first_name,
+            #         'lastName': instance.last_name,
+            #         'attributes': {
+            #             'verband': '',
+            #             'fahrtenname': instance.scout_name,
+            #             'bund': '',
+            #             'stamm': scout_organisation
+            #         }
+            #     }
+            # )
 
 
 def post_save_request_group_access(sender, instance: RequestGroupAccess, **kwargs):
