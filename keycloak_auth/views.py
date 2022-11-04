@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from keycloak import KeycloakGetError
 from rest_framework import viewsets, status, mixins
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -8,23 +9,67 @@ from rest_framework.viewsets import GenericViewSet
 from authentication.models import CustomUser, RequestGroupAccess
 from authentication.serializers import UserSerializer, RequestGroupAccessSerializer
 from backend.settings import keycloak_admin
-from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested
+from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
-from keycloak_auth.serializers import UserListSerializer
+from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer
 
 User: CustomUser = get_user_model()
 
 
 def get_group_id(kwargs):
     group_id = kwargs.get("group_pk", None)
+    if group_id is None:
+        group_id = kwargs.get("pk", None)
     if not group_id or not check_group_id(group_id):
         raise NoGroupId()
     return group_id
 
 
 class AllGroupsViewSet(viewsets.ViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request) -> Response:
+        serializer = CreateGroupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        parent_id = serializer.data.get('parent_id')
+        parent_group = None
+        if parent_id:
+            try:
+                parent_group = keycloak_admin.get_group(group_id=parent_id)
+            except KeycloakGetError:
+                raise WrongParentGroupId()
+
+        payload = {'name': serializer.data['name']}
+        if parent_group:
+            new_group_id = keycloak_admin.create_group(payload=payload, parent=parent_id)
+        else:
+            new_group_id = keycloak_admin.create_group(payload=payload)
+
+        new_group = keycloak_admin.get_group(new_group_id)
+        return Response(new_group, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        group_id = get_group_id(kwargs)
+        serializer = UpdateGroupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        keycloak_admin.get_group(group_id=group_id)
+
+        payload = {}
+        if serializer.data.get('name'):
+            payload = {'name': serializer.data['name']}
+
+        if serializer.data.get('parent_id'):
+            keycloak_admin.move_group(payload=payload, parent=serializer.data['parent_id'])
+
+        new_group = keycloak_admin.get_group(group_id=group_id)
+        return Response(new_group, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        group_id = get_group_id(kwargs)
+        keycloak_admin.delete_group(group_id=group_id)
+        return Response(status.HTTP_204_NO_CONTENT)
 
     def list(self, request) -> Response:
         all_groups = keycloak_admin.get_groups()
@@ -32,9 +77,7 @@ class AllGroupsViewSet(viewsets.ViewSet):
         return Response(all_groups, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs) -> Response:
-        group_id = kwargs.get("pk", None)
-        if not group_id or not check_group_id(group_id):
-            raise NoGroupId()
+        group_id = get_group_id(kwargs)
 
         group = keycloak_admin.get_group(group_id=group_id)
         return Response(group, status=status.HTTP_200_OK)
@@ -90,5 +133,4 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         group_id = get_group_id(self.kwargs)
         requests = RequestGroupAccess.objects.filter(group__keycloak_id=group_id)
-        print(requests)
         return requests
