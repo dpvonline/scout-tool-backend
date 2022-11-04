@@ -5,10 +5,9 @@ ENV PYTHONUNBUFFERED=1
 # changing current working directory to /usr/src/app
 WORKDIR /usr/src/app
 
-
 # install dependencies
 RUN pip install --upgrade pip
-RUN apk add zlib-dev
+RUN apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
