@@ -37,7 +37,6 @@ class MyOIDCAB(OIDCAuthenticationBackend):
                 group.user_set.add(user)
 
     def set_user_info(self, user: CustomUser, claims: dict):
-        print(claims)
         edited = False
 
         if not user.person:
