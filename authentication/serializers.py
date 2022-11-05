@@ -8,7 +8,7 @@ from authentication.choices import BundesPostTextChoice
 from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.choices import Gender
 from basic.models import ScoutHierarchy
-from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer
+from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer, ScoutHierarchyDetailedSerializer
 
 User: CustomUser = get_user_model()
 
@@ -146,7 +146,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class PersonSerializer(serializers.ModelSerializer):
     zip_code = ZipCodeDetailedSerializer(many=False)
-    scout_group = UserScoutHierarchySerializer(many=False)
+    scout_group = ScoutHierarchyDetailedSerializer(many=False)
     bundespost = serializers.CharField(source='get_bundespost_display')
     gender = serializers.CharField(source='get_gender_display')
     scout_level = serializers.CharField(source='get_scout_level_display')
