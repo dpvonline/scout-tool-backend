@@ -1,20 +1,19 @@
 import uuid
 
-from anmelde_tool.event.choices import choices as event_choices
-from authentication.choices import BundesPostTextChoice
-from backend.timestamp_mixin import TimeStampMixin
-from basic import models as basic_models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from anmelde_tool.event.choices import choices as event_choices
+from authentication.choices import BundesPostTextChoice
 from authentication.choices import EmailNotificationType
-from basic.models import ScoutHierarchy
+from backend.timestamp_mixin import TimeStampMixin
+from basic import models as basic_models
 from keycloak_auth.models import KeycloakGroup
 
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True, blank=False)
-    scout_organisation = models.ForeignKey(ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
+    scout_organisation = models.ForeignKey(basic_models.ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
     mobile_number = models.CharField(max_length=20, blank=True, null=True)
     scout_name = models.CharField(max_length=20, blank=True, null=True)
     dsgvo_confirmed = models.BooleanField(default=False, null=True)
