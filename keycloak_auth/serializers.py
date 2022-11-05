@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from authentication.models import CustomUser, Person
 from authentication.serializers import UserScoutHierarchySerializer
+from keycloak_auth.models import KeycloakGroup
 
 User: CustomUser = get_user_model()
 
@@ -40,3 +41,23 @@ class CreateGroupSerializer(serializers.Serializer):
 class UpdateGroupSerializer(serializers.Serializer):
     name = serializers.CharField(required=False)
     parent_id = serializers.CharField(required=False)
+
+
+class GroupSearchSerializer(serializers.ModelSerializer):
+    parent = serializers.SerializerMethodField()
+
+    class Meta:
+        model = KeycloakGroup
+        fields = (
+            'name',
+            'keycloak_id',
+            'parent'
+        )
+
+    def get_parent(self, obj: KeycloakGroup):
+        if obj.parent is not None:
+            return GroupSearchSerializer(obj.parent).data
+        else:
+            return None
+
+# GroupSearchSerializer.base_fields['subcategories'] = CategorySerializer()
