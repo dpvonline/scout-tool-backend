@@ -10,8 +10,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
 
     def create_user(self, claims):
         user: CustomUser = super(MyOIDCAB, self).create_user(claims)
-        person = Person.objects.create()
-        user.person = person
+        user.person = Person.objects.create()
         user.save()
 
         self.set_user_info(user, claims)
@@ -39,7 +38,11 @@ class MyOIDCAB(OIDCAuthenticationBackend):
 
     def set_user_info(self, user, claims):
         edited = False
-        print(claims)
+
+        if not user.person:
+            user.person = Person.objects.create()
+            edited = True
+
         if user.username != claims.get('preferred_username', ''):
             user.username = claims.get('preferred_username', '')
             edited = True
