@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.core.validators import EmailValidator
 from rest_framework import serializers
 
 from anmelde_tool.event.choices.choices import Gender, ScoutLevelTypes, LeaderTypes
@@ -165,7 +166,50 @@ class PersonSerializer(serializers.ModelSerializer):
         )
 
 
+class EditPersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'scout_name',
+            'email',
+            'scout_organisation',
+            'mobile_number',
+            'email_notification',
+            'sms_notification',
+            'dsgvo_confirmed',
+            'address',
+            'additional_address',
+            'zip_code',
+            'gender',
+            'scout_level',
+            'leader',
+            'bundespost'
+        )
+        extra_kwargs = {'email': {'validators': [EmailValidator, ]}}
+
+    address = serializers.CharField(required=False)
+    additional_address = serializers.CharField(required=False)
+    zip_code = serializers.IntegerField(required=False)
+    gender = serializers.ChoiceField(required=False, choices=Gender.choices)
+    scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
+    leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
+    bundespost = serializers.ChoiceField(required=False, choices=BundesPostTextChoice.choices)
+
+
 class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = (
+            'password',
+            'keycloak_id',
+            'username'
+        )
+        extra_kwargs = {'email': {'validators': [EmailValidator, ]}}
+
+
+class FullUserSerializer(serializers.ModelSerializer):
     """
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
@@ -182,7 +226,10 @@ class UserSerializer(serializers.ModelSerializer):
             'dsgvo_confirmed',
             'email_notification',
             'sms_notification',
-            'person'
+            'person',
+            'username',
+            'first_name',
+            'last_name'
         )
 
     def to_representation(self, obj):
@@ -193,36 +240,6 @@ class UserSerializer(serializers.ModelSerializer):
             representation[key] = person_representation[key]
 
         return representation
-
-    def to_internal_value(self, data):
-        """Move fields related to person to their own person dictionary."""
-        person_internal = {}
-        for key in PersonSerializer.Meta.fields:
-            if key != 'id' and key in data and data[key]:
-                person_internal[key] = data[key]
-
-        user_fields = {}
-        for key in UserSerializer.Meta.fields:
-            if key in data and data[key]:
-                user_fields[key] = data[key]
-
-        user_fields['person'] = person_internal
-        print(user_fields)
-        internal = super().to_internal_value(user_fields)
-        # internal['person'] = person_internal
-        return user_fields
-
-    def update(self, instance, validated_data):
-        """Update user and person. Assumes there is a person for every user."""
-        person_data = validated_data.pop('person')
-        super().update(instance, validated_data)
-
-        person = instance.person
-        for attr, value in person_data.items():
-            setattr(person, attr, value)
-        person.save()
-
-        return instance
 
 
 class RequestGroupAccessSerializer(serializers.ModelSerializer):

@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from authentication.models import CustomUser, RequestGroupAccess
-from authentication.serializers import UserSerializer, RequestGroupAccessSerializer
+from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer
 from backend.settings import keycloak_admin
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId
 from keycloak_auth.helper import check_group_id
@@ -111,7 +111,7 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
     def get_serializer_class(self):
         serializer = {
             # 'create': registration_serializers.RegistrationParticipantSerializer,
-            'retrieve': UserSerializer,
+            'retrieve': FullUserSerializer,
             'list': UserListSerializer,
             # 'update': registration_serializers.RegistrationParticipantSerializer,
             # 'destroy': registration_serializers.RegistrationParticipantSerializer

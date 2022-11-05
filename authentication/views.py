@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from keycloak import KeycloakGetError, KeycloakAuthenticationError
 from rest_framework import status, viewsets, mixins
 from rest_framework.filters import SearchFilter
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -14,7 +15,7 @@ from basic.models import ScoutHierarchy, ZipCode
 from basic.permissions import IsStaffOrReadOnly
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
-    UserSerializer, RequestGroupAccessSerializer
+    FullUserSerializer, RequestGroupAccessSerializer, EditPersonSerializer, UserSerializer, PersonSerializer
 
 User: CustomUser = get_user_model()
 
@@ -31,16 +32,40 @@ class PersonalData(viewsets.ViewSet):
         @param request: request information
         @return: Response with serialized user and person data of the user
         """
-        serializer = UserSerializer(request.user, many=False)
+        serializer = FullUserSerializer(request.user, many=False)
         return Response(serializer.data)
 
     def put(self, request, *args, **kwargs) -> Response:
-        print(request.data)
-        serializer = UserSerializer(data=request.data, many=False)
+        data = dict(request.data)
+        for key in data:
+            if data[key] is None or data[key] == '':
+                del request.data[key]
+        if 'mobile_number' in request.data:
+            request.data['phone_number'] = request.data['mobile_number']
+        if 'scout_organisation' in request.data:
+            scout_group = get_object_or_404(ScoutHierarchy.objects.all(), id=request.data['scout_organisation'])
+        else:
+            scout_group = None
+
+        serializer = EditPersonSerializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
-        serializer.update(self.request.user, serializer.data)
-        print(serializer.data)
-        return Response(status=status.HTTP_200_OK)
+
+        user_serializer = UserSerializer(data=serializer.data)
+        user_serializer.is_valid(raise_exception=True)
+        user_data = user_serializer.data
+        if scout_group:
+            user_data['scout_organisation'] = scout_group
+        user_serializer.update(request.user, user_data)
+
+        person_serializer = PersonSerializer(data=serializer.data)
+        person_serializer.is_valid(raise_exception=True)
+        person_data = person_serializer.data
+        if scout_group:
+            person_data['scout_group'] = scout_group
+        person_serializer.update(request.user.person, person_data)
+
+        result = FullUserSerializer(request.user, many=False)
+        return Response(result.data, status=status.HTTP_200_OK)
 
     # pylint: disable=no-self-use
     def delete(self, request, *args, **kwargs) -> Response:
