@@ -45,12 +45,13 @@ class UpdateGroupSerializer(serializers.Serializer):
 
 class GroupSearchSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = KeycloakGroup
         fields = (
             'name',
-            'keycloak_id',
+            'id',
             'parent'
         )
 
@@ -60,4 +61,5 @@ class GroupSearchSerializer(serializers.ModelSerializer):
         else:
             return None
 
-# GroupSearchSerializer.base_fields['subcategories'] = CategorySerializer()
+    def get_id(self, obj: KeycloakGroup):
+        return obj.keycloak_id
