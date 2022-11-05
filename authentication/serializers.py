@@ -8,7 +8,7 @@ from authentication.choices import BundesPostTextChoice
 from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.choices import Gender
 from basic.models import ScoutHierarchy
-from basic.serializers import ZipCodeDetailedSerializer
+from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer
 
 User: CustomUser = get_user_model()
 
@@ -151,6 +151,7 @@ class PersonSerializer(serializers.ModelSerializer):
     gender = serializers.CharField(source='get_gender_display')
     scout_level = serializers.CharField(source='get_scout_level_display')
     leader = serializers.CharField(source='get_leader_display')
+    eat_habits = EatHabitSerializer(many=True, read_only=True)
 
     class Meta:
         model = Person
