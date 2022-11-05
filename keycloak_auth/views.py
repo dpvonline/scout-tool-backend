@@ -28,7 +28,7 @@ def get_group_id(kwargs):
 
 
 class AllGroupsViewSet(viewsets.ViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request) -> Response:
         serializer = CreateGroupSerializer(data=request.data)
@@ -85,6 +85,7 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
 
 class GroupSearchViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
     def list(self, request):
         search_params = request.GET.get('search')
@@ -94,7 +95,7 @@ class GroupSearchViewSet(viewsets.ViewSet):
 
 
 class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserListSerializer
 
     def get_queryset(self):
