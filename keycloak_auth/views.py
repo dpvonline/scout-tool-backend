@@ -20,7 +20,7 @@ User: CustomUser = get_user_model()
 
 def get_group_id(kwargs):
     group_id = kwargs.get("group_pk", None)
-    if group_id is None:
+    if not group_id or not check_group_id(group_id):
         group_id = kwargs.get("pk", None)
     if not group_id or not check_group_id(group_id):
         raise NoGroupId()
@@ -28,7 +28,7 @@ def get_group_id(kwargs):
 
 
 class AllGroupsViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def create(self, request) -> Response:
         serializer = CreateGroupSerializer(data=request.data)
@@ -79,7 +79,6 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, *args, **kwargs) -> Response:
         group_id = get_group_id(kwargs)
-
         group = keycloak_admin.get_group(group_id=group_id)
         return Response(group, status=status.HTTP_200_OK)
 
@@ -145,3 +144,13 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
         group_id = get_group_id(self.kwargs)
         requests = RequestGroupAccess.objects.filter(group__keycloak_id=group_id)
         return requests
+
+
+class GroupParentViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        group_id = get_group_id(kwargs)
+        results = KeycloakGroup.objects.filter(keycloak_id=group_id).first()
+        serializer = GroupSearchSerializer(results, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)

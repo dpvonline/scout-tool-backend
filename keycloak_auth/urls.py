@@ -10,6 +10,7 @@ router.register(r'group-search', views.GroupSearchViewSet, basename='group-searc
 group_router = routers.NestedSimpleRouter(router, r'group', lookup='group')
 group_router.register(r'members', views.GroupMembersViewSet, basename='members')
 group_router.register(r'requests', views.RequestGroupAccessViewSet, basename='requests')
+group_router.register(r'parents', views.GroupParentViewSet, basename='parents')
 
 
 urlpatterns = [
