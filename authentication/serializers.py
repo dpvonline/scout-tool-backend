@@ -144,10 +144,24 @@ class RegisterSerializer(serializers.ModelSerializer):
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
-        exclude = (
-            'active',
-            'person_verified',
-
+        fields = (
+            'id',
+            'scout_name',
+            'first_name',
+            'last_name',
+            'address',
+            'address_supplement',
+            'zip_code',
+            'scout_group',
+            'phone_number',
+            'email',
+            'email_verified',
+            'bundespost',
+            'birthday',
+            'gender',
+            'eat_habits',
+            'leader',
+            'scout_level',
         )
 
 
@@ -160,14 +174,58 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = (
-            'keycloak_id',
-            'password'
+        fields = (
+            'email',
+            'scout_organisation',
+            'mobile_number',
+            'scout_name',
+            'dsgvo_confirmed',
+            'email_notification',
+            'sms_notification',
+            'person'
         )
+
+    def to_representation(self, obj):
+        """Move fields from person to user representation."""
+        representation = super().to_representation(obj)
+        person_representation = representation.pop('person')
+        for key in person_representation:
+            representation[key] = person_representation[key]
+
+        return representation
+
+    def to_internal_value(self, data):
+        """Move fields related to person to their own person dictionary."""
+        person_internal = {}
+        for key in PersonSerializer.Meta.fields:
+            if key != 'id' and key in data and data[key]:
+                person_internal[key] = data[key]
+
+        user_fields = {}
+        for key in UserSerializer.Meta.fields:
+            if key in data and data[key]:
+                user_fields[key] = data[key]
+
+        user_fields['person'] = person_internal
+        print(user_fields)
+        internal = super().to_internal_value(user_fields)
+        # internal['person'] = person_internal
+        return user_fields
+
+    def update(self, instance, validated_data):
+        """Update user and person. Assumes there is a person for every user."""
+        person_data = validated_data.pop('person')
+        super().update(instance, validated_data)
+
+        person = instance.person
+        for attr, value in person_data.items():
+            setattr(person, attr, value)
+        person.save()
+
+        return instance
 
 
 class RequestGroupAccessSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RequestGroupAccess
         fields = '__all__'

@@ -26,7 +26,7 @@ class PersonalData(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     # pylint: disable=no-self-use
-    def list(self, request) -> Response:
+    def list(self, request, *args, **kwargs) -> Response:
         """
         @param request: request information
         @return: Response with serialized user and person data of the user
@@ -34,8 +34,16 @@ class PersonalData(viewsets.ViewSet):
         serializer = UserSerializer(request.user, many=False)
         return Response(serializer.data)
 
+    def put(self, request, *args, **kwargs) -> Response:
+        print(request.data)
+        serializer = UserSerializer(data=request.data, many=False)
+        serializer.is_valid(raise_exception=True)
+        serializer.update(self.request.user, serializer.data)
+        print(serializer.data)
+        return Response(status=status.HTTP_200_OK)
+
     # pylint: disable=no-self-use
-    def delete(self, request) -> Response:
+    def delete(self, request, *args, **kwargs) -> Response:
         """
         @param request: standard django request information
         @return: Statuscode 200 after the user is successfully deleted
@@ -43,10 +51,6 @@ class PersonalData(viewsets.ViewSet):
         user = request.user
         user.delete()
         return Response(status=status.HTTP_200_OK)
-
-    def update(self, request) -> Response:
-        # TODO: add update of user
-        return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 class ResponsiblePersonViewSet(viewsets.ModelViewSet):
@@ -204,8 +208,6 @@ class RegisterViewSet(viewsets.ViewSet):
                     'error': repr(exception)
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        print(f'{new_django_user=}')
 
         if new_keycloak_user_id and new_django_user:
             print('all ok, add Person model')
