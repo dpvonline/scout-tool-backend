@@ -8,6 +8,7 @@ from authentication.choices import BundesPostTextChoice
 from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.choices import Gender
 from basic.models import ScoutHierarchy
+from basic.serializers import ZipCodeDetailedSerializer
 
 User: CustomUser = get_user_model()
 
@@ -144,6 +145,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
+    zip_code = ZipCodeDetailedSerializer(many=False)
+    scout_group = UserScoutHierarchySerializer(many=False)
+    bundespost = serializers.CharField(source='get_bundespost_display')
+    gender = serializers.CharField(source='get_gender_display')
+    scout_level = serializers.CharField(source='get_scout_level_display')
+    leader = serializers.CharField(source='get_leader_display')
+
     class Meta:
         model = Person
         fields = (
@@ -157,7 +165,6 @@ class PersonSerializer(serializers.ModelSerializer):
             'scout_group',
             'phone_number',
             'email',
-            'email_verified',
             'bundespost',
             'birthday',
             'gender',
@@ -214,15 +221,13 @@ class FullUserSerializer(serializers.ModelSerializer):
     """
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
-    scout_organisation = UserScoutHierarchySerializer(many=False)
     person = PersonSerializer(many=False)
+    email_notification = serializers.CharField(source='get_email_notification_display')
 
     class Meta:
         model = User
         fields = (
             'email',
-            'scout_organisation',
-            'mobile_number',
             'scout_name',
             'dsgvo_confirmed',
             'email_notification',
