@@ -88,6 +88,8 @@ class GroupSearchViewSet(viewsets.ViewSet):
 
     def list(self, request):
         search_params = request.GET.get('search')
+        if not search_params:
+            return Response([], status=status.HTTP_200_OK)
         results = KeycloakGroup.objects.filter(name__icontains=search_params)
         serializer = GroupSearchSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
