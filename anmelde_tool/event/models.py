@@ -6,6 +6,7 @@ from django.db import models
 
 from anmelde_tool.attributes.models import AbstractAttribute
 from basic import models as basic_models
+from basic import choices as basic_choices
 from anmelde_tool.email_services import models as email_services_model
 from anmelde_tool.event.choices import choices as event_choices
 
@@ -233,7 +234,7 @@ class RegistrationParticipant(basic_models.TimeStampMixin):
     birthday = models.DateTimeField(null=True, blank=True)
     registration = models.ForeignKey(Registration, on_delete=models.CASCADE, null=True, blank=True)
     booking_option = models.ForeignKey(BookingOption, on_delete=models.SET_NULL, blank=True, null=True)
-    gender = models.CharField(max_length=1, choices=event_choices.Gender.choices, default=event_choices.Gender.Nothing)
+    gender = models.CharField(max_length=1, choices=basic_choices.Gender.choices, default=basic_choices.Gender.Nothing)
     deactivated = models.BooleanField(default=False)
     generated = models.BooleanField(default=False)
     needs_confirmation = models.CharField(

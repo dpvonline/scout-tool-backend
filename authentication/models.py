@@ -8,6 +8,7 @@ from authentication.choices import BundesPostTextChoice
 from authentication.choices import EmailNotificationType
 from backend.timestamp_mixin import TimeStampMixin
 from basic import models as basic_models
+from basic.choices import Gender
 from keycloak_auth.models import KeycloakGroup
 
 
@@ -55,8 +56,8 @@ class Person(TimeStampMixin):
     birthday = models.DateField(null=True, blank=True)
     gender = models.CharField(
         max_length=1,
-        choices=event_choices.Gender.choices,
-        default=event_choices.Gender.Nothing
+        choices=Gender.choices,
+        default=Gender.Nothing
     )
     active = models.BooleanField(default=False)
     person_verified = models.BooleanField(default=False)

@@ -12,6 +12,7 @@ router.register(r'tag-types', views.TagTypeViewSet)
 router.register(r'eat-habits', views.EatHabitViewSet)
 router.register(r'theme', views.FrontendThemeViewSet)
 router.register(r'scout-orga-level', views.ScoutOrgaLevelViewSet)
+router.register(r'gender', views.GenderViewSet, basename='gender')
 
 router.register(r'faq', views.DescriptionViewSet, basename='faq')
 router.register(r'privacy', views.DescriptionViewSet, basename='privacy')

@@ -48,3 +48,10 @@ class ScoutOrganisationLevelChoices(models.TextChoices):
             return plural_dict[choice]
         else:
             raise KeyError(f'Choice: {choice} does not exist')
+
+
+class Gender(models.TextChoices):
+    Male = 'M', _('Männlich')
+    Female = 'F', _('Weiblich')
+    Divers = 'D', _('Divers')
+    Nothing = 'N', _('Keine Angabe')

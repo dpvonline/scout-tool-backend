@@ -5,7 +5,6 @@ from . import views
 router = routers.SimpleRouter()
 router.register(r'event-type-group', views.RegistrationTypeGroupViewSet, basename='event-type-group')
 router.register(r'event-type-single', views.RegistrationTypeSingleViewSet, basename='event-type-single')
-router.register(r'gender', views.GenderViewSet, basename='gender')
 router.register(r'leader-types', views.LeaderTypesViewSet, basename='leader-types')
 router.register(r'scout-level-types', views.ScoutLevelTypesViewSet, basename='scout-level-types')
 router.register(r'file-type', views.FileTypeViewSet, basename='file-type')

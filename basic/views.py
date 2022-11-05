@@ -1,15 +1,17 @@
 from django.db.models import Q, QuerySet
 from django_filters import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-import basic.choices
 from basic import models as basic_models
 from basic import serializers as basic_serializers
 from basic.api_exceptions import TooManySearchResults, NoSearchResults, NoSearchValue
+from basic.choices import Gender, DescriptionType
+from basic.helper import choice_to_json
 from basic.permissions import IsStaffOrReadOnly
 
 
@@ -80,9 +82,9 @@ class DescriptionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         if self.basename == 'faq':
-            return basic_models.Description.objects.filter(public=True, type=basic.choices.DescriptionType.FAQ)
+            return basic_models.Description.objects.filter(public=True, type=DescriptionType.FAQ)
         elif self.basename == 'privacy':
-            return basic_models.Description.objects.filter(public=True, type=basic.choices.DescriptionType.Privacy)
+            return basic_models.Description.objects.filter(public=True, type=DescriptionType.Privacy)
         else:
             raise NotFound
 
@@ -97,3 +99,11 @@ class FrontendThemeViewSet(viewsets.ModelViewSet):
     queryset = basic_models.FrontendTheme.objects.all()
     serializer_class = basic_serializers.FrontendThemeSerializer
     permission_classes = [IsAuthenticated]
+
+
+class GenderViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request) -> Response:
+        result = choice_to_json(Gender.choices)
+        return Response(result, status=status.HTTP_200_OK)

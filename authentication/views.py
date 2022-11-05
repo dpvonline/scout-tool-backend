@@ -11,8 +11,10 @@ from rest_framework.viewsets import GenericViewSet
 
 from backend.settings import env, keycloak_admin
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
+from basic.helper import choice_to_json
 from basic.models import ScoutHierarchy, ZipCode
 from basic.permissions import IsStaffOrReadOnly
+from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
     FullUserSerializer, RequestGroupAccessSerializer, EditPersonSerializer, UserSerializer, PersonSerializer
@@ -145,7 +147,24 @@ class EmailNotificationTypeViewSet(viewsets.ViewSet):
         @param request: standard django request
         @return: Response which EmailNotificationType choices
         """
-        return Response(EmailNotificationType.choices, status=status.HTTP_200_OK)
+        result = choice_to_json(EmailNotificationType.choices)
+        return Response(result, status=status.HTTP_200_OK)
+
+
+class BundesPostViewSet(viewsets.ViewSet):
+    """
+    Viewset for retrieving the choices of bundespost
+    """
+    permission_classes = [IsAuthenticated]
+
+    # pylint: disable=no-self-use
+    def list(self, request) -> Response:
+        """
+        @param request: standard django request
+        @return: Response which EmailNotificationType choices
+        """
+        result = choice_to_json(BundesPostTextChoice.choices)
+        return Response(result, status=status.HTTP_200_OK)
 
 
 class RegisterViewSet(viewsets.ViewSet):

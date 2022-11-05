@@ -3,9 +3,10 @@ from django.contrib.auth.models import Group
 from django.core.validators import EmailValidator
 from rest_framework import serializers
 
-from anmelde_tool.event.choices.choices import Gender, ScoutLevelTypes, LeaderTypes
+from anmelde_tool.event.choices.choices import ScoutLevelTypes, LeaderTypes
 from authentication.choices import BundesPostTextChoice
 from authentication.models import CustomUser, Person, RequestGroupAccess
+from basic.choices import Gender
 from basic.models import ScoutHierarchy
 
 User: CustomUser = get_user_model()
