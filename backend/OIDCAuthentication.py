@@ -1,3 +1,4 @@
+from authentication.models import Person, CustomUser
 from basic.models import ScoutHierarchy
 from django.contrib.auth.models import Group
 from django.db import transaction
@@ -8,7 +9,9 @@ from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 class MyOIDCAB(OIDCAuthenticationBackend):
 
     def create_user(self, claims):
-        user = super(MyOIDCAB, self).create_user(claims)
+        user: CustomUser = super(MyOIDCAB, self).create_user(claims)
+        person = Person.objects.create()
+        user.person = person
         user.save()
 
         self.set_user_info(user, claims)
@@ -36,6 +39,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
 
     def set_user_info(self, user, claims):
         edited = False
+        print(claims)
         if user.username != claims.get('preferred_username', ''):
             user.username = claims.get('preferred_username', '')
             edited = True
@@ -43,26 +47,27 @@ class MyOIDCAB(OIDCAuthenticationBackend):
         if claims.get('fahrtenname', ''):
             if user.scout_name is not claims.get('fahrtenname', ''):
                 user.scout_name = claims.get('fahrtenname', '')
+                user.person.scout_name = claims.get('fahrtenname', '')
                 edited = True
         else:
             if user.scout_name != claims.get('given_name', ''):
                 user.scout_name = claims.get('given_name', '')
+                user.person.scout_name = claims.get('given_name', '')
                 edited = True
 
         if user.email != claims.get('email', ''):
             user.email = claims.get('email', '')
+            user.person.email = claims.get('email', '')
             edited = True
 
         if user.first_name != claims.get('given_name', ''):
             user.first_name = claims.get('given_name', '')
+            user.person.first_name = claims.get('given_name', '')
             edited = True
 
         if user.last_name != claims.get('family_name', ''):
             user.last_name = claims.get('family_name', '')
-            edited = True
-
-        if user.last_name != claims.get('family_name', ''):
-            user.last_name = claims.get('family_name', '')
+            user.person.last_name = claims.get('family_name', '')
             edited = True
 
         if 'anmelde_tool_team' in claims.get('roles', []):
@@ -83,8 +88,9 @@ class MyOIDCAB(OIDCAuthenticationBackend):
                 .filter(Q(name__contains=stamm, parent=found_bund) | Q(name__contains=stamm, parent__parent=found_bund))
             if len(found_stamm) == 1:
                 user.scout_organisation = found_stamm.first()
-                user.successfully_initialised = True
+                user.person.scout_group = found_stamm.first()
                 edited = True
 
         if edited:
             user.save()
+            user.person.save()
