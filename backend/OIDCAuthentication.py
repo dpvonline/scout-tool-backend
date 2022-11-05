@@ -8,7 +8,7 @@ from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 class MyOIDCAB(OIDCAuthenticationBackend):
 
-    def create_user(self, claims):
+    def create_user(self, claims: dict) -> CustomUser:
         user: CustomUser = super(MyOIDCAB, self).create_user(claims)
         user.person = Person.objects.create()
         user.save()
@@ -18,7 +18,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
 
         return user
 
-    def update_user(self, user, claims):
+    def update_user(self, user: CustomUser, claims: dict) -> CustomUser:
         self.set_user_info(user, claims)
         self.update_groups(user, claims)
         return user
@@ -36,11 +36,15 @@ class MyOIDCAB(OIDCAuthenticationBackend):
                 group, _ = Group.objects.get_or_create(name=role)
                 group.user_set.add(user)
 
-    def set_user_info(self, user, claims):
+    def set_user_info(self, user: CustomUser, claims: dict):
+        print(claims)
         edited = False
 
         if not user.person:
             user.person = Person.objects.create()
+            edited = True
+        if user.keycloak_id != claims.get('sub'):
+            user.keycloak_id = claims.get('sub')
             edited = True
 
         if user.username != claims.get('preferred_username', ''):
