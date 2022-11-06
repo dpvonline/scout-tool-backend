@@ -85,8 +85,9 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, *args, **kwargs) -> Response:
         group_id = get_group_id(kwargs)
-        group = keycloak_admin.get_group(group_id=group_id)
-        return Response(group, status=status.HTTP_200_OK)
+        group = get_object_or_404(KeycloakGroup.objects.all(), keycloak_id=group_id)
+        serializer = GroupSerializer(group, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
