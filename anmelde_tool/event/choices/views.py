@@ -42,6 +42,7 @@ class FileTypeViewSet(RegistrationTypeGroupViewSet):
         result = choice_to_json(event_choices.FileType.choices)
         return Response(result, status=status.HTTP_200_OK)
 
+
 class FileExtensionViewSet(RegistrationTypeGroupViewSet):
 
     def list(self, request) -> Response:
