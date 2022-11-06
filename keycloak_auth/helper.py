@@ -3,7 +3,7 @@ import re
 from keycloak_auth.models import KeycloakGroup
 
 
-def get_or_create_keycloak_group(group: dict, parent_obj: str | KeycloakGroup | None) -> tuple[KeycloakGroup, bool]:
+def get_or_create_keycloak_group(group: dict, parent_obj: str) -> tuple[KeycloakGroup, bool]:
     if isinstance(parent_obj, KeycloakGroup):
         parent = parent_obj
     elif isinstance(parent_obj, str):

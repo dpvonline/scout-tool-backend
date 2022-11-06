@@ -102,7 +102,6 @@ class FrontendThemeViewSet(viewsets.ModelViewSet):
 
 
 class GenderViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
 
     def list(self, request) -> Response:
         result = choice_to_json(Gender.choices)
