@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from authentication.models import CustomUser, RequestGroupAccess
-from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer
+from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer, \
+    StatusRequestGroupAccessSerializer
 from backend.settings import keycloak_admin
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId
 from keycloak_auth.helper import check_group_id
@@ -113,10 +114,13 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
 
 
 class RequestGroupAccessViewSet(viewsets.ModelViewSet):
-    serializer_class = RequestGroupAccessSerializer
     permission_classes = [IsAuthenticated]
+    serializer_class = StatusRequestGroupAccessSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
+        serializer = RequestGroupAccessSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         group_id = get_group_id(self.kwargs)
         user_groups = keycloak_admin.get_user_groups(request.user.keycloak_id)
         keycloak_group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
@@ -126,14 +130,16 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
 
         if RequestGroupAccess.objects.filter(user=request.user, group=keycloak_group).exists():
             raise AlreadyAccessRequested()
+        data = serializer.data
+        data['group'] = keycloak_group.id
+        if not data.get('user'):
+            data['user'] = request.user.id
 
-        request.data['group'] = keycloak_group.id
-        request.data['accepted'] = False
-        request.data['declined'] = False
-        if not request.data.get('user'):
-            request.data['user'] = request.user.id
-
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         group_id = get_group_id(self.kwargs)
