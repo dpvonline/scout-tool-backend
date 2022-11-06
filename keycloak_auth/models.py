@@ -19,5 +19,9 @@ class KeycloakGroup(models.Model):
     roles = models.ManyToManyField(KeycloakRole, blank=True)
     parent = models.ForeignKey('self', null=True, on_delete=models.SET_NULL, related_name='keycloak_group', blank=True)
 
+    @property
+    def children(self):
+        return KeycloakGroup.objects.filter(parent=self.id)
+
     def __str__(self):
         return self.name

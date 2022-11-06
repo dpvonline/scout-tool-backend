@@ -13,7 +13,7 @@ from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAcces
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
-    GroupSearchSerializer
+    GroupSerializer
 
 User: CustomUser = get_user_model()
 
@@ -28,7 +28,7 @@ def get_group_id(kwargs):
 
 
 class AllGroupsViewSet(viewsets.ViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request) -> Response:
         serializer = CreateGroupSerializer(data=request.data)
@@ -73,9 +73,15 @@ class AllGroupsViewSet(viewsets.ViewSet):
         return Response(status.HTTP_204_NO_CONTENT)
 
     def list(self, request) -> Response:
-        all_groups = keycloak_admin.get_groups()
-
-        return Response(all_groups, status=status.HTTP_200_OK)
+        search_params = request.GET.get('search')
+        if search_params:
+            results = KeycloakGroup.objects.filter(name__icontains=search_params)
+            serializer = GroupSerializer(results, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            results = KeycloakGroup.objects.filter(parent=None)
+            serializer = GroupSerializer(results, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs) -> Response:
         group_id = get_group_id(kwargs)
@@ -83,26 +89,12 @@ class AllGroupsViewSet(viewsets.ViewSet):
         return Response(group, status=status.HTTP_200_OK)
 
 
-class GroupSearchViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def list(self, request):
-        search_params = request.GET.get('search')
-        if not search_params:
-            return Response([], status=status.HTTP_200_OK)
-        results = KeycloakGroup.objects.filter(name__icontains=search_params)
-        serializer = GroupSearchSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = UserListSerializer
 
     def get_queryset(self):
-        group_id = self.kwargs.get("group_pk", None)
-        if not group_id or not check_group_id(group_id):
-            raise NoGroupId()
+        group_id = get_group_id(self.kwargs)
         group_members = keycloak_admin.get_group_members(group_id=group_id)
         ids = [val['id'] for val in group_members if val['enabled']]
         user = User.objects.filter(keycloak_id__in=ids)
@@ -154,5 +146,5 @@ class GroupParentViewSet(viewsets.ViewSet):
     def list(self, request, *args, **kwargs):
         group_id = get_group_id(kwargs)
         results = KeycloakGroup.objects.filter(keycloak_id=group_id).first()
-        serializer = GroupSearchSerializer(results, many=False)
+        serializer = GroupSerializer(results, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)

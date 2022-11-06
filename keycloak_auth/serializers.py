@@ -43,7 +43,7 @@ class UpdateGroupSerializer(serializers.Serializer):
     parent_id = serializers.CharField(required=False)
 
 
-class GroupSearchSerializer(serializers.ModelSerializer):
+class GroupParentSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
 
@@ -57,9 +57,54 @@ class GroupSearchSerializer(serializers.ModelSerializer):
 
     def get_parent(self, obj: KeycloakGroup):
         if obj.parent is not None:
-            return GroupSearchSerializer(obj.parent).data
+            return GroupParentSerializer(obj.parent).data
         else:
             return None
 
     def get_id(self, obj: KeycloakGroup):
         return obj.keycloak_id
+
+
+class GroupChildrenSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = KeycloakGroup
+        fields = (
+            'name',
+            'id'
+        )
+
+    def get_id(self, obj: KeycloakGroup):
+        return obj.keycloak_id
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    parent = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+    class Meta:
+        model = KeycloakGroup
+        fields = (
+            'name',
+            'id',
+            'parent',
+            'children'
+        )
+
+    def get_parent(self, obj: KeycloakGroup):
+        if obj.parent is not None:
+            return GroupParentSerializer(obj.parent).data
+        else:
+            return None
+
+    def get_id(self, obj: KeycloakGroup):
+        return obj.keycloak_id
+
+    def get_children(self, obj: KeycloakGroup):
+        if obj.children:
+            serializer = GroupChildrenSerializer(obj.children, many=True)
+            return serializer.data
+        else:
+            return None
