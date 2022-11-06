@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
 from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer, \
     StatusRequestGroupAccessSerializer
@@ -145,6 +146,33 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
         group_id = get_group_id(self.kwargs)
         requests = RequestGroupAccess.objects.filter(group__keycloak_id=group_id)
         return requests
+
+
+def decide_request(requests_id: str, user: CustomUser, request_status: RequestGroupAccessChoices):
+    group_access_request: RequestGroupAccess = get_object_or_404(RequestGroupAccess.objects.all(), id=requests_id)
+    group_access_request.status = request_status
+    group_access_request.checked_by = user
+    group_access_request.save()
+    serializer = StatusRequestGroupAccessSerializer(group_access_request, many=False)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AcceptRequestGroupAccessViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        group_id = kwargs.get("group_pk", None)
+        requests_id = kwargs.get("requests_pk", None)
+        return decide_request(requests_id, request.user, RequestGroupAccessChoices.ACCEPTED)
+
+
+class DeclineRequestGroupAccessViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        group_id = kwargs.get("group_pk", None)
+        requests_id = kwargs.get("requests_pk", None)
+        return decide_request(requests_id, request.user, RequestGroupAccessChoices.DECLINED)
 
 
 class GroupParentViewSet(viewsets.ViewSet):

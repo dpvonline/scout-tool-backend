@@ -1,6 +1,7 @@
 from keycloak import KeycloakGetError
 
 from backend.settings import keycloak_admin
+from .choices import RequestGroupAccessChoices
 from .models import CustomUser, RequestGroupAccess
 
 
@@ -47,16 +48,15 @@ def post_save_user(sender, instance: CustomUser, **kwargs):
 def post_save_request_group_access(sender, instance: RequestGroupAccess, **kwargs):
     if not instance.pk:
         return
-    if instance.accepted and instance.declined:
-        return
 
     in_group = False
     user_groups = keycloak_admin.get_user_groups(user_id=instance.user.keycloak_id)
     if any(d['id'] == instance.group.keycloak_id for d in user_groups):
         in_group = True
-    if instance.accepted:
+
+    if instance.status == RequestGroupAccessChoices.ACCEPTED:
         if not in_group:
             keycloak_admin.group_user_add(user_id=instance.user.keycloak_id, group_id=instance.group.keycloak_id)
-    elif instance.declined:
+    elif instance.status == RequestGroupAccessChoices.DECLINED:
         if in_group:
             keycloak_admin.group_user_remove(user_id=instance.user.keycloak_id, group_id=instance.group.keycloak_id)

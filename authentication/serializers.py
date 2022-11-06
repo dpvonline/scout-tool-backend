@@ -252,6 +252,12 @@ class FullUserSerializer(serializers.ModelSerializer):
 class RequestGroupAccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestGroupAccess
+        fields = ('user',)
+
+
+class StatusRequestGroupAccessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequestGroupAccess
         fields = '__all__'
 
 

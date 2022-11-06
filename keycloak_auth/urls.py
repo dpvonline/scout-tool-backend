@@ -11,8 +11,12 @@ group_router.register(r'members', views.GroupMembersViewSet, basename='members')
 group_router.register(r'requests', views.RequestGroupAccessViewSet, basename='requests')
 group_router.register(r'parents', views.GroupParentViewSet, basename='parents')
 
+request_router = routers.NestedSimpleRouter(group_router, r'requests', lookup='requests')
+request_router.register(r'accept', views.AcceptRequestGroupAccessViewSet, basename='accept')
+request_router.register(r'decline', views.DeclineRequestGroupAccessViewSet, basename='decline')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(group_router.urls)),
+    path('', include(request_router.urls)),
 ]
