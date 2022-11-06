@@ -320,7 +320,7 @@ class RequestGroupAccessViewSet(mixins.RetrieveModelMixin,
 
 class CheckUsername(viewsets.ViewSet):
 
-    def list(self, request, *args, **kwargs) -> Response:
+    def create(self, request, *args, **kwargs) -> Response:
         serializer = CheckUsernameSerializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
         name = serializer.data['username']
