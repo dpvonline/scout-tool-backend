@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from anmelde_tool.event.choices import choices as event_choices
-from authentication.choices import BundesPostTextChoice
+from authentication.choices import BundesPostTextChoice, RequestGroupAccessChoices
 from authentication.choices import EmailNotificationType
 from backend.timestamp_mixin import TimeStampMixin
 from basic import models as basic_models
@@ -21,7 +21,7 @@ class CustomUser(AbstractUser):
     email_notification = models.CharField(
         max_length=10,
         choices=EmailNotificationType.choices,
-        default=EmailNotificationType.FULL
+        default=EmailNotificationType.FULL,
     )
     password = models.CharField(max_length=128, blank=True, null=True)
     sms_notification = models.BooleanField(default=True)
@@ -78,7 +78,10 @@ class Person(TimeStampMixin):
 class RequestGroupAccess(TimeStampMixin):
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='user')
-    group = models.ForeignKey(KeycloakGroup, on_delete=models.PROTECT)
-    accepted = models.BooleanField(default=False)
-    declined = models.BooleanField(default=False)
+    group = models.ForeignKey(KeycloakGroup, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(
+        max_length=8,
+        choices=RequestGroupAccessChoices.choices,
+        default=RequestGroupAccessChoices.NONE
+    )
     checked_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='checked_by')
