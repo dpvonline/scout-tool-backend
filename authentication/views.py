@@ -17,7 +17,8 @@ from basic.permissions import IsStaffOrReadOnly
 from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
-    FullUserSerializer, RequestGroupAccessSerializer, EditPersonSerializer, UserSerializer, PersonSerializer
+    FullUserSerializer, RequestGroupAccessSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
+    CheckUsernameSerializer
 
 User: CustomUser = get_user_model()
 
@@ -315,3 +316,16 @@ class RequestGroupAccessViewSet(mixins.RetrieveModelMixin,
 
     def get_queryset(self):
         return RequestGroupAccess.objects.filter(user=self.request.user)
+
+
+class CheckUsername(viewsets.ViewSet):
+
+    def list(self, request, *args, **kwargs) -> Response:
+        serializer = CheckUsernameSerializer(data=request.data, many=False)
+        serializer.is_valid(raise_exception=True)
+        name = serializer.data['username']
+
+        if User.objects.filter(username__icontains=name).exists() \
+                or len(keycloak_admin.get_users({"username": name})) > 0:
+            return Response('Username ist bereits in Benutzung.', status=status.HTTP_403_FORBIDDEN)
+        return Response('Username ist frei.', status=status.HTTP_200_OK)

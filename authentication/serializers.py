@@ -253,3 +253,7 @@ class RequestGroupAccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestGroupAccess
         fields = '__all__'
+
+
+class CheckUsernameSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
