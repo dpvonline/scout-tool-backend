@@ -29,7 +29,6 @@ class LeaderTypesViewSet(RegistrationTypeGroupViewSet):
 
 
 class ScoutLevelTypesViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
 
     def list(self, request) -> Response:
         result = choice_to_json(event_choices.ScoutLevelTypes.choices)
