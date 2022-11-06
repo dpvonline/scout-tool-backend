@@ -7,8 +7,8 @@ def choice_to_json(choices: models.TextChoices):
     for key, value in choices:
         entry = {
             'id': index,
-            'name': key,
-            'value': value
+            'name': value,
+            'value': key
         }
         index += 1
         result.append(entry)

@@ -5,12 +5,13 @@ from django.contrib.auth.models import Group
 from django.db import models
 
 from anmelde_tool.attributes.models import AbstractAttribute
+from authentication.models import CustomUser
 from basic import models as basic_models
 from basic import choices as basic_choices
 from anmelde_tool.email_services import models as email_services_model
 from anmelde_tool.event.choices import choices as event_choices
 
-User = get_user_model()
+User: CustomUser = get_user_model()
 
 
 class EventLocation(basic_models.TimeStampMixin):
