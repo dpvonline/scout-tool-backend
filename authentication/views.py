@@ -14,11 +14,12 @@ from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.helper import choice_to_json
 from basic.models import ScoutHierarchy, ZipCode
 from basic.permissions import IsStaffOrReadOnly
+from keycloak_auth.models import KeycloakGroup
 from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
-    FullUserSerializer, RequestGroupAccessSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
-    CheckUsernameSerializer
+    FullUserSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
+    CheckUsernameSerializer, StatusRequestGroupAccessSerializer
 
 User: CustomUser = get_user_model()
 
@@ -305,17 +306,35 @@ class RegisterViewSet(viewsets.ViewSet):
         return Response('ok', status=status.HTTP_200_OK)
 
 
-class RequestGroupAccessViewSet(mixins.RetrieveModelMixin,
-                                mixins.UpdateModelMixin,
-                                mixins.DestroyModelMixin,
-                                mixins.ListModelMixin,
-                                GenericViewSet):
-    queryset = RequestGroupAccess.objects.all()
-    serializer_class = RequestGroupAccessSerializer
+class RequestGroupAccessViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
+    serializer_class = StatusRequestGroupAccessSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return RequestGroupAccess.objects.filter(user=self.request.user)
+
+
+class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
+    serializer_class = GroupSerializer
+
+    def get_queryset(self):
+        keycloak_groups = keycloak_admin.get_user_groups(
+            user_id=self.request.user.keycloak_id,
+            brief_representation=True
+        )
+        ids = [val['id'] for val in keycloak_groups]
+        return KeycloakGroup.objects.filter(keycloak_id__in=ids)
+
+
+class UserRolesViewSet(viewsets.ViewSet):
+    def list(self, request) -> Response:
+        keycloak_realm_roles = keycloak_admin.get_realm_roles_of_user(user_id=self.request.user.keycloak_id)
+        return Response(keycloak_realm_roles, status=status.HTTP_200_OK)
 
 
 class CheckUsername(viewsets.ViewSet):
