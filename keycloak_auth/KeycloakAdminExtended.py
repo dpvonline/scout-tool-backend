@@ -14,6 +14,7 @@ URL_ADMIN_CLIENT_AUTHZ_POLICIES_SEARCH = URL_ADMIN_CLIENT + "/authz/resource-ser
 # URL_ADMIN_CLIENT_AUTHZ_RESOURCES = URL_ADMIN_CLIENT + "/authz/resource-server/resource"
 URL_ADMIN_CLIENT_AUTHZ_SCOPES = URL_ADMIN_CLIENT + "/authz/resource-server/scope"
 URL_ADMIN_CLIENT_AUTHZ_PERMISSION = URL_ADMIN_CLIENT + "/authz/resource-server/permission/{type}"
+URL_ADMIN_GROUP_COUNT = "admin/realms/{realm-name}/groups/count"
 
 
 class KeycloakAdminExtended(KeycloakAdmin):
@@ -163,3 +164,19 @@ class KeycloakAdminExtended(KeycloakAdmin):
             skip_exists=True
         )
         return client_role_json
+
+    def groups_count(self, query=None):
+        """Count users.
+
+        https://www.keycloak.org/docs-api/18.0/rest-api/index.html#_users_resource
+
+        :param query: (dict) Query parameters for users count
+        :type query: dict
+
+        :return: counter
+        :rtype: int
+        """
+        query = query or dict()
+        params_path = {"realm-name": self.realm_name}
+        data_raw = self.raw_get(URL_ADMIN_GROUP_COUNT.format(**params_path), **query)
+        return raise_error_from_response(data_raw, KeycloakGetError)

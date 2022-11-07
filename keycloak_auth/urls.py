@@ -19,4 +19,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(group_router.urls)),
     path('', include(request_router.urls)),
+    path('statistics/', include('keycloak_auth.keycloak_statistics.urls')),
 ]
