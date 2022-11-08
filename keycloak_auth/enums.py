@@ -22,6 +22,7 @@ class PolicyType(str, Enum):
 class PermissionType(str, Enum):
     ADMIN = 'admin'
     VIEW = 'view'
+    NONE = 'none'
 
 
 def jsonify(payload):

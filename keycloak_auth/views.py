@@ -14,6 +14,7 @@ from backend.settings import keycloak_admin
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
+
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
     GroupSerializer
 
@@ -74,20 +75,23 @@ class AllGroupsViewSet(viewsets.ViewSet):
         keycloak_admin.delete_group(group_id=group_id)
         return Response(status.HTTP_204_NO_CONTENT)
 
-    def list(self, request) -> Response:
+    def list(self, request, *args, **kwargs) -> Response:
         search_params = request.GET.get('search')
         if search_params:
             results = KeycloakGroup.objects.filter(name__icontains=search_params)
-            serializer = GroupSerializer(results, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
         else:
             results = KeycloakGroup.objects.filter(parent=None)
-            serializer = GroupSerializer(results, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        kwargs['context'] = {}
+        kwargs['context']['request'] = request
+        serializer = GroupSerializer(results, many=True, **kwargs)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs) -> Response:
         group_id = get_group_id(kwargs)
         group = get_object_or_404(KeycloakGroup.objects.all(), keycloak_id=group_id)
+        kwargs['context'] = {}
+        kwargs['context']['request'] = request
         serializer = GroupSerializer(group, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
