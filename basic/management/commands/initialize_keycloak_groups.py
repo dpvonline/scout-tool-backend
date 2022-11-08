@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from backend.settings import keycloak_admin
+from basic.models import ScoutHierarchy
 from keycloak_auth.helper import get_or_create_keycloak_group
 from keycloak_auth.models import KeycloakGroup
 
@@ -42,6 +43,17 @@ class Command(BaseCommand):
             print('groups to be deleted:')
             for group in self.groups_deleted:
                 print(group)
+
+        print('Assign KeycloakGroup to ScoutHierarchies')
+        for scout_hierarchy in ScoutHierarchy.objects.all():
+            if not scout_hierarchy.keycloak:
+                keycloak_group = keycloak_admin.get_group_by_path(
+                    path=scout_hierarchy.keycloak_group_name,
+                    search_in_subgroups=True
+                )
+                django_keycloak_group = KeycloakGroup.objects.get(keycloak_id=keycloak_group['id'])
+                scout_hierarchy.keycloak = django_keycloak_group
+                scout_hierarchy.save()
 
         print('')
         print('Checks finished')
