@@ -25,7 +25,7 @@ class CustomUser(AbstractUser):
     )
     password = models.CharField(max_length=128, blank=True, null=True)
     sms_notification = models.BooleanField(default=True)
-    keycloak_id = models.CharField(max_length=32, blank=True, null=True)
+    keycloak_id = models.CharField(max_length=32, blank=True, null=True, unique=True, editable=False)
 
     def __str__(self):
         return self.username
