@@ -16,6 +16,7 @@ class TimeStampMixin(models.Model):
     class Meta:
         abstract = True
 
+
 class FoodMajorClasses(models.TextChoices):
     BACKED = 'Baked Products', 'Backwaren'
     BEEF = 'Beef Products', 'Ringfleisch'
@@ -35,6 +36,7 @@ class FoodMajorClasses(models.TextChoices):
     SWEETS = 'Sweets', 'Süßigkeit'
     VEGETABLES = 'Vegetables and Vegetable Products', 'Gemüse'
     UNDEFINED = 'undefined', 'unbekannt'
+
 
 class NutrientsMixin(models.Model):
     energy_kj = models.FloatField(default=0, blank=True, null=True)
@@ -68,7 +70,6 @@ class NutriPointsMixin(models.Model):
 
 
 class MeasuringUnit(TimeStampMixin):
-
     class Units(models.TextChoices):
         VOLUME = 'ml', 'Millilitter'
         MASS = 'g', 'Gramm'
@@ -168,7 +169,7 @@ class Portion(TimeStampMixin, NutrientsMixin):
             self.weight_g = self.measuring_unit.quantity * self.quantity
         else:
             self.weight_g = self.measuring_unit.quantity * \
-                self.quantity * self.ingredient.physical_density
+                            self.quantity * self.ingredient.physical_density
 
         # Nutrients
         self.energy_kj = round(
@@ -192,11 +193,12 @@ class Portion(TimeStampMixin, NutrientsMixin):
 
     def __repr__(self):
         return self.__str__()
+
     class Meta:
         ordering = ('name',)
 
-class Hint(TimeStampMixin):
 
+class Hint(TimeStampMixin):
     class HintLevel(models.TextChoices):
         INFO = 'info', 'Info'
         WARNING = 'warn', 'Achtung'
@@ -245,6 +247,7 @@ class Hint(TimeStampMixin):
     def __repr__(self):
         return self.__str__()
 
+
 class MealType(models.TextChoices):
     BREAKFAST = 'breakfast', 'Frühstück'
     LUNCH = 'lunch', 'Hauptmahlzeit'
@@ -252,10 +255,12 @@ class MealType(models.TextChoices):
     DESSERT = 'desert', 'Nachtisch'
     STARTER = 'starter', 'Vorspeise'
 
+
 class RecipeStatus(models.TextChoices):
     Simulator = 'simulator', 'Simulator'
     Verified = 'verified', 'Verified'
     User = 'user', 'User'
+
 
 class Recipe(TimeStampMixin, NutrientsMixin):
     name = models.CharField(max_length=255, null=True, blank=True)
@@ -295,6 +300,7 @@ class Recipe(TimeStampMixin, NutrientsMixin):
 
         HintClass.add_hints(self)
 
+
 class RecipeItem(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE, blank=True, null=True, related_name='recipe_items')
@@ -327,8 +333,6 @@ class RecipeItem(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
         RecipeClass.recipe_nutri(self.recipe)
 
         HintClass.add_hints(self.recipe)
-
-
 
     def delete(self, *args, **kwargs):
         RecipeClass = RecipeModule()
@@ -384,7 +388,7 @@ class Package(TimeStampMixin):
         return self.__str__()
 
     class Meta:
-            ordering = ('name',)
+        ordering = ('name',)
 
 
 class Price(TimeStampMixin):
@@ -420,7 +424,16 @@ def save_recipe(sender, instance: Ingredient, **kwargs):
         API_KEY = "?api_key=wrSx9QbtEeaZb3LHWXzm4egDf2uiBPdOEmGsc9tT"
 
         response = requests.get(f"{API_URL}/{instance.fdc_id}/{API_KEY}")
+        if response.text is None or response.text == '':
+            print(f'Error in fetching data from National Agricultural Library')
+            print(f'received: {response.text=}')
+            print(f'Error: {response.status_code}: {response.content}')
+            print(f'reason: {response.reason}')
+            print(f'url: {API_URL}/{instance.fdc_id}/{API_KEY}')
+            return
+
         dict_data = json.loads(response.text)
+
         if 'foodNutrients' in dict_data:
             nutri_list = dict_data['foodNutrients']
             instance.energy_kj = 0
@@ -475,6 +488,7 @@ def save_recipe(sender, instance: Ingredient, **kwargs):
 
                     if (nutrient['id'] == 1013):
                         instance.lactose_g = item['amount']
+
 
 # pylint: disable=unused-argument
 @receiver(post_save, sender=Ingredient)

@@ -223,16 +223,12 @@ class RegisterViewSet(viewsets.ViewSet):
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        if serializers.data.get('scout_organisation'):
-            scout_organisation = ScoutHierarchy.objects.get(id=serializers.data.get('scout_organisation'))
-        else:
-            scout_organisation = None
-
-        if serializers.data.get('zip_code'):
-            zip_code = ZipCode.objects.get(id=serializers.data.get('zip_code'))
-        else:
-            zip_code = None
         try:
+            if serializers.data.get('scout_organisation'):
+                scout_organisation = ScoutHierarchy.objects.get(id=serializers.data.get('scout_organisation'))
+            else:
+                scout_organisation = None
+
             new_django_user: CustomUser = User.objects.create_user(
                 username=serializers.data.get('username'),
                 email=serializers.data.get('email'),
@@ -259,6 +255,13 @@ class RegisterViewSet(viewsets.ViewSet):
             print('all ok, add Person model')
 
             try:
+                zip_code = None
+                if serializers.data.get('zip_code'):
+                    zip_code_raw = serializers.data.get('zip_code')
+                    zip_code_queryset = ZipCode.objects.filter(zip_code__icontains=zip_code_raw)
+                    if zip_code_queryset.count() > 0:
+                        zip_code = zip_code_queryset.first()
+
                 Person.objects.create(
                     user=new_django_user,
                     scout_name=serializers.data.get('scout_name', ''),

@@ -137,7 +137,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     birth_date = serializers.DateField(required=False)
     address = serializers.CharField(required=False)
     additional_address = serializers.CharField(required=False)
-    zip_code = serializers.IntegerField(required=False)
+    zip_code = serializers.CharField(required=False)
     gender = serializers.ChoiceField(required=False, choices=Gender.choices)
     scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
     leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
