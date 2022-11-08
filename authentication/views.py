@@ -331,10 +331,15 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
         return KeycloakGroup.objects.filter(keycloak_id__in=ids)
 
 
-class UserRolesViewSet(viewsets.ViewSet):
+class UserPermissionViewSet(viewsets.ViewSet):
     def list(self, request) -> Response:
-        keycloak_realm_roles = keycloak_admin.get_realm_roles_of_user(user_id=self.request.user.keycloak_id)
-        return Response(keycloak_realm_roles, status=status.HTTP_200_OK)
+        composite_client_roles = keycloak_admin.get_composite_client_roles_of_user(
+            request.user.keycloak_id,
+            keycloak_admin.realm_management_client_id,
+            brief_representation=True
+        )
+        ids = [val['name'] for val in composite_client_roles]
+        return Response(ids, status=status.HTTP_200_OK)
 
 
 class CheckUsername(viewsets.ViewSet):

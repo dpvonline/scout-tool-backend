@@ -8,7 +8,7 @@ router.register(r'register', views.RegisterViewSet, basename="register")
 router.register(r'personal-data', views.PersonalData, basename='personal-data')
 router.register(r'my-requests', views.RequestGroupAccessViewSet, basename='my-requests')
 router.register(r'my-groups', views.UserGroupViewSet, basename='my-groups')
-router.register(r'my-roles', views.UserRolesViewSet, basename='my-roles')
+router.register(r'my-permissions', views.UserPermissionViewSet, basename='my-permissions')
 
 router.register(r'check-username', views.CheckUsername, basename='check-username')
 
