@@ -419,75 +419,75 @@ class Price(TimeStampMixin):
 def save_recipe(sender, instance: Ingredient, **kwargs):
     import requests
     import json
-    if instance.fdc_id and not instance.energy_kj:
-        API_URL = "https://api.nal.usda.gov/fdc/v1/food"
-        API_KEY = "?api_key=wrSx9QbtEeaZb3LHWXzm4egDf2uiBPdOEmGsc9tT"
+    # if instance.fdc_id and not instance.energy_kj:
+    #     API_URL = "https://api.nal.usda.gov/fdc/v1/food"
+    #     API_KEY = "?api_key=wrSx9QbtEeaZb3LHWXzm4egDf2uiBPdOEmGsc9tT"
 
-        response = requests.get(f"{API_URL}/{instance.fdc_id}/{API_KEY}")
-        if response.text is None or response.text == '':
-            print(f'Error in fetching data from National Agricultural Library')
-            print(f'received: {response.text=}')
-            print(f'Error: {response.status_code}: {response.content}')
-            print(f'reason: {response.reason}')
-            print(f'url: {API_URL}/{instance.fdc_id}/{API_KEY}')
-            return
+    #     response = requests.get(f"{API_URL}/{instance.fdc_id}/{API_KEY}")
+    #     if response.text is None or response.text == '':
+    #         print(f'Error in fetching data from National Agricultural Library')
+    #         print(f'received: {response.text=}')
+    #         print(f'Error: {response.status_code}: {response.content}')
+    #         print(f'reason: {response.reason}')
+    #         print(f'url: {API_URL}/{instance.fdc_id}/{API_KEY}')
+    #         return
 
-        dict_data = json.loads(response.text)
+    #     dict_data = json.loads(response.text)
 
-        if 'foodNutrients' in dict_data:
-            nutri_list = dict_data['foodNutrients']
-            instance.energy_kj = 0
-            instance.protein_g = 0
-            instance.fat_sat_g = 0
-            instance.fat_g = 0
-            instance.sugar_g = 0
-            instance.sodium_mg = 0
-            instance.carbohydrate_g = 0
-            instance.fibre_g = 0
-            if 'ndbNumber' in dict_data:
-                instance.ndb_number = dict_data['ndbNumber']
+    #     if 'foodNutrients' in dict_data:
+    #         nutri_list = dict_data['foodNutrients']
+    #         instance.energy_kj = 0
+    #         instance.protein_g = 0
+    #         instance.fat_sat_g = 0
+    #         instance.fat_g = 0
+    #         instance.sugar_g = 0
+    #         instance.sodium_mg = 0
+    #         instance.carbohydrate_g = 0
+    #         instance.fibre_g = 0
+    #         if 'ndbNumber' in dict_data:
+    #             instance.ndb_number = dict_data['ndbNumber']
 
-            if 'foodCategory' in dict_data:
-                instance.major_class = dict_data['foodCategory']['description']
+    #         if 'foodCategory' in dict_data:
+    #             instance.major_class = dict_data['foodCategory']['description']
 
-            for item in nutri_list:
-                if item['type'] == 'FoodNutrient':
-                    nutrient = item['nutrient']
+    #         for item in nutri_list:
+    #             if item['type'] == 'FoodNutrient':
+    #                 nutrient = item['nutrient']
 
-                    if (nutrient['id'] == 2047):
-                        instance.energy_kj = round(
-                            int(item['amount']) * 4.1, 0)
-                    elif (nutrient['id'] == 1008):
-                        instance.energy_kj = round(
-                            int(item['amount']) * 4.1, 0)
+    #                 if (nutrient['id'] == 2047):
+    #                     instance.energy_kj = round(
+    #                         int(item['amount']) * 4.1, 0)
+    #                 elif (nutrient['id'] == 1008):
+    #                     instance.energy_kj = round(
+    #                         int(item['amount']) * 4.1, 0)
 
-                    if (nutrient['id'] == 1003):
-                        instance.protein_g = item['amount']
+    #                 if (nutrient['id'] == 1003):
+    #                     instance.protein_g = item['amount']
 
-                    if (nutrient['id'] == 1258):
-                        instance.fat_sat_g = item['amount']
+    #                 if (nutrient['id'] == 1258):
+    #                     instance.fat_sat_g = item['amount']
 
-                    if (nutrient['id'] == 2000):
-                        instance.sugar_g = item['amount']
+    #                 if (nutrient['id'] == 2000):
+    #                     instance.sugar_g = item['amount']
 
-                    if (nutrient['id'] == 1004):
-                        instance.fat_g = item['amount']
+    #                 if (nutrient['id'] == 1004):
+    #                     instance.fat_g = item['amount']
 
-                    if (nutrient['id'] == 1093):
-                        instance.sodium_mg = item['amount']
-                        instance.salt_g = item['amount'] * 2.5 / 1000
+    #                 if (nutrient['id'] == 1093):
+    #                     instance.sodium_mg = item['amount']
+    #                     instance.salt_g = item['amount'] * 2.5 / 1000
 
-                    if (nutrient['id'] == 1005):
-                        instance.carbohydrate_g = item['amount']
+    #                 if (nutrient['id'] == 1005):
+    #                     instance.carbohydrate_g = item['amount']
 
-                    if (nutrient['id'] == 1079):
-                        instance.fibre_g = item['amount']
+    #                 if (nutrient['id'] == 1079):
+    #                     instance.fibre_g = item['amount']
 
-                    if (nutrient['id'] == 1012):
-                        instance.fructose_g = item['amount']
+    #                 if (nutrient['id'] == 1012):
+    #                     instance.fructose_g = item['amount']
 
-                    if (nutrient['id'] == 1013):
-                        instance.lactose_g = item['amount']
+    #                 if (nutrient['id'] == 1013):
+    #                     instance.lactose_g = item['amount']
 
 
 # pylint: disable=unused-argument
