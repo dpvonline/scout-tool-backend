@@ -6,7 +6,8 @@ from . import views
 router = routers.SimpleRouter()
 router.register(r'register', views.RegisterViewSet, basename="register")
 router.register(r'personal-data', views.PersonalData, basename='personal-data')
-router.register(r'my-requests', views.RequestGroupAccessViewSet, basename='my-requests')
+router.register(r'my-requests', views.MyDecidableRequestGroupAccessViewSet, basename='my-requests')
+router.register(r'my-own-requests', views.MyOwnRequestGroupAccessViewSet, basename='my-requests')
 router.register(r'my-groups', views.UserGroupViewSet, basename='my-groups')
 router.register(r'my-permissions', views.UserPermissionViewSet, basename='my-permissions')
 

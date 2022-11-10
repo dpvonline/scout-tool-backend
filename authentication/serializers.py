@@ -9,6 +9,7 @@ from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.choices import Gender
 from basic.models import ScoutHierarchy
 from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer, ScoutHierarchyDetailedSerializer
+from keycloak_auth.models import KeycloakGroup
 
 User: CustomUser = get_user_model()
 
@@ -48,6 +49,20 @@ class UserShortSerializer(serializers.ModelSerializer):
         fields = (
             'mobile_number',
             'scout_name',
+        )
+
+
+class UserRequestSerializer(serializers.ModelSerializer):
+    scout_organisation = UserScoutHierarchySerializer(many=False, read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'scout_name',
+            'scout_organisation',
+            'first_name',
+            'last_name'
         )
 
 
@@ -255,7 +270,41 @@ class RequestGroupAccessSerializer(serializers.ModelSerializer):
         fields = ('user',)
 
 
-class StatusRequestGroupAccessSerializer(serializers.ModelSerializer):
+class StatusRequestGroupAccessPutSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestGroupAccess
+        fields = '__all__'
+
+
+class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
+    parent = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = KeycloakGroup
+        fields = (
+            'name',
+            'id',
+            'parent'
+        )
+
+    def get_parent(self, obj: KeycloakGroup):
+        if obj.parent is not None:
+            return GroupRequestGroupAccessSerializer(obj.parent).data
+        else:
+            return None
+
+    def get_id(self, obj: KeycloakGroup):
+        return obj.keycloak_id
+
+
+class StatusRequestGroupGetAccessSerializer(serializers.ModelSerializer):
+    user = UserRequestSerializer(many=False, read_only=True)
+    status = serializers.CharField(source='get_status_display')
+    checked_by = UserRequestSerializer(many=False, read_only=True)
+    group = GroupRequestGroupAccessSerializer(many=False, read_only=True)
+
     class Meta:
         model = RequestGroupAccess
         fields = '__all__'

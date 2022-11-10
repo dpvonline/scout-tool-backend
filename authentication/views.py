@@ -14,12 +14,13 @@ from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.helper import choice_to_json
 from basic.models import ScoutHierarchy, ZipCode
 from basic.permissions import IsStaffOrReadOnly
+from keycloak_auth.helper import REGEX_GROUP, check_group_admin_permission
 from keycloak_auth.models import KeycloakGroup
 from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
     FullUserSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
-    CheckUsernameSerializer, StatusRequestGroupAccessSerializer
+    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer
 
 User: CustomUser = get_user_model()
 
@@ -309,17 +310,31 @@ class RegisterViewSet(viewsets.ViewSet):
         return Response('ok', status=status.HTTP_200_OK)
 
 
-class RequestGroupAccessViewSet(
+class MyOwnRequestGroupAccessViewSet(
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,
     GenericViewSet
 ):
-    serializer_class = StatusRequestGroupAccessSerializer
+    serializer_class = StatusRequestGroupGetAccessSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return RequestGroupAccess.objects.filter(user=self.request.user)
+
+
+class MyDecidableRequestGroupAccessViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+    serializer_class = StatusRequestGroupGetAccessSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        keycload_ids = []
+        for group in self.request.user.groups.all():
+            if check_group_admin_permission(group.name):
+                keycloak_id = REGEX_GROUP.findall(group.name)[0]
+                keycload_ids.append(keycloak_id)
+
+        return RequestGroupAccess.objects.filter(group__keycloak_id__in=keycload_ids)
 
 
 class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
