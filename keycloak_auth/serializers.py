@@ -1,13 +1,11 @@
-from abc import ABC
-
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.fields import CurrentUserDefault
 
 from authentication.models import CustomUser, Person
 from authentication.serializers import UserScoutHierarchySerializer
 from keycloak_auth.enums import PermissionType
 from keycloak_auth.models import KeycloakGroup
+from keycloak_auth.permissions import request_group_access
 
 User: CustomUser = get_user_model()
 
@@ -115,15 +113,10 @@ class GroupSerializer(serializers.ModelSerializer):
 
     def get_permission(self, obj: KeycloakGroup) -> PermissionType:
         request = self.context.get('request')
-        user = None
-        if request:
-            user: CustomUser = request.user
-        if user:
-            for group in user.groups.all():
-                if obj.keycloak_id in group.name:
-                    if PermissionType.ADMIN.value in group.name:
-                        return PermissionType.ADMIN
-                    elif PermissionType.VIEW.value in group.name:
-                        return PermissionType.VIEW
-
+        admin_perm = request_group_access(request, obj.keycloak_id, PermissionType.ADMIN)
+        if admin_perm:
+            return PermissionType.ADMIN
+        view_perm = request_group_access(request, obj.keycloak_id, PermissionType.VIEW)
+        if view_perm:
+            return PermissionType.VIEW
         return PermissionType.NONE

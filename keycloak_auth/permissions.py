@@ -8,10 +8,9 @@ User = get_user_model()
 
 
 def request_access(request, role_name: str) -> bool:
-    if role_name not in request.user.groups:
-        return False
-
-    return True
+    if any(role_name == group.name for group in request.user.groups.all()):
+        return True
+    return False
 
 
 def request_group_access(request, group_id: str, permission_type: PermissionType) -> bool:
