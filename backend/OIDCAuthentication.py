@@ -1,10 +1,10 @@
-from authentication.models import Person, CustomUser
-from backend.settings import keycloak_admin
-from basic.models import ScoutHierarchy
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.db.models import Q
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
+
+from authentication.models import Person, CustomUser
+from basic.models import ScoutHierarchy
 
 
 class MyOIDCAB(OIDCAuthenticationBackend):
@@ -30,18 +30,10 @@ class MyOIDCAB(OIDCAuthenticationBackend):
         add them to the user. Note that any role not passed via keycloak
         will be removed from the user.
         """
-        composite_client_roles = keycloak_admin.get_composite_client_roles_of_user(
-            user.keycloak_id,
-            keycloak_admin.realm_management_client_id,
-            brief_representation=True
-        )
         with transaction.atomic():
             user.groups.clear()
             for role in claims.get('roles', []):
                 group, _ = Group.objects.get_or_create(name=role)
-                group.user_set.add(user)
-            for role in composite_client_roles:
-                group, _ = Group.objects.get_or_create(name=role['name'])
                 group.user_set.add(user)
 
     def set_user_info(self, user: CustomUser, claims: dict):
