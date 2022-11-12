@@ -43,6 +43,7 @@ class UserShortSerializer(serializers.ModelSerializer):
     """
     Serializer for the User model containing only name and mobile number
     """
+    scout_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -51,19 +52,45 @@ class UserShortSerializer(serializers.ModelSerializer):
             'scout_name',
         )
 
+    def get_scout_name(self, user: CustomUser) -> str:
+        return user.person.scout_name
+
 
 class UserRequestSerializer(serializers.ModelSerializer):
-    scout_organisation = UserScoutHierarchySerializer(many=False, read_only=True)
+    scout_group = serializers.SerializerMethodField()
+    scout_name = serializers.SerializerMethodField()
+    first_name = serializers.SerializerMethodField()
+    last_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'email',
             'scout_name',
-            'scout_organisation',
+            'scout_group',
             'first_name',
             'last_name'
         )
+
+    def get_scout_group(self, user: CustomUser) -> dict | None:
+        if hasattr(user, 'person') and user.person.scout_group:
+            return UserScoutHierarchySerializer(user.person.scout_group, many=False, read_only=True).data
+        return None
+
+    def get_first_name(self, user: CustomUser) -> str | None:
+        if hasattr(user, 'person'):
+            return user.person.scout_name
+        return None
+
+    def get_scout_name(self, user: CustomUser) -> str | None:
+        if hasattr(user, 'person'):
+            return user.person.first_name
+        return None
+
+    def get_last_name(self, user: CustomUser) -> str | None:
+        if hasattr(user, 'person'):
+            return user.person.last_name
+        return None
 
 
 class ResponsiblePersonSerializer(serializers.ModelSerializer):
@@ -75,12 +102,11 @@ class ResponsiblePersonSerializer(serializers.ModelSerializer):
     stamm = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = Person
         fields = (
             'scout_name',
             'email',
             'stamm',
-            'user'
         )
 
     @staticmethod
@@ -98,8 +124,8 @@ class ResponsiblePersonSerializer(serializers.ModelSerializer):
         @return: name of scout organisation of connected user as str
                  or empty string when no organisation is selected (when user is newly created=
         """
-        if obj.scout_organisation:
-            return obj.scout_organisation.name
+        if obj.scout_group:
+            return obj.scout_group.name
         return ''
 
 
@@ -126,37 +152,35 @@ class EmailSettingsSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = Person
         fields = (
             'first_name',
             'last_name',
             'scout_name',
-            'email',
-            'scout_organisation',
-            'mobile_number',
-            'email_notification',
-            'sms_notification',
-            'dsgvo_confirmed',
-            'username',
-            'password',
-            'birth_date',
+            'scout_group',
+            'phone_number',
+            'birthday',
             'address',
-            'additional_address',
+            'address_supplement',
             'zip_code',
             'gender',
             'scout_level',
             'leader',
-            'bundespost'
+            'bundespost',
+            'email',
+            'email_notification',
+            'sms_notification',
+            'dsgvo_confirmed',
+            'username',
+            'password'
         )
 
-    birth_date = serializers.DateField(required=False)
-    address = serializers.CharField(required=False)
-    additional_address = serializers.CharField(required=False)
-    zip_code = serializers.CharField(required=False)
-    gender = serializers.ChoiceField(required=False, choices=Gender.choices)
-    scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
-    leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
-    bundespost = serializers.ChoiceField(required=False, choices=BundesPostTextChoice.choices)
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+    dsgvo_confirmed = serializers.BooleanField(required=True)
+    email_notification = serializers.CharField(max_length=10, required=False)
+    sms_notification = serializers.BooleanField(required=False)
+    zip_code = serializers.CharField(required=True)
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -243,15 +267,11 @@ class FullUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'email',
-            'scout_name',
             'dsgvo_confirmed',
             'email_notification',
             'sms_notification',
             'person',
             'username',
-            'first_name',
-            'last_name'
         )
 
     def to_representation(self, obj):

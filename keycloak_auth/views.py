@@ -82,9 +82,6 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
         else:
             results = KeycloakGroup.objects.filter(parent=None)
-        kwargs['context'] = {}
-        kwargs['context']['request'] = request
-
         serializer = GroupSerializer(results, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

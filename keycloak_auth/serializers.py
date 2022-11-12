@@ -11,11 +11,15 @@ User: CustomUser = get_user_model()
 
 
 class PersonSerializer(serializers.ModelSerializer):
+    scout_group = UserScoutHierarchySerializer(many=False)
+
     class Meta:
         model = Person
-        exclude = (
-            'active',
-            'person_verified',
+        fields = (
+            'scout_name',
+            'last_name',
+            'first_name',
+            'scout_group'
         )
 
 
@@ -23,13 +27,13 @@ class UserListSerializer(serializers.ModelSerializer):
     """
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
-    scout_organisation = UserScoutHierarchySerializer(many=False)
+    person = PersonSerializer(many=False, read_only=True)
 
     class Meta:
         model = User
-        exclude = (
+        fields = (
             'keycloak_id',
-            'password'
+            'person'
         )
 
 

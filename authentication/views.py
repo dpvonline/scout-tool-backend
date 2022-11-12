@@ -38,16 +38,14 @@ class PersonalData(viewsets.ViewSet):
         @return: Response with serialized user and person data of the user
         """
         serializer = FullUserSerializer(request.user, many=False)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, *args, **kwargs) -> Response:
         data = dict(request.data)
         for key in data:
             if data[key] is None or data[key] == '':
                 del request.data[key]
-        if 'mobile_number' in request.data:
-            request.data['phone_number'] = request.data['mobile_number']
-        if 'scout_organisation' in request.data:
+        if 'scout_group' in request.data:
             scout_group = get_object_or_404(ScoutHierarchy.objects.all(), id=request.data['scout_organisation'])
         else:
             scout_group = None
@@ -59,7 +57,7 @@ class PersonalData(viewsets.ViewSet):
         user_serializer.is_valid(raise_exception=True)
         user_data = user_serializer.data
         if scout_group:
-            user_data['scout_organisation'] = scout_group
+            user_data['scout_group'] = scout_group
         user_serializer.update(request.user, user_data)
 
         person_serializer = PersonSerializer(data=serializer.data)
@@ -175,7 +173,7 @@ class RegisterViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         serializers = RegisterSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
-
+        print(serializers.data)
         try:
             new_keycloak_user_id: str = keycloak_admin.create_user(
                 {
@@ -190,13 +188,7 @@ class RegisterViewSet(viewsets.ViewSet):
                     }],
                     'requiredActions': [
                         'VERIFY_EMAIL',
-                    ],
-                    'attributes': {
-                        'verband': serializers.data.get('scout_organisation'),
-                        'fahrtenname': serializers.data.get('scout_name'),
-                        'bund': serializers.data.get('scout_organisation'),
-                        'stamm': serializers.data.get('scout_organisation'),
-                    }
+                    ]
                 }, exist_ok=False
             )
         except KeycloakGetError as e:
@@ -225,17 +217,9 @@ class RegisterViewSet(viewsets.ViewSet):
             )
 
         try:
-            if serializers.data.get('scout_organisation'):
-                scout_organisation = ScoutHierarchy.objects.get(id=serializers.data.get('scout_organisation'))
-            else:
-                scout_organisation = None
-
             new_django_user: CustomUser = User.objects.create_user(
                 username=serializers.data.get('username'),
                 email=serializers.data.get('email'),
-                scout_name=serializers.data.get('scout_name', ''),
-                scout_organisation=scout_organisation,
-                mobile_number=serializers.data.get('mobile_number', ''),
                 dsgvo_confirmed=serializers.data.get('dsgvo_confirmed', False),
                 email_notification=serializers.data.get('email_notification', EmailNotificationType.FULL),
                 sms_notification=serializers.data.get('sms_notification', True),
@@ -271,7 +255,7 @@ class RegisterViewSet(viewsets.ViewSet):
                     address=serializers.data.get('address', ''),
                     address_supplement=serializers.data.get('address_supplement', ''),
                     zip_code=zip_code,
-                    scout_group=scout_organisation,
+                    scout_group=serializers.data.get('scout_group'),
                     phone_number=serializers.data.get('mobile_number', ''),
                     email=serializers.data.get('email'),
                     bundespost=serializers.data.get('bundespost', ''),
@@ -294,9 +278,13 @@ class RegisterViewSet(viewsets.ViewSet):
         verify_mail = keycloak_admin.send_verify_email(
             user_id=new_keycloak_user_id,
             client_id=env('KEYCLOAK_ADMIN_USER'),
-            redirect_uri='http://127.0.0.1:8080/'
+            redirect_uri=env('FRONT_URL')
         )
 
+        if serializers.data.get('scout_organisation'):
+            scout_organisation = serializers.data.get('scout_organisation')
+        else:
+            scout_organisation = None
         if scout_organisation and scout_organisation.keycloak:
             try:
                 request_group_access = RequestGroupAccess.objects.create(
