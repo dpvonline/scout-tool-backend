@@ -11,11 +11,6 @@ class MeasuringUnitSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PriceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = food_models.Price
-        fields = '__all__'
-
 
 class HintSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,9 +36,14 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PortionSerializer(serializers.ModelSerializer):
+class PortionReadSerializer(serializers.ModelSerializer):
     ingredient = food_serializers.IngredientSerializer()
     measuring_unit = food_serializers.MeasuringUnitSerializer()
+    class Meta:
+        model = food_models.Portion
+        fields = '__all__'
+        
+class PortionSerializer(serializers.ModelSerializer):
     class Meta:
         model = food_models.Portion
         fields = '__all__'
@@ -55,7 +55,7 @@ class RecipeItemSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class RecipeItemReadSerializer(serializers.ModelSerializer):
-    portion = PortionSerializer(many=False, read_only=True)
+    portion = PortionReadSerializer(many=False, read_only=True)
     class Meta:
         model = food_models.RecipeItem
         fields = (
@@ -136,6 +136,53 @@ class RetailerSerializer(serializers.ModelSerializer):
 
 
 class PackageSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = food_models.Package
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'portion',
+            'quality',
+            'quantity',
+            'weight_package_g',
+            'price_per_kg',
+        )
+
+
+class PackageReadSerializer(serializers.ModelSerializer):
+    portion = PortionSerializer(many=False, read_only=True)
+    class Meta:
+        model = food_models.Package
+        fields = (
+            'id',
+            'name',
+            'portion',
+            'quality',
+            'quantity',
+            'weight_package_g',
+            'price_per_kg',
+        )
+
+class PriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.Price
+        fields = (
+            'id',
+            'price_eur',
+            'retailer',
+            'package',
+            'price_per_kg'
+        )
+class PriceReadSerializer(serializers.ModelSerializer):
+    package = PackageSerializer(many=False, read_only=True)
+    retailer = RetailerSerializer(many=False, read_only=True)
+    class Meta:
+        model = food_models.Price
+        fields = (
+            'id',
+            'price_eur',
+            'retailer',
+            'package',
+            'price_per_kg'
+        )
