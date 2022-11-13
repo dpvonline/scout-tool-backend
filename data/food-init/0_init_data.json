@@ -9579,7 +9579,7 @@
     "fields": {
       "created_at": "2022-08-29T15:06:38.730Z",
       "updated_at": "2022-08-29T21:06:27.480Z",
-      "name": "weniger Energie",
+      "name": "etwas weniger Energie",
       "description": "",
       "value": 3000.0,
       "hint_level": "warn",
@@ -9591,9 +9591,65 @@
     "model": "food.hint",
     "pk": 2,
     "fields": {
+      "created_at": "2022-08-29T15:06:38.730Z",
+      "updated_at": "2022-08-29T21:06:27.480Z",
+      "name": "viel weniger Energie",
+      "description": "",
+      "value": 4000.0,
+      "hint_level": "error",
+      "min_max": "max",
+      "parameter": "energy_kj"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 3,
+    "fields": {
+      "created_at": "2022-08-29T15:06:38.730Z",
+      "updated_at": "2022-08-29T21:06:27.480Z",
+      "name": "etwas mehr Energie",
+      "description": "",
+      "value": 1900.0,
+      "hint_level": "warn",
+      "min_max": "min",
+      "parameter": "energy_kj"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 4,
+    "fields": {
+      "created_at": "2022-08-29T15:06:38.730Z",
+      "updated_at": "2022-08-29T21:06:27.480Z",
+      "name": "viel mehr Energie",
+      "description": "",
+      "value": 1500.0,
+      "hint_level": "error",
+      "min_max": "min",
+      "parameter": "energy_kj"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 5,
+    "fields": {
       "created_at": "2022-08-29T15:10:21.312Z",
       "updated_at": "2022-08-29T15:50:27.477Z",
-      "name": "mehr Gewicht",
+      "name": "viel mehr Gewicht",
+      "description": "",
+      "value": 200.0,
+      "hint_level": "error",
+      "min_max": "min",
+      "parameter": "weight_g"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 6,
+    "fields": {
+      "created_at": "2022-08-29T15:10:21.312Z",
+      "updated_at": "2022-08-29T15:50:27.477Z",
+      "name": "etwas mehr Gewicht",
       "description": "",
       "value": 300.0,
       "hint_level": "warn",
@@ -9603,11 +9659,11 @@
   },
   {
     "model": "food.hint",
-    "pk": 3,
+    "pk": 7,
     "fields": {
       "created_at": "2022-08-29T15:52:30.547Z",
       "updated_at": "2022-09-01T18:19:36.465Z",
-      "name": "weniger Gewicht",
+      "name": "etwas weniger Gewicht",
       "description": "",
       "value": 650.0,
       "hint_level": "warn",
@@ -9617,13 +9673,42 @@
   },
   {
     "model": "food.hint",
-    "pk": 4,
+    "pk": 8,
+    "fields": {
+      "created_at": "2022-08-29T15:52:30.547Z",
+      "updated_at": "2022-09-01T18:19:36.465Z",
+      "name": "viel weniger Gewicht",
+      "description": "",
+      "value": 750.0,
+      "hint_level": "error",
+      "min_max": "max",
+      "parameter": "weight_g"
+    }
+  },
+
+  {
+    "model": "food.hint",
+    "pk": 9,
+    "fields": {
+      "created_at": "2022-08-29T21:19:12.561Z",
+      "updated_at": "2022-08-29T21:19:12.562Z",
+      "name": "viel mehr Eiweiß",
+      "description": "",
+      "value": 10.0,
+      "hint_level": "error",
+      "min_max": "min",
+      "parameter": "protein_g"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 10,
     "fields": {
       "created_at": "2022-08-29T21:19:12.561Z",
       "updated_at": "2022-08-29T21:19:12.562Z",
       "name": "mehr Eiweiß",
       "description": "",
-      "value": 10.0,
+      "value": 30.0,
       "hint_level": "warn",
       "min_max": "min",
       "parameter": "protein_g"
@@ -9631,11 +9716,11 @@
   },
   {
     "model": "food.hint",
-    "pk": 5,
+    "pk": 11,
     "fields": {
       "created_at": "2022-08-29T21:20:25.463Z",
       "updated_at": "2022-08-29T21:20:25.463Z",
-      "name": "Nicht gesund genug",
+      "name": "Nicht gesund",
       "description": "",
       "value": 2.0,
       "hint_level": "warn",
@@ -9643,6 +9728,136 @@
       "parameter": "nutri_class"
     }
   },
+  {
+    "model": "food.hint",
+    "pk": 12,
+    "fields": {
+      "created_at": "2022-08-29T21:20:25.463Z",
+      "updated_at": "2022-08-29T21:20:25.463Z",
+      "name": "Nicht gesund genug",
+      "description": "",
+      "value": 3.0,
+      "hint_level": "error",
+      "min_max": "max",
+      "parameter": "nutri_class"
+    }
+  },
+
+  {
+    "model": "food.hint",
+    "pk": 13,
+    "fields": {
+      "created_at": "2022-08-29T21:20:25.463Z",
+      "updated_at": "2022-08-29T21:20:25.463Z",
+      "name": "Viel zuviel Zucker",
+      "description": "",
+      "value": 40,
+      "hint_level": "error",
+      "min_max": "max",
+      "parameter": "sugar_g"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 14,
+    "fields": {
+      "created_at": "2022-08-29T21:20:25.463Z",
+      "updated_at": "2022-08-29T21:20:25.463Z",
+      "name": "Viel Zucker",
+      "description": "",
+      "value": 20,
+      "hint_level": "warn",
+      "min_max": "max",
+      "parameter": "sugar_g"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 15,
+    "fields": {
+      "created_at": "2022-08-29T21:20:25.463Z",
+      "updated_at": "2022-08-29T21:20:25.463Z",
+      "name": "Viel zuviel gesät. Fettsäuren",
+      "description": "",
+      "value": 40,
+      "hint_level": "error",
+      "min_max": "max",
+      "parameter": "fat_sat_g"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 16,
+    "fields": {
+      "created_at": "2022-08-29T21:20:25.463Z",
+      "updated_at": "2022-08-29T21:20:25.463Z",
+      "name": "viel gesät. Fettsäuren",
+      "description": "",
+      "value": 20,
+      "hint_level": "warn",
+      "min_max": "max",
+      "parameter": "fat_sat_g"
+    }
+  },
+
+  {
+    "model": "food.hint",
+    "pk": 17,
+    "fields": {
+      "created_at": "2022-08-29T21:20:25.463Z",
+      "updated_at": "2022-08-29T21:20:25.463Z",
+      "name": "viel Salz",
+      "description": "",
+      "value": 300,
+      "hint_level": "warn",
+      "min_max": "max",
+      "parameter": "sodium_mg"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 18,
+    "fields": {
+      "created_at": "2022-08-29T21:20:25.463Z",
+      "updated_at": "2022-08-29T21:20:25.463Z",
+      "name": "zu viel Salz",
+      "description": "",
+      "value": 500,
+      "hint_level": "error",
+      "min_max": "max",
+      "parameter": "sodium_mg"
+    }
+  },
+
+  {
+    "model": "food.hint",
+    "pk": 19,
+    "fields": {
+      "created_at": "2022-08-29T21:19:12.561Z",
+      "updated_at": "2022-08-29T21:19:12.562Z",
+      "name": "viel mehr Ballaststoffe",
+      "description": "",
+      "value": 10.0,
+      "hint_level": "error",
+      "min_max": "min",
+      "parameter": "fibre_g"
+    }
+  },
+  {
+    "model": "food.hint",
+    "pk": 20,
+    "fields": {
+      "created_at": "2022-08-29T21:19:12.561Z",
+      "updated_at": "2022-08-29T21:19:12.562Z",
+      "name": "mehr Ballaststoffe",
+      "description": "",
+      "value": 30.0,
+      "hint_level": "warn",
+      "min_max": "min",
+      "parameter": "fibre_g"
+    }
+  },
+
   {
     "model": "food.recipe",
     "pk": 1,
