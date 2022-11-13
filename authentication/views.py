@@ -355,7 +355,7 @@ class CheckUsername(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         name = serializer.data['username']
 
-        if User.objects.filter(username__icontains=name).exists() \
+        if User.objects.filter(username__iexact=name).exists() \
                 or len(keycloak_admin.get_users({"username": name})) > 0:
-            return Response('Username ist bereits in Benutzung.', status=status.HTTP_403_FORBIDDEN)
+            return Response('Username ist bereits in Benutzung.', status=status.HTTP_409_CONFLICT)
         return Response('Username ist frei.', status=status.HTTP_200_OK)
