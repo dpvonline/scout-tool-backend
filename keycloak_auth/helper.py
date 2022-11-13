@@ -2,6 +2,11 @@ import re
 
 from keycloak_auth.models import KeycloakGroup
 
+REGEX_GROUP = re.compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
+REGEX_GROUP_ADMIN_PERMISSION = re.compile(
+    'group-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}-admin-role'
+)
+
 
 def get_or_create_keycloak_group(group: dict, parent_obj: str) -> tuple[KeycloakGroup, bool]:
     if isinstance(parent_obj, KeycloakGroup):
@@ -28,7 +33,12 @@ def get_or_create_keycloak_group(group: dict, parent_obj: str) -> tuple[Keycloak
 
 
 def check_group_id(group_id: str) -> bool:
-    regex_group = re.compile('^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$')
-    if regex_group.match(group_id):
+    if REGEX_GROUP.match(group_id):
+        return True
+    return False
+
+
+def check_group_admin_permission(group_id: str) -> bool:
+    if REGEX_GROUP_ADMIN_PERMISSION.match(group_id):
         return True
     return False

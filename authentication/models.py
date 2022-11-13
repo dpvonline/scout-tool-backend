@@ -1,7 +1,9 @@
 import uuid
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from anmelde_tool.event.choices import choices as event_choices
 from authentication.choices import BundesPostTextChoice, RequestGroupAccessChoices
@@ -13,10 +15,18 @@ from keycloak_auth.models import KeycloakGroup
 
 
 class CustomUser(AbstractUser):
+    username_validator = UnicodeUsernameValidator()
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text=_("Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."),
+        validators=[username_validator],
+        error_messages={"unique": _("A user with that username already exists.")},
+        editable=False
+    )
     email = models.EmailField(unique=True, blank=False)
-    scout_organisation = models.ForeignKey(basic_models.ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
-    mobile_number = models.CharField(max_length=20, blank=True, null=True)
-    scout_name = models.CharField(max_length=20, blank=True, null=True)
     dsgvo_confirmed = models.BooleanField(default=False, null=True)
     email_notification = models.CharField(
         max_length=10,
@@ -72,7 +82,7 @@ class Person(TimeStampMixin):
         choices=event_choices.ScoutLevelTypes.choices,
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
-    created_by = models.ManyToManyField(CustomUser, related_name='creator')
+    created_by = models.ManyToManyField(CustomUser, related_name='creator', null=True, blank=True)
 
 
 class RequestGroupAccess(TimeStampMixin):

@@ -9,7 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
 from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer, \
-    StatusRequestGroupAccessSerializer
+    StatusRequestGroupAccessPutSerializer
 from backend.settings import keycloak_admin
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId
 from keycloak_auth.helper import check_group_id
@@ -82,17 +82,13 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
         else:
             results = KeycloakGroup.objects.filter(parent=None)
-        kwargs['context'] = {}
-        kwargs['context']['request'] = request
-        serializer = GroupSerializer(results, many=True, **kwargs)
+        serializer = GroupSerializer(results, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs) -> Response:
         group_id = get_group_id(kwargs)
         group = get_object_or_404(KeycloakGroup.objects.all(), keycloak_id=group_id)
-        kwargs['context'] = {}
-        kwargs['context']['request'] = request
-        serializer = GroupSerializer(group, many=False)
+        serializer = GroupSerializer(group, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -120,7 +116,7 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
 
 class RequestGroupAccessViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = StatusRequestGroupAccessSerializer
+    serializer_class = StatusRequestGroupAccessPutSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         serializer = RequestGroupAccessSerializer(data=request.data)
@@ -157,7 +153,7 @@ def decide_request(requests_id: str, user: CustomUser, request_status: RequestGr
     group_access_request.status = request_status
     group_access_request.checked_by = user
     group_access_request.save()
-    serializer = StatusRequestGroupAccessSerializer(group_access_request, many=False)
+    serializer = StatusRequestGroupAccessPutSerializer(group_access_request, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -165,7 +161,6 @@ class AcceptRequestGroupAccessViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs) -> Response:
-        group_id = kwargs.get("group_pk", None)
         requests_id = kwargs.get("requests_pk", None)
         return decide_request(requests_id, request.user, RequestGroupAccessChoices.ACCEPTED)
 
@@ -174,7 +169,6 @@ class DeclineRequestGroupAccessViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs) -> Response:
-        group_id = kwargs.get("group_pk", None)
         requests_id = kwargs.get("requests_pk", None)
         return decide_request(requests_id, request.user, RequestGroupAccessChoices.DECLINED)
 

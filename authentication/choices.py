@@ -23,6 +23,6 @@ class BundesPostTextChoice(models.TextChoices):
 
 
 class RequestGroupAccessChoices(models.TextChoices):
-    NONE = 'nothing', _('Keine Auwahl')
+    NONE = 'nothing', _('Nicht überprüft')
     ACCEPTED = 'accepted', _('Akzeptiert')
     DECLINED = 'declined', _('Abgelehnt')

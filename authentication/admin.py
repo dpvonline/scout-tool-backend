@@ -13,14 +13,14 @@ class UserAdmin(admin.ModelAdmin):
     """
     Admin class for the user extended model for database functionalities
     """
-    list_display = ('username', 'scout_organisation')
-    autocomplete_fields = ('scout_organisation',)
+    list_display = ('username',)
     search_fields = ('username', 'email')
 
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    autocomplete_fields = ('created_by',)
+    list_display = ('first_name', 'last_name', 'scout_group')
+    autocomplete_fields = ('created_by', 'scout_group')
 
 
 @admin.register(RequestGroupAccess)
