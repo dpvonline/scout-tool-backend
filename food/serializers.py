@@ -33,7 +33,40 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = food_models.Ingredient
-        fields = '__all__'
+        fields = (
+            'carbohydrate_g',
+            'created_at',
+            'description',
+            'energy_kj',
+            'fat_g',
+            'fat_sat_g',
+            'fdc_id',
+            'fibre_g',
+            'fructose_g',
+            'fruit_factor',
+            'id',
+            'lactose_g',
+            'get_major_class_display',
+            'name',
+            'ndb_number',
+            'nutri_class',
+            'nutri_points',
+            'nutri_points_energy_kj',
+            'nutri_points_fat_sat_g',
+            'nutri_points_fibre_g',
+            'nutri_points_protein_g',
+            'nutri_points_salt_g',
+            'nutri_points_sodium_mg',
+            'nutri_points_sugar_g',
+            'physical_density',
+            'physical_viscosity',
+            'protein_g',
+            'salt_g',
+            'sodium_mg',
+            'sugar_g',
+            'tags',
+            'updated_at'
+        )
 
 
 class PortionReadSerializer(serializers.ModelSerializer):
@@ -102,7 +135,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'tags',
-            'meal_type',
+            'get_meal_type_display',
             'nutri_class',
             'nutri_points',
             'weight_g',
