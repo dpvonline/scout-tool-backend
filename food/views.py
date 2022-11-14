@@ -8,6 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from copy import deepcopy
+
 from food import models as food_models
 from food import serializers as food_serializers
 
@@ -82,6 +84,25 @@ class RecipeItemViewSet(viewsets.ModelViewSet):
     queryset = food_models.RecipeItem.objects.all()
     serializer_class = food_serializers.RecipeItemSerializer
 
+class RecipeCloneViewSet(viewsets.ViewSet):
+    def create(self, request, *args, **kwargs) -> Response:
+        if request.data.get('id', None) is not None:
+            recipe_id = request.data.get('id')
+            old_recipe_obj = food_models.Recipe.objects.filter(id=request.data.get('id')).first()
+            new_old_obj = deepcopy(old_recipe_obj)
+            new_old_obj.id = None
+            new_old_obj.status = 'simulator'
+            new_old_obj.save()
+            
+            all_items = food_models.RecipeItem.objects.filter(recipe=recipe_id)
+            
+            for item in all_items:
+                new = deepcopy(item)
+                new.recipe = new_old_obj
+                new.save()
+            return Response(food_serializers.RecipeSerializer(new_old_obj).data, status=status.HTTP_201_CREATED)
+        
+        return Response({ 'Bitte ID mitgeben'}, status=status.HTTP_400_BAD_REQUEST)
 
 class RecipeFilter(FilterSet):
     nutri_class = NumberFilter(field_name='nutri_class')

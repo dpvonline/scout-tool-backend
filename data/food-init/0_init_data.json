@@ -10087,7 +10087,7 @@
       "weight_g": 200.0,
       "tags": [],
       "hints": [1, 2, 5],
-      "status": "verified"
+      "status": "user"
     }
   },
   {
@@ -10116,7 +10116,7 @@
       "weight_g": 1200.0,
       "tags": [],
       "hints": [4],
-      "status": "verified"
+      "status": "user"
     }
   },
   {
@@ -10145,7 +10145,7 @@
       "weight_g": 40.0,
       "tags": [],
       "hints": [2, 4],
-      "status": "verified"
+      "status": "user"
     }
   },
   {
