@@ -10,7 +10,7 @@ from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
 from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer, \
     StatusRequestGroupAccessPutSerializer
-from backend.settings import keycloak_admin
+from backend.settings import keycloak_admin, keycloak_user
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
@@ -97,8 +97,9 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
     serializer_class = UserListSerializer
 
     def get_queryset(self):
+        token = self.request.META.get('HTTP_AUTHORIZATION')
         group_id = get_group_id(self.kwargs)
-        group_members = keycloak_admin.get_group_members(group_id=group_id)
+        group_members = keycloak_user.get_group_users(token, group_id)
         ids = [val['id'] for val in group_members if val['enabled']]
         user = User.objects.filter(keycloak_id__in=ids)
         return user

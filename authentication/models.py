@@ -82,7 +82,7 @@ class Person(TimeStampMixin):
         choices=event_choices.ScoutLevelTypes.choices,
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
-    created_by = models.ManyToManyField(CustomUser, related_name='creator', null=True, blank=True)
+    created_by = models.ManyToManyField(CustomUser, related_name='creator', blank=True)
 
 
 class RequestGroupAccess(TimeStampMixin):

@@ -17,16 +17,21 @@ class Logic(str, Enum):
 class PolicyType(str, Enum):
     ROLE = "role"
     RESOURCE = "resource"
+    AGGREGATE = 'aggregate'
 
 
 class PermissionType(str, Enum):
     ADMIN = 'admin'
     VIEW = 'view'
+    MANAGE = 'manage'
     NONE = 'none'
 
 
-def jsonify(payload):
+def jsonify(payload, dumps=True):
     payload_dict = asdict(payload)
     payload_filtered = {v: payload_dict[v] for v in payload_dict if payload_dict[v] is not None}
-    payload_json = json.dumps(payload_filtered)
+    if dumps:
+        payload_json = json.dumps(payload_filtered)
+    else:
+        payload_json = payload_filtered
     return payload_json
