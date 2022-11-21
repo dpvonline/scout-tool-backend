@@ -88,16 +88,17 @@ class RecipeCloneViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs) -> Response:
         if request.data.get('id', None) is not None:
             recipe_id = request.data.get('id')
-            old_recipe_obj = food_models.Recipe.objects.filter(id=request.data.get('id')).first()
+            old_recipe_obj = food_models.Recipe.objects.filter(id=recipe_id).first()
             new_old_obj = deepcopy(old_recipe_obj)
             new_old_obj.id = None
             new_old_obj.status = 'simulator'
             new_old_obj.save()
             
-            all_items = food_models.RecipeItem.objects.filter(recipe=recipe_id)
+            all_items = food_models.RecipeItem.objects.filter(recipe_id=recipe_id)
             
             for item in all_items:
                 new = deepcopy(item)
+                new.id = None
                 new.recipe = new_old_obj
                 new.save()
             return Response(food_serializers.RecipeSerializer(new_old_obj).data, status=status.HTTP_201_CREATED)
