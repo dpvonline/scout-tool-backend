@@ -96,7 +96,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
         stamm = claims.get('stamm', '')
         bund = claims.get('bund', '')
 
-        if stamm and bund and not user.person.scout_organisation:
+        if stamm and bund and not user.person.scout_group:
             stamm = stamm.replace('stamm', '')
             found_bund = ScoutHierarchy.objects.filter(level=3, abbreviation=bund).first()
             found_stamm = ScoutHierarchy.objects \

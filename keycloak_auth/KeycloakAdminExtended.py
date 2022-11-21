@@ -86,7 +86,7 @@ class KeycloakAdminExtended(KeycloakAdmin):
 
         return group
 
-    def move_group(self, payload, parent):
+    def move_group(self, payload: dict, parent: str):
         params_path = {"realm-name": self.realm_name, "id": parent, }
         data_raw = self.raw_post(URL_ADMIN_GROUP_CHILD.format(**params_path), data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[204])

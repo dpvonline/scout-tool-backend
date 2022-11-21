@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from authentication.models import CustomUser, Person
 from authentication.serializers import UserScoutHierarchySerializer
+from keycloak_auth.choices import CreateGroupChoices
 from keycloak_auth.enums import PermissionType
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.permissions import request_group_access
@@ -40,6 +41,8 @@ class UserListSerializer(serializers.ModelSerializer):
 class CreateGroupSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     parent_id = serializers.CharField(required=False)
+    type = serializers.ChoiceField(required=True, choices=CreateGroupChoices.choices)
+
 
 
 class UpdateGroupSerializer(serializers.Serializer):
