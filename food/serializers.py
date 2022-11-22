@@ -65,7 +65,8 @@ class IngredientSerializer(serializers.ModelSerializer):
             'sodium_mg',
             'sugar_g',
             'tags',
-            'updated_at'
+            'updated_at',
+            'price_per_kg',
         )
 
 
@@ -169,7 +170,7 @@ class RetailerSerializer(serializers.ModelSerializer):
 
 
 class PackageSerializer(serializers.ModelSerializer):
-    
+    portion = PortionReadSerializer(many=False, read_only=True)
     class Meta:
         model = food_models.Package
         fields = (

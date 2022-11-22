@@ -143,6 +143,7 @@ class Ingredient(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
     nutri_points = models.IntegerField(null=True, blank=True)
     nutri_class = models.FloatField(null=True, blank=True)
     ndb_number = models.IntegerField(null=True, blank=True)
+    price_per_kg = models.FloatField(default=0)
 
     def __str__(self):
         return f'{self.name} - {self.description}'
@@ -378,7 +379,7 @@ class Package(TimeStampMixin):
     price_per_kg = models.FloatField(default=0)
 
     def save(self, *args, **kwargs):
-        self.weight_package_g = self.quantity * self.portion.weight_g
+        self.weight_package_g = self.quantity * int(self.portion.weight_g)
         super(Package, self).save(*args, **kwargs)
 
     def __str__(self):

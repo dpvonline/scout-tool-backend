@@ -25,3 +25,7 @@ class PriceModule:
                     if (recipe_item.portion == portion):
                         recipe_item.price_per_kg=portion.price_per_kg
                         recipe_item.save()
+            print('setIngredientPrice')
+            ingredient = food_models.Ingredient.objects.filter(id=package.portion.ingredient.id).first()
+            ingredient.price_per_kg=price.price_per_kg
+            ingredient.save()
