@@ -15,15 +15,11 @@ from keycloak_auth.models import KeycloakGroup
 
 
 class CustomUser(AbstractUser):
-    username_validator = UnicodeUsernameValidator()
     username = models.CharField(
         max_length=150,
         unique=True,
         blank=False,
         null=False,
-        help_text=_("Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."),
-        validators=[username_validator],
-        error_messages={"unique": _("A user with that username already exists.")},
         editable=False
     )
     email = models.EmailField(unique=True, blank=False)
@@ -35,7 +31,7 @@ class CustomUser(AbstractUser):
     )
     password = models.CharField(max_length=128, blank=True, null=True)
     sms_notification = models.BooleanField(default=True)
-    keycloak_id = models.CharField(max_length=32, blank=True, null=True, unique=True, editable=False)
+    keycloak_id = models.CharField(max_length=32, blank=True, null=True, unique=True)
 
     def __str__(self):
         return self.username
@@ -82,7 +78,7 @@ class Person(TimeStampMixin):
         choices=event_choices.ScoutLevelTypes.choices,
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
-    created_by = models.ManyToManyField(CustomUser, related_name='creator', null=True, blank=True)
+    created_by = models.ManyToManyField(CustomUser, related_name='creator', blank=True)
 
 
 class RequestGroupAccess(TimeStampMixin):

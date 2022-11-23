@@ -4,6 +4,7 @@ from pathlib import Path
 import environ
 from keycloak import KeycloakAdmin
 
+from authentication.KeycloakOpenIDExtended import KeycloakOpenIDExtended
 from keycloak_auth.KeycloakAdminExtended import KeycloakAdminExtended
 
 env = environ.Env()
@@ -261,4 +262,10 @@ keycloak_admin = KeycloakAdminExtended(
     user_realm_name=env('KEYCLOAK_APP_REALM'),
     verify=True,
     auto_refresh_token=['get', 'put', 'post', 'delete']
+)
+
+keycloak_user = KeycloakOpenIDExtended(
+    server_url=env('BASE_URI'),
+    client_id=env('OIDC_RP_CLIENT_ID'),
+    realm_name=env('OIDC_RP_REALMNAME'),
 )

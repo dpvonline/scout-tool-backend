@@ -1,18 +1,17 @@
-import dataclasses
 import json
+from typing import List
 
 from keycloak import KeycloakAdmin
 from keycloak.exceptions import raise_error_from_response, KeycloakGetError
 from keycloak.urls_patterns import URL_ADMIN_CLIENT_AUTHZ_POLICIES, URL_ADMIN_CLIENT_AUTHZ_RESOURCES, \
-    URL_ADMIN_GROUP_CHILD, URL_ADMIN_CLIENT
+    URL_ADMIN_GROUP_CHILD, URL_ADMIN_CLIENT, URL_ADMIN_CLIENT_AUTHZ_SCOPES
 
-from keycloak_auth.dataclasses import PolicyRoleRepresentation, PolicyRepresentation, ResourceRepresentation
+from keycloak_auth.dataclasses import PolicyBase, ResourceRepresentation, PolicyRoleRepresentation, PolicyRole, \
+    PolicyAggregate
 from keycloak_auth.enums import DecisionStrategy, Logic, PolicyType, PermissionType, jsonify
 
 URL_ADMIN_CLIENT_AUTHZ_POLICIES_TYPE = URL_ADMIN_CLIENT + "/authz/resource-server/policy/{type}"
 URL_ADMIN_CLIENT_AUTHZ_POLICIES_SEARCH = URL_ADMIN_CLIENT + "/authz/resource-server/policy/search"
-# URL_ADMIN_CLIENT_AUTHZ_RESOURCES = URL_ADMIN_CLIENT + "/authz/resource-server/resource"
-URL_ADMIN_CLIENT_AUTHZ_SCOPES = URL_ADMIN_CLIENT + "/authz/resource-server/scope"
 URL_ADMIN_CLIENT_AUTHZ_PERMISSION = URL_ADMIN_CLIENT + "/authz/resource-server/permission/{type}"
 URL_ADMIN_GROUP_COUNT = "admin/realms/{realm-name}/groups/count"
 
@@ -22,17 +21,22 @@ class KeycloakAdminExtended(KeycloakAdmin):
         super().__init__(*args, **kwargs)
 
         self.realm_management_client_id = self.get_client_id('realm-management')
+
+        manage_scopes = ['manage', 'manage-group-membership', 'manage-members', 'manage-membership']
+        view_scopes = ['view-members', 'view']
         # Get scopes
         scopes = self.list_scopes(self.realm_management_client_id)
-        self.scopes_full_list = []
+        self.scopes_manage_list = []
         self.scopes_view_list = []
 
         for scope in scopes:
-            self.scopes_full_list.append(scope['id'])
-            # if 'view' in scope['name']:
-            self.scopes_view_list.append(scope['id'])
+            if scope['name'] in manage_scopes:
+                self.scopes_manage_list.append(scope['id'])
+            elif scope['name'] in view_scopes:
+                self.scopes_view_list.append(scope['id'])
+        self.scopes = self.scopes_view_list + self.scopes_manage_list
 
-    def create_client_policy(self, client_id: str, payload: PolicyRepresentation, skip_exists=False):
+    def create_client_policy(self, client_id: str, payload: PolicyBase, skip_exists=False):
         params_path = {"realm-name": self.realm_name, "id": client_id, "type": payload.type.value}
         payload_json = jsonify(payload)
         data_raw = self.raw_post(URL_ADMIN_CLIENT_AUTHZ_POLICIES_TYPE.format(**params_path), data=payload_json)
@@ -49,7 +53,7 @@ class KeycloakAdminExtended(KeycloakAdmin):
         data_raw = self.raw_get(URL_ADMIN_CLIENT_AUTHZ_POLICIES_SEARCH.format(**params_path), **query)
         return raise_error_from_response(data_raw, KeycloakGetError)
 
-    def create_permission(self, client_id: str, perm_type: str, payload: PolicyRepresentation, skip_exists=False):
+    def create_permission(self, client_id: str, perm_type: str, payload: PolicyBase, skip_exists=False):
         params_path = {"realm-name": self.realm_name, "id": client_id, "type": perm_type}
         payload_json = jsonify(payload)
         data_raw = self.raw_post(URL_ADMIN_CLIENT_AUTHZ_PERMISSION.format(**params_path), data=payload_json)
@@ -82,76 +86,102 @@ class KeycloakAdminExtended(KeycloakAdmin):
 
         return group
 
-    def move_group(self, payload, parent):
+    def move_group(self, payload: dict, parent: str):
         params_path = {"realm-name": self.realm_name, "id": parent, }
         data_raw = self.raw_post(URL_ADMIN_GROUP_CHILD.format(**params_path), data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[204])
 
-    def add_group_permissions(self, group):
+    def add_group_permissions(self, group, add_permission=True):
 
         # Enable group permissions
         self.group_set_permissions(group_id=group['id'], enabled=True)
 
         # Get resource
-        resource_name = "group.resource." + group['id']
-        server_resource = self.list_resources(client_id=self.realm_management_client_id, name=resource_name)
+        resource_name = f'group.resource.{group["id"]}'
+        resource_representation = ResourceRepresentation(
+            name=resource_name,
+            displayName=f'Resource for group: {group["name"]}',
+            ownerManagedAccess=False,
+            type='Group',
+            scopes=self.scopes
+        )
+        resource_representation_payload = jsonify(resource_representation, dumps=False)
 
-        # Generate admin permission
-        admin_role = self.generate_permission(
+        self.create_client_authz_resource(
+            self.realm_management_client_id,
+            payload=resource_representation_payload,
+            skip_exists=True
+        )
+        server_resources = self.list_resources(client_id=self.realm_management_client_id, name=resource_name)
+
+        # Generate manage permission
+        manage_role, manage_policy = self.generate_permission(
             group,
             resource_name,
-            server_resource,
-            self.scopes_full_list,
-            PermissionType.ADMIN
+            server_resources,
+            self.scopes_manage_list,
+            PermissionType.MANAGE
         )
 
         # Generate view permission
-        view_role = self.generate_permission(
+        view_role, view_policy = self.generate_permission(
             group,
             resource_name,
-            server_resource,
+            server_resources,
             self.scopes_view_list,
             PermissionType.VIEW
         )
 
-        # Assign permission to groups
-        self.assign_group_client_roles(group['id'], self.realm_management_client_id, [view_role])
-        self.assign_group_client_roles(group['id'], self.realm_management_client_id, [admin_role])
+        # Generate admin permission
+        admin_role = self.generate_client_role(group, PermissionType.ADMIN)
+        manage_policy_id = self.find_policy_by_name(self.realm_management_client_id, manage_policy)
+        view_policy_id = self.find_policy_by_name(self.realm_management_client_id, view_policy)
+        policies = [manage_policy_id['id'], view_policy_id['id']]
+        _ = self.generate_client_aggregated_policy(
+            group,
+            policies,
+            resource_name,
+            PermissionType.ADMIN
+        )
 
-    def generate_permission(self, group, resource_name, server_resource, scopes_list, permission_type: PermissionType):
+        # Assign permission to groups
+        if add_permission:
+            self.assign_group_client_roles(group['id'], self.realm_management_client_id, [view_role])
+            self.assign_group_client_roles(group['id'], self.realm_management_client_id, [admin_role])
+        return view_role, admin_role
+
+    def generate_permission(self,
+                            group: dict,
+                            resource_name: str,
+                            server_resources: [],
+                            scopes_list: [],
+                            permission_type: PermissionType) -> [str, str]:
+
         # Create role
-        client_role_name = f'group-{group["id"]}-{permission_type.value}-role'
-        payload = {
-            'name': client_role_name,
-            'description': f'{permission_type.value} role for group {group["path"]}'
-        }
-        self.create_client_role(client_role_id=self.realm_management_client_id, payload=payload, skip_exists=True)
-        client_role_json = self.get_client_role(client_id=self.realm_management_client_id, role_name=client_role_name)
+        client_role_json = self.generate_client_role(group, permission_type)
 
         # Create policy
-        policy_name = f'{group["id"]}-{permission_type.value}-policy'
-        policy_description = f'{permission_type.value} policy for {group["path"]}'
-        roles = [PolicyRoleRepresentation.from_dict(client_role_json)]
+        policy_name = self.generate_client_role_policy(group, client_role_json, resource_name, permission_type)
 
-        policy = PolicyRepresentation(
-            decisionStrategy=DecisionStrategy.UNANIMOUS,
-            logic=Logic.POSITIVE,
-            name=policy_name,
-            resources=[resource_name],
-            type=PolicyType.ROLE,
-            roles=roles,
-            description=policy_description
-        )
-        self.create_client_policy(client_id=self.realm_management_client_id, payload=policy, skip_exists=True)
+        # Create Permission
+        self.generate_scope_permission(group, policy_name, scopes_list, server_resources, permission_type)
+
+        return client_role_json, policy_name
+
+    def generate_scope_permission(self,
+                                  group: dict,
+                                  policy_name: str,
+                                  scopes_list: List[str],
+                                  server_resources: List[str],
+                                  permission_type: PermissionType) -> None:
         server_policy = self.find_policy_by_name(client_id=self.realm_management_client_id, name=policy_name)
-
         permission_name = f'{group["id"]}-{permission_type.value}-permission'
-        permission_description = f'{permission_type.value} permission for {group["path"]}'
-        permission = PolicyRepresentation(
+        permission_description = f'{permission_type.value.title()} permission for {group["path"]}'
+        permission = PolicyAggregate(
             decisionStrategy=DecisionStrategy.UNANIMOUS,
             logic=Logic.POSITIVE,
             name=permission_name,
-            resources=[server_resource[0]['_id']],
+            resources=[server_resources[0]['_id']],
             type=PolicyType.RESOURCE,
             policies=[server_policy['id']],
             scopes=scopes_list,
@@ -163,7 +193,55 @@ class KeycloakAdminExtended(KeycloakAdmin):
             payload=permission,
             skip_exists=True
         )
-        return client_role_json
+
+    def generate_client_role_policy(self,
+                                    group: dict,
+                                    client_role_json: str,
+                                    resource_name: str,
+                                    permission_type: PermissionType) -> str:
+        policy_name = f'{group["id"]}-{permission_type.value}-policy'
+        policy_description = f'{permission_type.value.title()} policy for {group["path"]}'
+        roles = [PolicyRoleRepresentation(id=client_role_json['id'])]
+        policy = PolicyRole(
+            decisionStrategy=DecisionStrategy.UNANIMOUS,
+            logic=Logic.POSITIVE,
+            name=policy_name,
+            resources=[resource_name],
+            type=PolicyType.ROLE,
+            roles=roles,
+            description=policy_description
+        )
+        self.create_client_policy(client_id=self.realm_management_client_id, payload=policy, skip_exists=True)
+        return policy_name
+
+    def generate_client_aggregated_policy(self,
+                                          group: dict,
+                                          policies: List[str],
+                                          resource_name: str,
+                                          permission_type: PermissionType) -> str:
+        policy_name = f'{group["id"]}-{permission_type.value}-policy'
+        policy_description = f'{permission_type.value.title()} policy for {group["path"]}'
+        policy = PolicyAggregate(
+            decisionStrategy=DecisionStrategy.UNANIMOUS,
+            logic=Logic.POSITIVE,
+            name=policy_name,
+            resources=[resource_name],
+            type=PolicyType.AGGREGATE,
+            policies=policies,
+            description=policy_description
+        )
+        self.create_client_policy(client_id=self.realm_management_client_id, payload=policy, skip_exists=True)
+        return policy_name
+
+    def generate_client_role(self, group: dict, permission_type: PermissionType) -> str:
+        client_role_name = f'group-{group["id"]}-{permission_type.value}-role'
+        payload = {
+            'name': client_role_name,
+            'description': f'{permission_type.value.title()} role for group {group["path"]}'
+        }
+        self.create_client_role(client_role_id=self.realm_management_client_id, payload=payload, skip_exists=True)
+        client_role = self.get_client_role(client_id=self.realm_management_client_id, role_name=client_role_name)
+        return client_role
 
     def groups_count(self, query=None):
         """Count users.

@@ -1,3 +1,4 @@
+from django.utils.encoding import force_str
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
@@ -24,3 +25,14 @@ class AlreadyAccessRequested(APIException):
     status_code = status.HTTP_405_METHOD_NOT_ALLOWED
     default_detail = 'Du hast bereits einen Antrag für diese Gruppe erstellt.'
     default_code = 'already_access_requested'
+
+
+class NoKeycloakId(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = 'Es gibt einen Fehler in unserer Datenbasis. Wir konnten für {keycloak_group} keine Id finden.'
+    default_code = 'no_keycloak_id'
+
+    def __init__(self, keycloak_group: str, detail=None, code=None):
+        if detail is None:
+            detail = force_str(self.default_detail).format(keycloak_group=keycloak_group)
+        super().__init__(detail, code)

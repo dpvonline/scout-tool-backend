@@ -9,9 +9,8 @@ from keycloak_auth.enums import Logic, PolicyType, DecisionStrategy
 
 
 @dataclass
-class ResourceOwnerRepresentation:
-    id: Optional[str] = None
-    name: Optional[str] = None
+class RoleRepresentationComposites:
+    realm: Optional[List[str]] = None
 
 
 @dataclass
@@ -20,30 +19,50 @@ class RoleRepresentation:
     name: Optional[str] = None
     description: Optional[str] = None
     composite: Optional[bool] = None
+    composites: Optional[List[RoleRepresentationComposites]] = None
     clientRole: Optional[bool] = None
     containerId: Optional[str] = None
+    attributes: Optional[List[str]] = None
 
 
 @dataclass
 class PolicyRoleRepresentation:
+    id: Optional[str] = None
+    required: Optional[bool] = None
+
+
+@dataclass
+class PolicyAggregateRepresentation:
     id: str
 
 
 @dataclass
-class PolicyRepresentation:
+class PolicyBase:
     decisionStrategy: Optional[DecisionStrategy] = None
     logic: Optional[Logic] = None
     name: Optional[str] = None
     resources: Optional[List[str]] = None  # resources name
     type: Optional[PolicyType] = None
-    roles: Optional[List[PolicyRoleRepresentation]] = None
     owner: Optional[str] = None
     description: Optional[str] = None
     scopes: Optional[List[str]] = None
-    users: Optional[List[str]] = None
-    policies: Optional[List[str]] = None
     id: Optional[str] = None
     config: Optional[dict] = None
+
+
+@dataclass
+class PolicyRole(PolicyBase):
+    roles: Optional[List[PolicyRoleRepresentation]] = None
+
+
+@dataclass
+class PolicyAggregate(PolicyBase):
+    policies: Optional[List[str]] = None
+
+
+@dataclass
+class PolicyUser(PolicyBase):
+    users: Optional[List[str]] = None
 
 
 @dataclass
@@ -64,7 +83,7 @@ class ScopeRepresentation:
     iconUri: Optional[str] = None
     id: Optional[str] = None
     name: Optional[str] = None
-    policies: Optional[List[PolicyRepresentation]] = None
+    policies: Optional[List[PolicyBase]] = None
     resources: Optional[List[ResourceRepresentation]] = None
 
 
