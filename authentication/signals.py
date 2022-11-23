@@ -26,23 +26,23 @@ def delete_user_async(instance):
 def post_save_user(sender, instance: CustomUser, **kwargs):
     if not instance.pk or not instance.keycloak_id or not hasattr(instance, 'person'):
         return
-    # keycloak_user = keycloak_admin.get_user(instance.keycloak_id)
-    #
-    # if keycloak_user['username'] == instance.username:
-    #     scout_organisation = instance.person.scout_group and instance.person.scout_group.name
-    #     keycloak_admin.update_user(
-    #         instance.keycloak_id, {
-    #             'email': instance.email,
-    #             'firstName': instance.person.first_name,
-    #             'lastName': instance.person.last_name,
-    #             'attributes': {
-    #                 'verband': 'DPV',
-    #                 'fahrtenname': instance.person.scout_name,
-    #                 'bund': '',
-    #                 'stamm': scout_organisation
-    #             }
-    #         }
-    #     )
+    keycloak_user = keycloak_admin.get_user(instance.keycloak_id)
+
+    if keycloak_user['username'] == instance.username:
+        scout_organisation = instance.person.scout_group and instance.person.scout_group.name
+        keycloak_admin.update_user(
+            instance.keycloak_id, {
+                'email': instance.email,
+                'firstName': instance.person.first_name,
+                'lastName': instance.person.last_name,
+                'attributes': {
+                    'verband': 'DPV',
+                    'fahrtenname': instance.person.scout_name,
+                    'bund': '',
+                    'stamm': scout_organisation
+                }
+            }
+        )
 
 
 def post_save_request_group_access(sender, instance: RequestGroupAccess, **kwargs):
