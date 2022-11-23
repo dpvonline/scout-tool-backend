@@ -16,7 +16,7 @@ class KeycloakGroup(models.Model):
     keycloak_id = models.CharField(max_length=36, unique=True, blank=True)
     name = models.CharField(max_length=100)
     roles = models.ManyToManyField(KeycloakRole, blank=True)
-    parent = models.ForeignKey('self', null=True, on_delete=models.SET_NULL, related_name='keycloak_group', blank=True)
+    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE, related_name='keycloak_group', blank=True)
 
     @property
     def children(self):

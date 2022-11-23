@@ -91,7 +91,7 @@ class KeycloakAdminExtended(KeycloakAdmin):
         data_raw = self.raw_post(URL_ADMIN_GROUP_CHILD.format(**params_path), data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[204])
 
-    def add_group_permissions(self, group):
+    def add_group_permissions(self, group, add_permission=True):
 
         # Enable group permissions
         self.group_set_permissions(group_id=group['id'], enabled=True)
@@ -145,8 +145,10 @@ class KeycloakAdminExtended(KeycloakAdmin):
         )
 
         # Assign permission to groups
-        self.assign_group_client_roles(group['id'], self.realm_management_client_id, [view_role])
-        self.assign_group_client_roles(group['id'], self.realm_management_client_id, [admin_role])
+        if add_permission:
+            self.assign_group_client_roles(group['id'], self.realm_management_client_id, [view_role])
+            self.assign_group_client_roles(group['id'], self.realm_management_client_id, [admin_role])
+        return view_role, admin_role
 
     def generate_permission(self,
                             group: dict,

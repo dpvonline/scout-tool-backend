@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from backend.settings import keycloak_admin
 from basic.models import ScoutHierarchy
-from keycloak_auth.helper import get_or_create_keycloak_group
+from keycloak_auth.helper import get_or_create_keycloak_model
 from keycloak_auth.models import KeycloakGroup
 
 
@@ -61,7 +61,7 @@ class Command(BaseCommand):
             print('All fine')
 
     def get_subgroup(self, group, parent: KeycloakGroup = None):
-        keycloak_group, created = get_or_create_keycloak_group(group, parent)
+        keycloak_group, created = get_or_create_keycloak_model(group, parent)
         if created:
             self.groups_added.append(self.generate_name(keycloak_group))
 

@@ -8,7 +8,7 @@ REGEX_GROUP_ADMIN_PERMISSION = re.compile(
 )
 
 
-def get_or_create_keycloak_group(group: dict, parent_obj: str) -> tuple[KeycloakGroup, bool]:
+def get_or_create_keycloak_model(group: dict, parent_obj: str) -> tuple[KeycloakGroup, bool]:
     if isinstance(parent_obj, KeycloakGroup):
         parent = parent_obj
     elif isinstance(parent_obj, str):
