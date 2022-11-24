@@ -51,9 +51,10 @@ class Command(BaseCommand):
                     path=scout_hierarchy.keycloak_group_name,
                     search_in_subgroups=True
                 )
-                django_keycloak_group = KeycloakGroup.objects.get(keycloak_id=keycloak_group['id'])
-                scout_hierarchy.keycloak = django_keycloak_group
-                scout_hierarchy.save()
+                if keycloak_group:
+                    django_keycloak_group = KeycloakGroup.objects.get(keycloak_id=keycloak_group['id'])
+                    scout_hierarchy.keycloak = django_keycloak_group
+                    scout_hierarchy.save()
 
         print('')
         print('Checks finished')
