@@ -220,3 +220,106 @@ class PriceReadSerializer(serializers.ModelSerializer):
             'package',
             'price_per_kg'
         )
+
+class MealItemReadSerializer(serializers.ModelSerializer):
+    recipe = RecipeSerializer(many=False, read_only=True)
+    energy_kj = serializers.SerializerMethodField()
+    class Meta:
+        model = food_models.MealItem
+        fields = (
+            'id',
+            'recipe',
+            'meal',
+            'factor',
+            'energy_kj'
+        )
+
+    def get_energy_kj(self, obj):
+        return round(obj.recipe.energy_kj * obj.factor, 0)
+
+class MealItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.MealItem
+        fields = '__all__'
+
+
+class MealReadSerializer(serializers.ModelSerializer):
+    meal_items = serializers.SerializerMethodField()
+    energy_kj = serializers.SerializerMethodField()
+    class Meta:
+        model = food_models.Meal
+        fields = (
+            "id",
+            'name',
+            'meal_day',
+            'factor',
+            'meal_type',
+            'get_meal_type_display',
+            'meal_items',
+            'energy_kj'
+        )
+        
+    def get_meal_items(self, obj):
+        jjj = food_models.MealItem.objects.filter(meal=obj)
+        return MealItemReadSerializer(jjj, many=True).data
+    
+    def get_energy_kj(self, obj):
+        jjj = food_models.MealItem.objects.filter(meal=obj)
+        sum_energy_kj = 0
+        for item in MealItemReadSerializer(jjj, many=True).data:
+            sum_energy_kj = sum_energy_kj + item.get('energy_kj')
+        return round(sum_energy_kj, 0)
+
+class MealSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.Meal
+        fields = '__all__'
+
+
+class MealDayReadSerializer(serializers.ModelSerializer):
+    meals = serializers.SerializerMethodField()
+    energy_kj = serializers.SerializerMethodField()
+    class Meta:
+        model = food_models.MealDay
+        fields = '__all__'
+        
+    def get_meals(self, obj):
+        jjj = food_models.Meal.objects.filter(meal_day=obj)
+        return MealReadSerializer(jjj, many=True).data
+    
+    def get_energy_kj(self, obj):
+        jjj = food_models.Meal.objects.filter(meal_day=obj)
+        sum_energy_kj = 0
+        for item in MealReadSerializer(jjj, many=True).data:
+            sum_energy_kj = sum_energy_kj + item.get('energy_kj')
+        return round(sum_energy_kj, 0)
+
+
+class MealDaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.MealDay
+        fields = '__all__'
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.Event
+        fields = (
+            'id',
+            'name',
+            'norm_portions'
+        )
+
+class EventReadSerializer(serializers.ModelSerializer):
+    meal_days = serializers.SerializerMethodField()
+    class Meta:
+        model = food_models.Event
+        fields = (
+            'id',
+            'name',
+            'norm_portions',
+            'meal_days'
+        )
+        
+    def get_meal_days(self, obj):
+        jjj = food_models.MealDay.objects.filter(event=obj)
+        return MealDayReadSerializer(jjj, many=True).data

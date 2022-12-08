@@ -7,8 +7,13 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from food.choices import Gender
+from basic.helper import choice_to_json
+from rest_framework.views import APIView
+from rest_framework.mixins import RetrieveModelMixin
 
 from copy import deepcopy
+from datetime import date
 
 from food import models as food_models
 from food import serializers as food_serializers
@@ -157,8 +162,6 @@ class PortionViewSet(viewsets.ModelViewSet):
         request.data['measuring_unit'] = request.data['measuring_unit']['id']
         
         return super().create(request, *args, **kwargs)
-    
-
 
 
 class PortionReadViewSet(viewsets.ModelViewSet):
@@ -167,3 +170,84 @@ class PortionReadViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['id', 'name', 'ingredient__id']
     search_fields = ['name', 'ingredient__name']
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = food_models.Event.objects.all()
+    serializer_class = food_serializers.EventSerializer
+
+    def create(self, request, *args, **kwargs) -> Response:
+        if request.data.get('date', None) is None:
+            request.data['date'] = date.today()
+
+        new_event = food_models.Event.objects.create(
+            name = request.data.get('name'),
+            norm_portions = request.data.get('norm_portions')
+        )
+
+        food_models.MealDay.objects.create(
+            date = request.data.get('date'),
+            event = new_event
+        )
+
+        return Response(food_serializers.EventReadSerializer(new_event).data, status=status.HTTP_201_CREATED)
+
+
+class EventReadViewSet(viewsets.ModelViewSet):
+    queryset = food_models.Event.objects.all()
+    serializer_class = food_serializers.EventReadSerializer
+
+
+class MealDayViewSet(viewsets.ModelViewSet):
+    queryset = food_models.MealDay.objects.all()
+    serializer_class = food_serializers.MealDaySerializer
+
+
+class MealViewSet(viewsets.ModelViewSet):
+    queryset = food_models.Meal.objects.all()
+    serializer_class = food_serializers.MealSerializer
+
+
+class MealItemViewSet(viewsets.ModelViewSet):
+    queryset = food_models.MealItem.objects.all()
+    serializer_class = food_serializers.MealItemSerializer
+
+
+class GenderViewSet(viewsets.ViewSet):
+    
+    def list(self, request) -> Response:
+        result = choice_to_json(Gender.choices)
+        return Response(result, status=status.HTTP_200_OK)
+
+class MealTypeViewSet(viewsets.ViewSet):
+    
+    def list(self, request) -> Response:
+        result = choice_to_json(food_models.MealType.choices)
+        return Response(result, status=status.HTTP_200_OK)
+
+class ShoppingListViewSet(viewsets.ViewSet):
+
+    # pylint: disable=no-self-use
+    def list(self, request) -> Response:
+        """
+        @param request: request information
+        @return: Response with serialized UserExtended instance of the user requesting the personal data
+        """
+        event_id = request.query_params['id']
+        queryset = food_models.Event.objects.get(id=event_id)
+        serializer = food_serializers.EventReadSerializer(queryset, many=False)
+
+        return_list = []
+
+        for meal_day in serializer.data['meal_days']:
+            for meal in meal_day['meals']:
+                for meal_item in meal['meal_items']:
+                    if meal_item['recipe']:
+                        for recipe_item in meal_item['recipe'].get("recipe_items"):
+                            return_list.append({
+                                "ingredient_name": recipe_item.get('portion').get('ingredient').get('name'),
+                                "ingredient_class": recipe_item.get('portion').get('ingredient').get('get_major_class_display'),
+                                "recipe_name": meal_item['recipe'].get("name"),
+                                "weight_g": round(recipe_item.get('weight_g') * serializer.data.get('norm_portions'), 1),
+                                "weight_Kg": round(recipe_item.get('weight_g') * serializer.data.get('norm_portions') / 1000, 3)
+                            })
+        return Response(sorted(return_list, key=lambda x: x['ingredient_class'], reverse=False))

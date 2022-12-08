@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import MeasuringUnit, Price, Tag, TagCategory, Ingredient, Recipe, Portion, Retailer, Package, \
-    RecipeItem, Hint
+    RecipeItem, Hint, Event, Meal, MealDay, MealItem
 
 admin.site.register(MeasuringUnit)
 admin.site.register(Tag)
@@ -158,3 +158,9 @@ class EventModuleAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'parameter',
                     'min_max', 'value', 'hint_level',)
     list_filter = ('parameter',)
+
+
+admin.site.register(Event)
+admin.site.register(MealDay)
+admin.site.register(Meal)
+admin.site.register(MealItem)

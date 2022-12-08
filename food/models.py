@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.db.models import Sum
 from django.db.models.signals import post_save, pre_save
@@ -410,6 +412,60 @@ class Price(TimeStampMixin):
 
     def __str__(self):
         return f'{self.package} - {self.price_eur} € - {self.retailer}'
+
+    def __repr__(self):
+        return self.__str__()
+
+class Event(TimeStampMixin):
+    name = models.CharField(max_length=255)
+    norm_portions = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.name} - {self.norm_portions} Personen'
+
+    def __repr__(self):
+        return self.__str__()
+
+class MealDay(TimeStampMixin):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
+    activity_facor = models.FloatField(default=1)
+    date = models.DateField(default=datetime.datetime)
+
+    def __str__(self):
+        return f'{self.event} {self.date}'
+
+    def __repr__(self):
+        return self.__str__()
+
+class MealType(models.TextChoices):
+    BREAKFAST = 'breakfast', 'Frühstück'
+    LUNCH = 'lunch', 'Mittagessen'
+    DINNER = 'dinner', 'Abendessen'
+    SNACK = 'snack', 'Snack'
+
+
+class Meal(TimeStampMixin):
+    name = models.CharField(default="Hauptessen", max_length=255)
+    meal_day = models.ForeignKey(MealDay, on_delete=models.PROTECT, null=True)
+    factor = models.FloatField(default=0.33)
+    meal_type = models.CharField(
+        max_length=10,
+        choices=MealType.choices,
+        default=MealType.LUNCH)
+    def __str__(self):
+        return f'{self.name}'
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class MealItem(TimeStampMixin):
+    recipe = models.ForeignKey(Recipe, on_delete=models.PROTECT)
+    meal = models.ForeignKey(Meal, on_delete=models.CASCADE)
+    factor = models.FloatField(default=1)
+
+    def __str__(self):
+        return f'{self.recipe.name} - {self.meal.name}'
 
     def __repr__(self):
         return self.__str__()

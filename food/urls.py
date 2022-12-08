@@ -29,6 +29,20 @@ router.register(r'portion-read', views.PortionReadViewSet)
 
 router.register(r'hint', views.HintViewSet)
 
+router.register(r'event', views.EventViewSet)
+router.register(r'event-read', views.EventReadViewSet)
+
+router.register(r'meal-day', views.MealDayViewSet)
+router.register(r'meal', views.MealViewSet)
+router.register(r'meal-item', views.MealItemViewSet)
+
+# Choices
+router.register(r'gender', views.GenderViewSet, basename='gender')
+router.register(r'meal-types', views.MealTypeViewSet, basename='meal-types')
+
+# Shopping-List
+router.register(r'shopping-list', views.ShoppingListViewSet, basename='shopping-list')
+
 urlpatterns = [
     path('', include(router.urls)),
 ]
