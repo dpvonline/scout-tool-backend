@@ -14,6 +14,7 @@ from rest_framework.mixins import RetrieveModelMixin
 
 from copy import deepcopy
 from datetime import date
+from itertools import groupby
 
 from food import models as food_models
 from food import serializers as food_serializers
@@ -224,7 +225,33 @@ class MealTypeViewSet(viewsets.ViewSet):
         result = choice_to_json(food_models.MealType.choices)
         return Response(result, status=status.HTTP_200_OK)
 
+def add_agg_to_list(items):
+    my_list = []
+    sum_dict = {}
+    weight_g = round(sum(item['weight_g'] for item in items), 0)
+    weight_kg = round(sum(item['weight_kg'] for item in items), 2)
+    sum_dict['weight_g'] = weight_g
+    sum_dict['weight_kg'] = weight_kg
+    sum_dict['recipe_name'] = ', '.join(str(x['recipe_name']) for x in items)
+    sum_dict["weight_show"] = f'{weight_kg} Kg' if weight_g >= 1000 else f'{weight_g} g'
+
+    dict_copy = sum_dict.copy() # 👈️ create copy
+    my_list.append(dict_copy)
+    my_list.extend(items)
+
+    return my_list
+
+
+def stack_items(input_items):
+    return_dict = {}
+
+    for group, items in groupby(sorted(input_items, key=lambda x: x['ingredient_name']), lambda x: x['ingredient_name']):
+        return_dict[group] = add_agg_to_list(list(items))
+    return return_dict
+
 class ShoppingListViewSet(viewsets.ViewSet):
+    
+
 
     # pylint: disable=no-self-use
     def list(self, request) -> Response:
@@ -237,17 +264,30 @@ class ShoppingListViewSet(viewsets.ViewSet):
         serializer = food_serializers.EventReadSerializer(queryset, many=False)
 
         return_list = []
+        return_dict_class = {}
 
         for meal_day in serializer.data['meal_days']:
             for meal in meal_day['meals']:
                 for meal_item in meal['meal_items']:
                     if meal_item['recipe']:
                         for recipe_item in meal_item['recipe'].get("recipe_items"):
+                            weight_g = round(recipe_item.get('weight_g') * serializer.data.get('norm_portions'), 1)
+                            weight_kg = round(recipe_item.get('weight_g') * serializer.data.get('norm_portions') / 1000, 3)
                             return_list.append({
                                 "ingredient_name": recipe_item.get('portion').get('ingredient').get('name'),
                                 "ingredient_class": recipe_item.get('portion').get('ingredient').get('get_major_class_display'),
                                 "recipe_name": meal_item['recipe'].get("name"),
-                                "weight_g": round(recipe_item.get('weight_g') * serializer.data.get('norm_portions'), 1),
-                                "weight_Kg": round(recipe_item.get('weight_g') * serializer.data.get('norm_portions') / 1000, 3)
+                                "weight_g": weight_g,
+                                "weight_kg": weight_kg,
+                                "weight_show": f'{weight_kg} Kg' if weight_g >= 1000 else f'{weight_g} g'
                             })
-        return Response(sorted(return_list, key=lambda x: x['ingredient_class'], reverse=False))
+
+        # sort by name a-z
+        return_list = sorted(return_list, key=lambda x: x['ingredient_name'], reverse=False)
+
+        # group by major class
+        for group, items in groupby(sorted(return_list, key=lambda x: x['ingredient_class']), lambda x: x['ingredient_class']):
+            return_dict_class[group] = stack_items(list(items))
+
+        
+        return Response(return_dict_class)
