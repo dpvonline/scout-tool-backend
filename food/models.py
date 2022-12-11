@@ -34,7 +34,7 @@ class FoodMajorClasses(models.TextChoices):
     POULTRY = 'Poultry Products', 'Geflügel'
     SAUSAGES = 'Sausages and Luncheon Meats', 'Wurst'
     SOUPS = 'Soups, Sauces, and Gravies', 'Suppe oder Soße'
-    SPICES = 'Spices and Herbs', 'Gewürzt'
+    SPICES = 'Spices and Herbs', 'Gewürz'
     SWEETS = 'Sweets', 'Süßigkeit'
     VEGETABLES = 'Vegetables and Vegetable Products', 'Gemüse'
     UNDEFINED = 'undefined', 'unbekannt'
@@ -253,16 +253,16 @@ class Hint(TimeStampMixin):
 
 class MealType(models.TextChoices):
     BREAKFAST = 'breakfast', 'Frühstück'
-    LUNCH = 'lunch', 'Hauptmahlzeit'
+    LUNCH_WARM = 'lunch_warm', 'Menu (warn)'
+    LUNCH_COLD = 'lunch_cold', 'Menu (kalt)'
     SNACK = 'snack', 'Snack'
-    DESSERT = 'desert', 'Nachtisch'
-    STARTER = 'starter', 'Vorspeise'
 
 
 class RecipeStatus(models.TextChoices):
-    Simulator = 'simulator', 'Simulator'
-    Verified = 'verified', 'Verified'
-    User = 'user', 'User'
+    SIMULATOR = 'simulator', 'Simulator'
+    VERIFIED = 'verified', 'Verified by Inspi'
+    USER_CONENT = 'user_conent', 'Benutzer erstellt'
+    USER_CONENT_PUBLIC = 'user_public', 'Benutzer Öffentlich'
 
 
 class Recipe(TimeStampMixin, NutrientsMixin):
@@ -270,13 +270,13 @@ class Recipe(TimeStampMixin, NutrientsMixin):
     description = models.CharField(max_length=255, null=True, blank=True)
     tags = models.ManyToManyField(Tag, related_name='RecipeTags', blank=True)
     meal_type = models.CharField(
-        max_length=10,
+        max_length=11,
         choices=MealType.choices,
-        default=MealType.LUNCH)
+        default=MealType.LUNCH_WARM)
     status = models.CharField(
-        max_length=10,
+        max_length=11,
         choices=RecipeStatus.choices,
-        default=RecipeStatus.Simulator)
+        default=RecipeStatus.SIMULATOR)
     # readonly
     nutri_class = models.FloatField(null=True, blank=True)
     nutri_points = models.FloatField(null=True, blank=True)
@@ -415,10 +415,25 @@ class Price(TimeStampMixin):
 
     def __repr__(self):
         return self.__str__()
+    
+class PhysicalActivityLevel(TimeStampMixin):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    value = models.FloatField()
+
+    def __str__(self):
+        return f'{self.name} - {self.value}'
+
+    def __repr__(self):
+        return self.__str__()
 
 class Event(TimeStampMixin):
     name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, null=True)
     norm_portions = models.IntegerField()
+    activity_facor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True)
+    start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 
     def __str__(self):
         return f'{self.name} - {self.norm_portions} Personen'
@@ -428,8 +443,9 @@ class Event(TimeStampMixin):
 
 class MealDay(TimeStampMixin):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
-    activity_facor = models.FloatField(default=1)
+    activity_facor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True)
     date = models.DateField(default=datetime.datetime)
+    max_day_part_factor = models.FloatField(default=1)
 
     def __str__(self):
         return f'{self.event} {self.date}'
@@ -437,21 +453,15 @@ class MealDay(TimeStampMixin):
     def __repr__(self):
         return self.__str__()
 
-class MealType(models.TextChoices):
-    BREAKFAST = 'breakfast', 'Frühstück'
-    LUNCH = 'lunch', 'Mittagessen'
-    DINNER = 'dinner', 'Abendessen'
-    SNACK = 'snack', 'Snack'
-
 
 class Meal(TimeStampMixin):
     name = models.CharField(default="Hauptessen", max_length=255)
     meal_day = models.ForeignKey(MealDay, on_delete=models.PROTECT, null=True)
-    factor = models.FloatField(default=0.33)
+    day_part_factor = models.FloatField(default=0.33)
     meal_type = models.CharField(
         max_length=10,
         choices=MealType.choices,
-        default=MealType.LUNCH)
+        default=MealType.LUNCH_WARM)
     def __str__(self):
         return f'{self.name}'
 

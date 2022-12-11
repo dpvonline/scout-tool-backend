@@ -7,3 +7,4 @@ class Gender(models.TextChoices):
     Female = 'F', _('Weiblich')
     Divers = 'D', _('Divers')
     Nothing = 'N', _('Keine Angabe')
+

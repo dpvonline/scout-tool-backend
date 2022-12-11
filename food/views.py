@@ -136,6 +136,20 @@ class RecipeReadViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['name']
     
     def get_queryset(self) -> QuerySet:
+        return food_models.Recipe.objects.filter(Q(status="verified") | Q(status="user_public"))
+
+
+class RecipeReadVerifiedViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = food_models.Recipe.objects.all()
+    serializer_class = food_serializers.RecipeSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = RecipeFilter
+    ordering = ['name']
+    ordering_fields = ['name', 'created_at', 'nutri_points']
+    filterset_fields = ['name']
+    search_fields = ['name']
+    
+    def get_queryset(self) -> QuerySet:
         return food_models.Recipe.objects.filter(status="verified")
 
 
@@ -160,8 +174,13 @@ class PortionViewSet(viewsets.ModelViewSet):
     queryset = food_models.Portion.objects.all().order_by('rank').order_by('name')
     serializer_class = food_serializers.PortionSerializer
     def create(self, request, *args, **kwargs) -> Response:
-        request.data['measuring_unit'] = request.data['measuring_unit']['id']
         
+        if request.data.get('name', None) is None:
+            ingredient = food_models.Ingredient.objects.filter(id=request.data.get('ingredient')).first()
+            measuring_unit_name = request.data['measuring_unit']['name']
+            request.data['name'] = f'{ingredient.name} in {measuring_unit_name} '
+           
+        request.data['measuring_unit'] = request.data['measuring_unit']['id']
         return super().create(request, *args, **kwargs)
 
 

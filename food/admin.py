@@ -110,6 +110,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     list_display = (
         'name',
+        'status',
         'weight_g',
         'energy_kj',
         'carbohydrate_g',

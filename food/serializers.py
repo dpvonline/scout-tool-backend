@@ -31,6 +31,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    portions = serializers.SerializerMethodField()
     class Meta:
         model = food_models.Ingredient
         fields = (
@@ -67,12 +68,18 @@ class IngredientSerializer(serializers.ModelSerializer):
             'tags',
             'updated_at',
             'price_per_kg',
+            'portions'
         )
+    
+    def get_portions(self, obj):
+        jjj = food_models.Portion.objects.filter(ingredient=obj.id)
+        return PortionSerializer(jjj, many=True).data
 
 
 class PortionReadSerializer(serializers.ModelSerializer):
     ingredient = food_serializers.IngredientSerializer()
     measuring_unit = food_serializers.MeasuringUnitSerializer()
+
     class Meta:
         model = food_models.Portion
         fields = '__all__'
@@ -252,7 +259,7 @@ class MealReadSerializer(serializers.ModelSerializer):
             "id",
             'name',
             'meal_day',
-            'factor',
+            'day_part_factor',
             'meal_type',
             'get_meal_type_display',
             'meal_items',

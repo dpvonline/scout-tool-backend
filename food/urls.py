@@ -16,6 +16,7 @@ router.register(r'ingredient', views.IngredientViewSet)
 
 router.register(r'recipe', views.RecipeViewSet)
 router.register(r'recipe-read', views.RecipeReadViewSet)
+router.register(r'recipe-read-verified', views.RecipeReadVerifiedViewSet)
 router.register(r'recipe-item', views.RecipeItemViewSet)
 router.register(r'recipe-clone', views.RecipeCloneViewSet, basename='recipe-clone')
 
