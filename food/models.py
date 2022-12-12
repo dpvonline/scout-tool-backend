@@ -253,7 +253,7 @@ class Hint(TimeStampMixin):
 
 class MealType(models.TextChoices):
     BREAKFAST = 'breakfast', 'Frühstück'
-    LUNCH_WARM = 'lunch_warm', 'Menu (warn)'
+    LUNCH_WARM = 'lunch_warm', 'Menu (warm)'
     LUNCH_COLD = 'lunch_cold', 'Menu (kalt)'
     SNACK = 'snack', 'Snack'
 

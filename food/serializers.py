@@ -231,6 +231,9 @@ class PriceReadSerializer(serializers.ModelSerializer):
 class MealItemReadSerializer(serializers.ModelSerializer):
     recipe = RecipeSerializer(many=False, read_only=True)
     energy_kj = serializers.SerializerMethodField()
+    nutri_points = serializers.SerializerMethodField()
+    price_eur = serializers.SerializerMethodField()
+    weight_g = serializers.SerializerMethodField()
     class Meta:
         model = food_models.MealItem
         fields = (
@@ -238,11 +241,23 @@ class MealItemReadSerializer(serializers.ModelSerializer):
             'recipe',
             'meal',
             'factor',
-            'energy_kj'
+            'energy_kj',
+            'nutri_points',
+            'price_eur',
+            'weight_g'
         )
 
     def get_energy_kj(self, obj):
         return round(obj.recipe.energy_kj * obj.factor, 0)
+
+    def get_nutri_points(self, obj):
+        return round(obj.recipe.nutri_points * obj.factor, 1)
+
+    def get_price_eur(self, obj):
+        return round(obj.recipe.price * obj.factor, 2)
+
+    def get_weight_g(self, obj):
+        return round(obj.recipe.weight_g * obj.factor, 0)
 
 class MealItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -253,6 +268,9 @@ class MealItemSerializer(serializers.ModelSerializer):
 class MealReadSerializer(serializers.ModelSerializer):
     meal_items = serializers.SerializerMethodField()
     energy_kj = serializers.SerializerMethodField()
+    nutri_points = serializers.SerializerMethodField()
+    price_eur = serializers.SerializerMethodField()
+    weight_g = serializers.SerializerMethodField()
     class Meta:
         model = food_models.Meal
         fields = (
@@ -263,7 +281,10 @@ class MealReadSerializer(serializers.ModelSerializer):
             'meal_type',
             'get_meal_type_display',
             'meal_items',
-            'energy_kj'
+            'energy_kj',
+            'nutri_points',
+            'price_eur',
+            'weight_g'
         )
         
     def get_meal_items(self, obj):
@@ -272,27 +293,51 @@ class MealReadSerializer(serializers.ModelSerializer):
     
     def get_energy_kj(self, obj):
         jjj = food_models.MealItem.objects.filter(meal=obj)
-        sum_energy_kj = 0
+        sum_value = 0
         for item in MealItemReadSerializer(jjj, many=True).data:
-            sum_energy_kj = sum_energy_kj + item.get('energy_kj')
-        return round(sum_energy_kj, 0)
+            sum_value = sum_value + item.get('energy_kj')
+        return round(sum_value, 0)
+    
+    def get_price_eur(self, obj):
+        data = food_models.MealItem.objects.filter(meal=obj)
+        sum_value = 0
+        for item in MealItemReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('price_eur')
+        return round(sum_value, 2)
+    
+    def get_weight_g(self, obj):
+        data = food_models.MealItem.objects.filter(meal=obj)
+        sum_value = 0
+        for item in MealItemReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('weight_g')
+        return round(sum_value, 0)
+    
+    def get_nutri_points(self, obj):
+        data = food_models.MealItem.objects.filter(meal=obj)
+        sum_value = 0
+        for item in MealItemReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('nutri_points')
+        return round(sum_value, 1)
+    
 
 class MealSerializer(serializers.ModelSerializer):
     class Meta:
         model = food_models.Meal
         fields = '__all__'
 
-
 class MealDayReadSerializer(serializers.ModelSerializer):
     meals = serializers.SerializerMethodField()
     energy_kj = serializers.SerializerMethodField()
+    price_eur = serializers.SerializerMethodField()
+    weight_g = serializers.SerializerMethodField()
+    nutri_points = serializers.SerializerMethodField()
     class Meta:
         model = food_models.MealDay
         fields = '__all__'
         
     def get_meals(self, obj):
-        jjj = food_models.Meal.objects.filter(meal_day=obj)
-        return MealReadSerializer(jjj, many=True).data
+        data = food_models.Meal.objects.filter(meal_day=obj)
+        return MealReadSerializer(data, many=True).data
     
     def get_energy_kj(self, obj):
         jjj = food_models.Meal.objects.filter(meal_day=obj)
@@ -300,6 +345,27 @@ class MealDayReadSerializer(serializers.ModelSerializer):
         for item in MealReadSerializer(jjj, many=True).data:
             sum_energy_kj = sum_energy_kj + item.get('energy_kj')
         return round(sum_energy_kj, 0)
+    
+    def get_price_eur(self, obj):
+        data = food_models.Meal.objects.filter(meal_day=obj)
+        sum_value = 0
+        for item in MealReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('price_eur')
+        return round(sum_value, 2)
+    
+    def get_weight_g(self, obj):
+        data = food_models.Meal.objects.filter(meal_day=obj)
+        sum_value = 0
+        for item in MealReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('weight_g')
+        return round(sum_value, 0)
+    
+    def get_nutri_points(self, obj):
+        data = food_models.Meal.objects.filter(meal_day=obj)
+        sum_value = 0
+        for item in MealReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('nutri_points')
+        return round(sum_value, 1)
 
 
 class MealDaySerializer(serializers.ModelSerializer):
@@ -318,15 +384,52 @@ class EventSerializer(serializers.ModelSerializer):
 
 class EventReadSerializer(serializers.ModelSerializer):
     meal_days = serializers.SerializerMethodField()
+    energy_kj = serializers.SerializerMethodField()
+    price_eur = serializers.SerializerMethodField()
+    weight_g = serializers.SerializerMethodField()
+    nutri_points = serializers.SerializerMethodField()
     class Meta:
         model = food_models.Event
         fields = (
             'id',
             'name',
             'norm_portions',
-            'meal_days'
+            'meal_days',
+            'energy_kj',
+            'price_eur',
+            'weight_g',
+            'nutri_points'
         )
         
     def get_meal_days(self, obj):
         jjj = food_models.MealDay.objects.filter(event=obj)
         return MealDayReadSerializer(jjj, many=True).data
+    
+    def get_energy_kj(self, obj):
+        jjj = food_models.MealDay.objects.filter(event=obj)
+        sum_energy_kj = 0
+        for item in MealDayReadSerializer(jjj, many=True).data:
+            sum_energy_kj = sum_energy_kj + item.get('energy_kj')
+        return round(sum_energy_kj, 0)
+    
+    def get_price_eur(self, obj):
+        data = food_models.MealDay.objects.filter(event=obj)
+        sum_value = 0
+        for item in MealDayReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('price_eur')
+        return round(sum_value, 2)
+    
+    def get_weight_g(self, obj):
+        data = food_models.MealDay.objects.filter(event=obj)
+        sum_value = 0
+        for item in MealDayReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('weight_g')
+        return round(sum_value, 0)
+    
+    def get_nutri_points(self, obj):
+        data = food_models.MealDay.objects.filter(event=obj)
+        sum_value = 0
+        for item in MealDayReadSerializer(data, many=True).data:
+            sum_value = sum_value + item.get('nutri_points')
+        return round(sum_value, 1)
+
