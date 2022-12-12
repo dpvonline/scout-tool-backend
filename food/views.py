@@ -216,6 +216,10 @@ class EventReadViewSet(viewsets.ModelViewSet):
     queryset = food_models.Event.objects.all()
     serializer_class = food_serializers.EventReadSerializer
 
+class EventSmallReadViewSet(viewsets.ModelViewSet):
+    queryset = food_models.Event.objects.all()
+    serializer_class = food_serializers.EventSerializer
+
 
 class MealDayViewSet(viewsets.ModelViewSet):
     queryset = food_models.MealDay.objects.all()

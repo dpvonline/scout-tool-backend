@@ -31,6 +31,7 @@ router.register(r'portion-read', views.PortionReadViewSet)
 router.register(r'hint', views.HintViewSet)
 
 router.register(r'event', views.EventViewSet)
+router.register(r'event-read-small', views.EventSmallReadViewSet)
 router.register(r'event-read', views.EventReadViewSet)
 
 router.register(r'meal-day', views.MealDayViewSet)
