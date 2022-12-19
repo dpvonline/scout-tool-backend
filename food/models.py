@@ -431,7 +431,7 @@ class Event(TimeStampMixin):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, null=True)
     norm_portions = models.IntegerField()
-    activity_factor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True)
+    activity_factor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True, blank=True)
     start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 
