@@ -15,10 +15,16 @@ from rest_framework.mixins import RetrieveModelMixin
 from copy import deepcopy
 from datetime import date
 from itertools import groupby
+from datetime import date, timedelta
+from datetime import datetime
 
 from food import models as food_models
 from food import serializers as food_serializers
 
+def get_formatted_date(date: str, request) -> datetime:
+    if request.data.get(date):
+        print(request.data.get(date))
+        return datetime.strptime(request.data.get(date), '%Y-%m-%dT%H:%M')
 
 class MeasuringUnitViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = food_models.MeasuringUnit.objects.all()
@@ -157,6 +163,10 @@ class RetailerViewSet(viewsets.ModelViewSet):
     queryset = food_models.Retailer.objects.all()
     serializer_class = food_serializers.RetailerSerializer
 
+class PhysicalActivityLevelViewSet(viewsets.ModelViewSet):
+    queryset = food_models.PhysicalActivityLevel.objects.all()
+    serializer_class = food_serializers.PhysicalActivityLevelSerializer
+
 
 class PackageViewSet(viewsets.ModelViewSet):
     queryset = food_models.Package.objects.all()
@@ -196,18 +206,27 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = food_serializers.EventSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
-        if request.data.get('date', None) is None:
-            request.data['date'] = date.today()
+        if request.data.get('start_date', None) is None:
+            request.data['start_date'] = date.today()
+        if request.data.get('end_date', None) is None:
+            request.data['end_date'] = date.today()
 
         new_event = food_models.Event.objects.create(
             name = request.data.get('name'),
-            norm_portions = request.data.get('norm_portions')
+            norm_portions = request.data.get('norm_portions'),
+            description = request.data.get('description'),
+            start_date = request.data.get('start_date'),
+            end_date = request.data.get('end_date'),
         )
+        start_date = get_formatted_date('start_date', request)
+        end_date = get_formatted_date('end_date', request)
 
-        food_models.MealDay.objects.create(
-            date = request.data.get('date'),
-            event = new_event
-        )
+        day_count = (end_date - start_date).days + 1
+        for single_date in (start_date + timedelta(n) for n in range(day_count)):
+            food_models.MealDay.objects.create(
+                date = single_date,
+                event = new_event,
+            )
 
         return Response(food_serializers.EventReadSerializer(new_event).data, status=status.HTTP_201_CREATED)
 
@@ -224,6 +243,11 @@ class EventSmallReadViewSet(viewsets.ModelViewSet):
 class MealDayViewSet(viewsets.ModelViewSet):
     queryset = food_models.MealDay.objects.all()
     serializer_class = food_serializers.MealDaySerializer
+
+
+class MealDayReadViewSet(viewsets.ModelViewSet):
+    queryset = food_models.MealDay.objects.all()
+    serializer_class = food_serializers.MealDayReadSerializer
 
 
 class MealViewSet(viewsets.ModelViewSet):
@@ -284,7 +308,7 @@ class ShoppingListViewSet(viewsets.ViewSet):
         """
         event_id = request.query_params['id']
         queryset = food_models.Event.objects.get(id=event_id)
-        serializer = food_serializers.EventReadSerializer(queryset, many=False)
+        serializer = food_serializers.EventReadExtendedSerializer(queryset, many=False)
 
         return_list = []
         return_dict_class = {}
@@ -292,7 +316,7 @@ class ShoppingListViewSet(viewsets.ViewSet):
         for meal_day in serializer.data['meal_days']:
             for meal in meal_day['meals']:
                 for meal_item in meal['meal_items']:
-                    if meal_item['recipe']:
+                    if meal_item['recipe'] and meal_item['recipe'].get("recipe_items"):
                         for recipe_item in meal_item['recipe'].get("recipe_items"):
                             weight_g = round(recipe_item.get('weight_g') * serializer.data.get('norm_portions'), 1)
                             weight_kg = round(recipe_item.get('weight_g') * serializer.data.get('norm_portions') / 1000, 3)

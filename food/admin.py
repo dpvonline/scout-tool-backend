@@ -1,11 +1,12 @@
 from django.contrib import admin
 
 from .models import MeasuringUnit, Price, Tag, TagCategory, Ingredient, Recipe, Portion, Retailer, Package, \
-    RecipeItem, Hint, Event, Meal, MealDay, MealItem
+    RecipeItem, Hint, Event, Meal, MealDay, MealItem, PhysicalActivityLevel
 
 admin.site.register(MeasuringUnit)
 admin.site.register(Tag)
 admin.site.register(TagCategory)
+admin.site.register(PhysicalActivityLevel)
 
 
 class PortionInline(admin.TabularInline):

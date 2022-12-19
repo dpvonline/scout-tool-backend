@@ -431,7 +431,7 @@ class Event(TimeStampMixin):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, null=True)
     norm_portions = models.IntegerField()
-    activity_facor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True)
+    activity_factor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True)
     start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
 
@@ -443,8 +443,8 @@ class Event(TimeStampMixin):
 
 class MealDay(TimeStampMixin):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
-    activity_facor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True)
-    date = models.DateField(default=datetime.datetime)
+    activity_facor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True, blank=True)
+    date = models.DateField(null=True)
     max_day_part_factor = models.FloatField(default=1)
 
     def __str__(self):
@@ -455,8 +455,8 @@ class MealDay(TimeStampMixin):
 
 
 class Meal(TimeStampMixin):
-    name = models.CharField(default="Hauptessen", max_length=255)
-    meal_day = models.ForeignKey(MealDay, on_delete=models.PROTECT, null=True)
+    name = models.CharField(default="Hauptessen", max_length=255, null=True, blank=True)
+    meal_day = models.ForeignKey(MealDay, on_delete=models.CASCADE, null=True)
     day_part_factor = models.FloatField(default=0.33)
     meal_type = models.CharField(
         max_length=10,

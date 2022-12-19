@@ -25,16 +25,18 @@ router.register(r'package-read', views.PackageReadViewSet)
 
 router.register(r'retailer', views.RetailerViewSet)
 
+router.register(r'physical-activity', views.PhysicalActivityLevelViewSet)
+
 router.register(r'portion', views.PortionViewSet)
 router.register(r'portion-read', views.PortionReadViewSet)
 
 router.register(r'hint', views.HintViewSet)
 
 router.register(r'event', views.EventViewSet)
-router.register(r'event-read-small', views.EventSmallReadViewSet)
 router.register(r'event-read', views.EventReadViewSet)
 
 router.register(r'meal-day', views.MealDayViewSet)
+router.register(r'meal-day-read', views.MealDayReadViewSet)
 router.register(r'meal', views.MealViewSet)
 router.register(r'meal-item', views.MealItemViewSet)
 
