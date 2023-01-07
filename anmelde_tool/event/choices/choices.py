@@ -26,9 +26,6 @@ class RegistrationTypeSingle(models.TextChoices):
     External = 'E', _('Extern')
 
 
-
-
-
 class ParticipantActionConfirmation(models.TextChoices):
     Nothing = 'N', _('Nichts')
     Delete = 'D', _('Abmelden')
