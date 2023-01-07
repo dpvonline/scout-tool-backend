@@ -225,7 +225,7 @@ class Hint(TimeStampMixin):
         nutri_points = 'nutri_points', 'nutri_points'
         nutri_class = 'nutri_class', 'nutri_class'
 
-    name = models.CharField(max_length=20, blank=True)
+    name = models.CharField(max_length=50, blank=True)
     description = models.CharField(max_length=1000, blank=True)
     value = models.FloatField(default=1)
     hint_level = models.CharField(
@@ -415,7 +415,7 @@ class Price(TimeStampMixin):
 
     def __repr__(self):
         return self.__str__()
-    
+
 class PhysicalActivityLevel(TimeStampMixin):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
