@@ -14,6 +14,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
     def create_user(self, claims: dict) -> CustomUser:
         user: CustomUser = super(MyOIDCAB, self).create_user(claims)
         user.person = Person.objects.create()
+        user.keycloak_id = claims['sub']
         user.save()
 
         self.set_user_info(user, claims)
@@ -56,6 +57,10 @@ class MyOIDCAB(OIDCAuthenticationBackend):
 
     def set_user_info(self, user: CustomUser, claims: dict):
         edited = False
+
+        if not user.keycloak_id and user.keycloak_id != claims['sub']:
+            user.keycloak_id = claims['sub']
+            edited = True
 
         if not user.person:
             user.person = Person.objects.create()
