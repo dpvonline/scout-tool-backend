@@ -43,6 +43,7 @@ router.register(r'meal-item', views.MealItemViewSet)
 # Choices
 router.register(r'gender', views.GenderViewSet, basename='gender')
 router.register(r'meal-types', views.MealTypeViewSet, basename='meal-types')
+router.register(r'major-class', views.MajorClassViewSet, basename='major-class')
 
 # Shopping-List
 router.register(r'shopping-list', views.ShoppingListViewSet, basename='shopping-list')

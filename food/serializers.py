@@ -48,6 +48,7 @@ class IngredientSerializer(serializers.ModelSerializer):
             'fruit_factor',
             'id',
             'lactose_g',
+            'major_class',
             'get_major_class_display',
             'name',
             'ndb_number',
