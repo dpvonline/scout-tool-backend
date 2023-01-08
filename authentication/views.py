@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from keycloak import KeycloakGetError, KeycloakAuthenticationError
@@ -9,10 +10,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from anmelde_tool.event.registration.views import create_missing_eat_habits
 from backend.settings import env, keycloak_admin
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.helper import choice_to_json
-from basic.models import ScoutHierarchy, ZipCode
+from basic.models import ScoutHierarchy, ZipCode, EatHabit
 from basic.permissions import IsStaffOrReadOnly
 from keycloak_auth.helper import REGEX_GROUP, check_group_admin_permission
 from keycloak_auth.models import KeycloakGroup
@@ -45,10 +47,9 @@ class PersonalData(viewsets.ViewSet):
         for key in data:
             if data[key] is None or data[key] == '':
                 del request.data[key]
-        if 'scout_group' in request.data:
-            scout_group = get_object_or_404(ScoutHierarchy.objects.all(), id=request.data['scout_organisation'])
-        else:
-            scout_group = None
+
+        if not request.data.get('email'):
+            request.data['email'] = request.user.email
 
         serializer = EditPersonSerializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
@@ -56,16 +57,46 @@ class PersonalData(viewsets.ViewSet):
         user_serializer = UserSerializer(data=serializer.data)
         user_serializer.is_valid(raise_exception=True)
         user_data = user_serializer.data
-        if scout_group:
-            user_data['scout_group'] = scout_group
+
         user_serializer.update(request.user, user_data)
 
         person_serializer = PersonSerializer(data=serializer.data)
         person_serializer.is_valid(raise_exception=True)
         person_data = person_serializer.data
-        if scout_group:
-            person_data['scout_group'] = scout_group
+        print(person_data)
         person_serializer.update(request.user.person, person_data)
+
+        person_edited = False
+        scout_group_id = request.data.get('scout_group')
+        if scout_group_id and (
+                request.user.person.scout_group is None
+                or scout_group_id != request.user.person.scout_group.id):
+            scout_group = get_object_or_404(ScoutHierarchy, id=scout_group_id)
+            request.user.person.scout_group = scout_group
+            person_edited = True
+
+        zip_code_id = request.data.get('zip_code')
+        if zip_code_id and (request.user.person.zip_code is None
+                            or zip_code_id != request.user.person.zip_code.id):
+            zip_code = get_object_or_404(ZipCode, id=zip_code_id)
+            request.user.person.zip_code = zip_code
+            person_edited = True
+
+        if request.data.get('eat_habits'):
+            request.data['eat_habit'] = request.data.get('eat_habits')
+            eat_habits_formatted = create_missing_eat_habits(request)
+            del request.data['eat_habit']
+
+            if eat_habits_formatted and len(eat_habits_formatted) > 0:
+                with transaction.atomic():
+                    request.user.person.eat_habits.clear()
+                    for eat_habit in eat_habits_formatted:
+                        eat_habit_id = get_object_or_404(EatHabit, name__iexact=eat_habit).id
+                        request.user.person.eat_habits.add(eat_habit_id)
+                person_edited = True
+
+        if person_edited:
+            request.user.person.save()
 
         result = FullUserSerializer(request.user, many=False)
         return Response(result.data, status=status.HTTP_200_OK)

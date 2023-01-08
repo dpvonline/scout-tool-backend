@@ -24,6 +24,7 @@ from anmelde_tool.attributes import serializers as attributes_serializer
 
 User = get_user_model()
 
+
 def create_missing_eat_habits(request) -> [str]:
     eat_habits = request.data.get('eat_habit', [])
     result = []
@@ -55,7 +56,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
     def get_queryset(self) -> QuerySet:
         registration_id = self.kwargs.get("registration_pk", None)
         return event_models.RegistrationParticipant.objects.filter(
-            registration=registration_id).order_by('age')
+            registration=registration_id
+        ).order_by('age')
 
     def create(self, request, *args, **kwargs) -> Response:
         eat_habits_formatted = create_missing_eat_habits(request)
@@ -78,21 +80,22 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         if registration.event.registration_deadline < timezone.now():
             request.data['needs_confirmation'] = event_choices.ParticipantActionConfirmation.AddCompletyNew
 
-        if request.data['allow_permanently']:
+        if request.data.get('allow_permanently'):
             print('allow_permanently')
 
-            person = auth_models.Person(first_name=request.data.get('first_name'),
-                                        scout_name=request.data.get('scout_name'),
-                                        last_name=request.data.get('last_name'),
-                                        address=request.data.get('address'),
-                                        address_supplement=request.data.get('address_supplement'),
-                                        scout_group=request.data.get('scout_group'),
-                                        phone_number='01231312',
-                                        email=request.data.get('email'),
-                                        gender=request.data.get('gender'),
-                                        leader=request.data.get('leader'),
-                                        scout_level='N'
-                                        )
+            person = auth_models.Person(
+                first_name=request.data.get('first_name'),
+                scout_name=request.data.get('scout_name'),
+                last_name=request.data.get('last_name'),
+                address=request.data.get('address'),
+                address_supplement=request.data.get('address_supplement'),
+                scout_group=request.data.get('scout_group'),
+                phone_number=request.data.get('phone_number'),
+                email=request.data.get('email'),
+                gender=request.data.get('gender'),
+                leader=request.data.get('leader'),
+                scout_level='N'
+            )
             person.save()
 
         return super().create(request, *args, **kwargs)
@@ -169,7 +172,8 @@ class RegistrationAddGroupParticipantViewSet(viewsets.ViewSet):
         scout_level: int = request.data.get('scout_level', 'N')
         eat_habit_id: int = request.data.get('eat_habit', 1)
         existing_participants: QuerySet = event_models.RegistrationParticipant.objects.filter(
-            registration=registration.id)
+            registration=registration.id
+        )
         total_participant_count: int = existing_participants.count()
 
         new_participants = []
@@ -193,16 +197,18 @@ class RegistrationAddGroupParticipantViewSet(viewsets.ViewSet):
         if (eat_habit_id):
             eat_habit: basic_models.EatHabit = get_object_or_404(basic_models.EatHabit, id=eat_habit_id)
         for i in range(total_participant_count + 1, total_participant_count + int(number) + 1):
-            participant = event_models.RegistrationParticipant(first_name='Teilnehmender',
-                                                               scout_name=f'Teilnehmender',
-                                                               last_name=i,
-                                                               age=age,
-                                                               birthday=birthday,
-                                                               scout_level=scout_level,
-                                                               registration=registration,
-                                                               generated=True,
-                                                               needs_confirmation=confirm,
-                                                               booking_option=booking)
+            participant = event_models.RegistrationParticipant(
+                first_name='Teilnehmender',
+                scout_name=f'Teilnehmender',
+                last_name=i,
+                age=age,
+                birthday=birthday,
+                scout_level=scout_level,
+                registration=registration,
+                generated=True,
+                needs_confirmation=confirm,
+                booking_option=booking
+            )
             participant.save()
             if (eat_habit_id):
                 participant.eat_habit.add(eat_habit)
@@ -233,7 +239,8 @@ class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
         registration: event_models.Registration = self.participant_group_initialization(request)
         number: int = request.data.get('number', 0)
         existing_participants: QuerySet = event_models.RegistrationParticipant.objects.filter(
-            registration=registration.id)
+            registration=registration.id
+        )
         active_participants: QuerySet = existing_participants.filter(deactivated=False)
         inactive_participants: QuerySet = existing_participants.filter(deactivated=True)
         active_participant_count: int = active_participants.count()
@@ -265,12 +272,14 @@ class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
             booking: event_models.BookingOption = registration.event.bookingoption_set.first().id
 
             for i in range(total_participant_count + 1, number + 1):
-                participant = event_models.RegistrationParticipant(first_name='Pfadi',
-                                                                   last_name=i,
-                                                                   registration=registration,
-                                                                   generated=True,
-                                                                   needs_confirmation=confirm,
-                                                                   booking_option=booking)
+                participant = event_models.RegistrationParticipant(
+                    first_name='Pfadi',
+                    last_name=i,
+                    registration=registration,
+                    generated=True,
+                    needs_confirmation=confirm,
+                    booking_option=booking
+                )
                 new_participants.append(participant)
             event_models.RegistrationParticipant.objects.bulk_create(new_participants)
 
@@ -303,7 +312,8 @@ class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
 
             if num_delete < deletable_participants_count:
                 selected_deletable_participants = event_models.RegistrationParticipant.objects.filter(
-                    pk__in=deletable_participants.order_by('-created_at').values_list('pk', flat=True)[:num_delete])
+                    pk__in=deletable_participants.order_by('-created_at').values_list('pk', flat=True)[:num_delete]
+                )
             else:
                 selected_deletable_participants = deletable_participants
 
@@ -321,15 +331,19 @@ class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
                 return Response({'deactivated': num_delete}, status=status.HTTP_200_OK)
 
         else:
-            return Response(f'number: {number} is higher or equal than current participantc count {participant_count}',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                f'number: {number} is higher or equal than current participantc count {participant_count}',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class RegistrationAttributeViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
     def create(self, request, *args, **kwargs) -> Response:
-        serializer: attributes_serializer.AbstractAttributePutPolymorphicSerializer = self.get_serializer(data=request.data)
+        serializer: attributes_serializer.AbstractAttributePutPolymorphicSerializer = self.get_serializer(
+            data=request.data
+        )
         serializer.is_valid(raise_exception=True)
 
         registration_id = self.kwargs.get("registration_pk", None)
@@ -422,11 +436,13 @@ class WorkshopViewSet(viewsets.ModelViewSet):
         return event_models.Workshop.objects.filter(registration__id=registration_id)
 
 
-class RegistrationViewSet(mixins.CreateModelMixin,
-                          mixins.RetrieveModelMixin,
-                          mixins.UpdateModelMixin,
-                          mixins.DestroyModelMixin,
-                          viewsets.GenericViewSet):
+class RegistrationViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
     permission_classes = [event_permissions.IsRegistrationResponsiblePerson]
     queryset = event_models.Registration.objects.all()
 
@@ -480,7 +496,7 @@ class RegistrationViewSet(mixins.CreateModelMixin,
                 raise event_api_exceptions.NotResponsible()
             elif existing_group_registration.exists() and not serializer.data['single']:
                 raise event_api_exceptions.GroupAlreadyRegistered
-            elif (group_registration.exists() and serializer.data['single'])\
+            elif (group_registration.exists() and serializer.data['single']) \
                     and not event_permissions.IsEventSuperResponsiblePerson:
                 raise event_api_exceptions.SingleGroupNotAllowed
             elif event.group_registration == event_choices.RegistrationTypeGroup.Required \
@@ -490,9 +506,11 @@ class RegistrationViewSet(mixins.CreateModelMixin,
         single = serializer.data['single'] if general_code_check else single_code_check
         scout_organisation_id = serializer.data['scout_organisation']
         err_msg = f'Element (Bund, Ring, Stamm) mit der Id {scout_organisation_id}'
-        scout_organisation = custom_get_or_404(event_api_exceptions.SomethingNotFound(err_msg),
-                                               basic_models.ScoutHierarchy,
-                                               id=scout_organisation_id)
+        scout_organisation = custom_get_or_404(
+            event_api_exceptions.SomethingNotFound(err_msg),
+            basic_models.ScoutHierarchy,
+            id=scout_organisation_id
+        )
         registration: event_models.Registration = event_models.Registration(
             scout_organisation=scout_organisation,
             event=event,

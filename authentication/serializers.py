@@ -4,10 +4,10 @@ from django.core.validators import EmailValidator
 from rest_framework import serializers
 
 from anmelde_tool.event.choices.choices import ScoutLevelTypes, LeaderTypes
-from authentication.choices import BundesPostTextChoice
+from authentication.choices import BundesPostTextChoice, EmailNotificationType
 from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.choices import Gender
-from basic.models import ScoutHierarchy
+from basic.models import ScoutHierarchy, EatHabit
 from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer, ScoutHierarchyDetailedSerializer
 from keycloak_auth.models import KeycloakGroup
 
@@ -184,13 +184,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class PersonSerializer(serializers.ModelSerializer):
-    zip_code = ZipCodeDetailedSerializer(many=False)
-    scout_group = ScoutHierarchyDetailedSerializer(many=False)
+    zip_code = ZipCodeDetailedSerializer(many=False, required=False, read_only=True)
+    scout_group = ScoutHierarchyDetailedSerializer(many=False, required=False, read_only=True)
     bundespost = serializers.CharField(source='get_bundespost_display')
     gender = serializers.CharField(source='get_gender_display')
     scout_level = serializers.CharField(source='get_scout_level_display')
     leader = serializers.CharField(source='get_leader_display')
-    eat_habits = EatHabitSerializer(many=True, read_only=True)
+    eat_habits = EatHabitSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Person
@@ -214,36 +214,24 @@ class PersonSerializer(serializers.ModelSerializer):
         )
 
 
-class EditPersonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'first_name',
-            'last_name',
-            'scout_name',
-            'email',
-            'scout_organisation',
-            'mobile_number',
-            'email_notification',
-            'sms_notification',
-            'dsgvo_confirmed',
-            'address',
-            'additional_address',
-            'zip_code',
-            'gender',
-            'scout_level',
-            'leader',
-            'bundespost'
-        )
-        extra_kwargs = {'email': {'validators': [EmailValidator, ]}}
-
+class EditPersonSerializer(serializers.Serializer):
+    email = serializers.CharField(required=False)
+    dsgvo_confirmed = serializers.BooleanField(required=False)
+    email_notification = serializers.ChoiceField(required=False, choices=EmailNotificationType.choices)
+    sms_notification = serializers.BooleanField(required=False)
+    scout_name = serializers.CharField(required=False)
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
     address = serializers.CharField(required=False)
-    additional_address = serializers.CharField(required=False)
+    address_supplement = serializers.CharField(required=False)
     zip_code = serializers.IntegerField(required=False)
-    gender = serializers.ChoiceField(required=False, choices=Gender.choices)
-    scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
-    leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
+    scout_group = serializers.IntegerField(required=False)
+    phone_number = serializers.CharField(required=False)
     bundespost = serializers.ChoiceField(required=False, choices=BundesPostTextChoice.choices)
+    gender = serializers.ChoiceField(required=False, choices=Gender.choices)
+    eat_habits = serializers.ListSerializer(child=serializers.CharField(), required=False)
+    leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
+    scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -7,11 +7,12 @@ from basic import models as basic_models
 
 
 def get_parent_scout_organisation(obj: basic_models.ScoutHierarchy, filter_level: str) -> str:
-    iterator: basic_models.ScoutHierarchy = obj
-    while iterator is not None:
-        if iterator.level.name == filter_level:
-            return iterator.name
-        iterator = iterator.parent
+    if isinstance(obj, basic_models.ScoutHierarchy):
+        iterator: basic_models.ScoutHierarchy = obj
+        while iterator is not None:
+            if iterator.level.name == filter_level:
+                return iterator.name
+            iterator = iterator.parent
 
     return ''
 
