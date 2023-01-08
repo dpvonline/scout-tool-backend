@@ -272,6 +272,12 @@ class MealTypeViewSet(viewsets.ViewSet):
         result = choice_to_json(food_models.MealType.choices)
         return Response(result, status=status.HTTP_200_OK)
 
+class MajorClassViewSet(viewsets.ViewSet):
+    
+    def list(self, request) -> Response:
+        result = choice_to_json(food_models.FoodMajorClasses.choices)
+        return Response(result, status=status.HTTP_200_OK)
+
 def add_agg_to_list(items):
     my_list = []
     sum_dict = {}
