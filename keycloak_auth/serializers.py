@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from authentication.models import CustomUser, Person
 from authentication.serializers import UserScoutHierarchySerializer
+from basic.serializers import ScoutHierarchySerializer
 from keycloak_auth.choices import CreateGroupChoices
 from keycloak_auth.enums import PermissionType
 from keycloak_auth.models import KeycloakGroup
@@ -42,7 +43,6 @@ class CreateGroupSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     parent_id = serializers.CharField(required=False)
     type = serializers.ChoiceField(required=True, choices=CreateGroupChoices.choices)
-
 
 
 class UpdateGroupSerializer(serializers.Serializer):
@@ -91,6 +91,7 @@ class GroupSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     children = serializers.SerializerMethodField()
     permission = serializers.SerializerMethodField()
+    scouthierarchy = ScoutHierarchySerializer(many=False)
 
     class Meta:
         model = KeycloakGroup
@@ -99,7 +100,8 @@ class GroupSerializer(serializers.ModelSerializer):
             'id',
             'parent',
             'children',
-            'permission'
+            'permission',
+            'scouthierarchy'
         )
 
     def get_parent(self, obj: KeycloakGroup):
