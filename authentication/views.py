@@ -63,7 +63,6 @@ class PersonalData(viewsets.ViewSet):
         person_serializer = PersonSerializer(data=serializer.data)
         person_serializer.is_valid(raise_exception=True)
         person_data = person_serializer.data
-        print(person_data)
         person_serializer.update(request.user.person, person_data)
 
         person_edited = False
@@ -204,7 +203,6 @@ class RegisterViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         serializers = RegisterSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
-        print(serializers.data)
         try:
             new_keycloak_user_id: str = keycloak_admin.create_user(
                 {
@@ -268,8 +266,6 @@ class RegisterViewSet(viewsets.ViewSet):
             )
 
         if new_keycloak_user_id and new_django_user:
-            print('all ok, add Person model')
-
             try:
                 zip_code = None
                 if serializers.data.get('zip_code'):
