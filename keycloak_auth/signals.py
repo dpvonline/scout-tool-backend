@@ -36,8 +36,8 @@ def post_save_keycloak_group(sender: KeycloakGroup, instance: KeycloakGroup, cre
             keycloak_admin.move_group(payload)
 
 
-@receiver(post_delete, sender=KeycloakGroup, dispatch_uid='post_save_keycloak_group')
-def post_save_keycloak_group(sender: KeycloakGroup, instance: KeycloakGroup, **kwargs):
+@receiver(post_delete, sender=KeycloakGroup, dispatch_uid='post_delete_keycloak_group')
+def post_delete_keycloak_group(sender: KeycloakGroup, instance: KeycloakGroup, **kwargs):
     if instance.keycloak_id:
         try:
             group = keycloak_admin.get_group(instance.keycloak_id)
