@@ -36,3 +36,9 @@ class NoKeycloakId(APIException):
         if detail is None:
             detail = force_str(self.default_detail).format(keycloak_group=keycloak_group)
         super().__init__(detail, code)
+
+
+class NotAuthorized(APIException):
+    status_code = status.HTTP_403_FORBIDDEN
+    default_detail = 'Du bist nicht berechtigt auf diese Ressource zuzugreifen.'
+    default_code = 'forbidden'
