@@ -99,6 +99,7 @@ class RecipeItemSerializer(serializers.ModelSerializer):
 class RecipeItemReadSerializer(serializers.ModelSerializer):
     portion = PortionReadSerializer(many=False, read_only=True)
     price_per_kg = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
         
     class Meta:
         model = food_models.RecipeItem
@@ -108,6 +109,7 @@ class RecipeItemReadSerializer(serializers.ModelSerializer):
             'nutri_points',
             'weight_g',
             'price_per_kg',
+            'price',
             'quantity',
             'portion',
             'energy_kj',
@@ -142,6 +144,17 @@ class RecipeItemReadSerializer(serializers.ModelSerializer):
             count = count + 1
             sum_value = sum_value + item.get('price_per_kg')
         return round(sum_value / count, 2)
+    
+    def get_price(self, obj):
+        portions = food_models.Portion.objects.filter(ingredient=obj.portion.ingredient.id)
+        packages = food_models.Package.objects.filter(portion__in=portions)
+        data = food_models.Price.objects.filter(package__in=packages)
+        sum_value = 0
+        count = 0.000000000001
+        for item in PriceSerializer(data, many=True).data:
+            count = count + 1
+            sum_value = sum_value + (item.get('price_per_kg') * (obj.weight_g / 1000))
+        return round(sum_value / count, 2)
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -149,6 +162,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = food_serializers.TagSerializer(many=True, required=False)
     recipe_items = RecipeItemReadSerializer(many=True, read_only=True)
     price_per_kg = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
 
     class Meta:
         model = food_models.Recipe
@@ -163,6 +177,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'weight_g',
             'hints',
             'price_per_kg',
+            'price',
             'recipe_items',
             'tags',
             'hints',
@@ -190,6 +205,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         for item in RecipeItemReadSerializer(data, many=True).data:
             count = count + 1
             sum_value = sum_value + item.get('price_per_kg')
+        return round(sum_value / count, 2)
+        
+    def get_price(self, obj):
+        data = food_models.RecipeItem.objects.filter(recipe=obj)
+        sum_value = 0
+        count = 0.000000000001
+        for item in RecipeItemReadSerializer(data, many=True).data:
+            count = count + 1
+            sum_value = sum_value + (item.get('price_per_kg') * (obj.weight_g / 1000))
         return round(sum_value / count, 2)
 
 class RecipeDataSerializer(serializers.ModelSerializer):
