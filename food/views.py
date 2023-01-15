@@ -119,7 +119,6 @@ class RecipeCloneViewSet(viewsets.ViewSet):
 
 class RecipeFilter(FilterSet):
     nutri_class = NumberFilter(field_name='nutri_class')
-    physical_viscosity = CharFilter(field_name='physical_viscosity')
     status = CharFilter(field_name='status')
     meal_type = CharFilter(field_name='meal_type')
 
