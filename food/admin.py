@@ -26,7 +26,6 @@ class PortionInline(admin.TabularInline):
         'salt_g',
         'fructose_g',
         'lactose_g',
-        'price_per_kg',
     )
 
 
@@ -82,8 +81,6 @@ class RecipeItemInline(admin.TabularInline):
         'nutri_points_fat_sat_g',
         'nutri_points_protein_g',
         'fruit_factor',
-        'price_per_kg',
-        'price',
     )
 
 
@@ -107,7 +104,6 @@ class RecipeAdmin(admin.ModelAdmin):
         'salt_g',
         'fructose_g',
         'lactose_g',
-        'price',
     )
     list_display = (
         'name',
@@ -119,7 +115,6 @@ class RecipeAdmin(admin.ModelAdmin):
         'protein_g',
         'fibre_g',
         'nutri_class',
-        'price',
         'get_hints'
     )
     list_filter = ('meal_type',)
@@ -144,7 +139,7 @@ class PackageAdmin(admin.ModelAdmin):
     ordering = ['portion']
     readonly_fields = (
         'weight_package_g',
-        'price_per_kg',)
+    )
 
     inlines = [
         PriceInline,

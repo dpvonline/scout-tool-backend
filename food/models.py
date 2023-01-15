@@ -145,7 +145,6 @@ class Ingredient(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
     nutri_points = models.IntegerField(null=True, blank=True)
     nutri_class = models.FloatField(null=True, blank=True)
     ndb_number = models.IntegerField(null=True, blank=True)
-    price_per_kg = models.FloatField(default=0)
 
     def __str__(self):
         return f'{self.name} - {self.description}'
@@ -164,7 +163,6 @@ class Portion(TimeStampMixin, NutrientsMixin):
     rank = models.IntegerField(default=1)
     # readonly
     weight_g = models.FloatField(blank=True, null=True)
-    price_per_kg = models.FloatField(default=0)
 
     def save(self, *args, **kwargs):
         is_g = self.measuring_unit.unit == 'g'
@@ -282,8 +280,6 @@ class Recipe(TimeStampMixin, NutrientsMixin):
     nutri_points = models.FloatField(null=True, blank=True)
     weight_g = models.FloatField(default=1)
     hints = models.ManyToManyField(Hint, blank=True)
-    price_per_kg = models.FloatField(default=0)
-    price = models.FloatField(default=0, null=True, blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -314,8 +310,6 @@ class RecipeItem(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
     weight_recipe_factor = models.FloatField(blank=True, null=True)
     nutri_points = models.FloatField(blank=True, null=True)
     nutri_class = models.FloatField(null=True, blank=True)
-    price_per_kg = models.FloatField(default=0)
-    price = models.FloatField(default=0, null=True, blank=True)
 
     def __str__(self):
         return f'{self.recipe} - {self.quantity} x {self.portion}'
@@ -328,7 +322,6 @@ class RecipeItem(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
         HintClass = HintModule()
 
         RecipeClass.update_recipe_item_nutritons(self)
-        self.price = round(self.price_per_kg * self.weight_g / 1000, 2)
         super(RecipeItem, self).save(*args, **kwargs)
 
         RecipeClass.recipe_sums(self.recipe)
@@ -378,7 +371,6 @@ class Package(TimeStampMixin):
     quantity = models.FloatField(default=0)
     # readonly
     weight_package_g = models.FloatField(default=0, blank=True)
-    price_per_kg = models.FloatField(default=0)
 
     def save(self, *args, **kwargs):
         self.weight_package_g = self.quantity * int(self.portion.weight_g)
@@ -404,10 +396,8 @@ class Price(TimeStampMixin):
     price_per_kg = models.FloatField(default=1)
 
     def save(self, *args, **kwargs):
-        PriceClass = PriceModule()
         self.price_per_kg = round(
             self.price_eur / (self.package.weight_package_g / 1000), 2)
-        PriceClass.setPriceInPackage(self)
         super(Price, self).save(*args, **kwargs)
 
     def __str__(self):

@@ -78,10 +78,8 @@ class RecipeModule:
             Sum('sodium_mg'),
             Sum('carbohydrate_g'),
             Sum('fibre_g'),
-            Sum('price'),
         )
 
-        price = self.get_sum('price', items, 2)
         weight_g = self.get_sum('weight_g', items)
         energy_kj = self.get_sum('energy_kj', items)
         protein_g = self.get_sum('protein_g', items)
@@ -94,7 +92,6 @@ class RecipeModule:
         fibre_g = self.get_sum('fibre_g', items)
 
         food_models.Recipe.objects.filter(id=instance.id).update(
-            price=price,
             weight_g=weight_g,
             energy_kj=energy_kj,
             protein_g=protein_g,
