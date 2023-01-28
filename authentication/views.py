@@ -1,3 +1,4 @@
+import re
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
@@ -22,7 +23,7 @@ from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
     FullUserSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
-    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer
+    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer, CheckPasswordSerializer
 
 User: CustomUser = get_user_model()
 
@@ -375,6 +376,20 @@ class UserPermissionViewSet(viewsets.ViewSet):
         return Response(ids, status=status.HTTP_200_OK)
 
 
+def find_user(value, keycloak_param, *filter_args, **filter_kwargs):
+    found = False
+    if User.objects.filter(*filter_args, **filter_kwargs).exists():
+        found = True
+
+    keycloak_users = keycloak_admin.get_users({keycloak_param: value})
+    if keycloak_users:
+        for user in keycloak_users:
+            if value == user[keycloak_param]:
+                found = True
+                break
+    return found
+
+
 class CheckUsername(viewsets.ViewSet):
 
     def create(self, request, *args, **kwargs) -> Response:
@@ -382,8 +397,14 @@ class CheckUsername(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         name = serializer.data['username']
 
-        if User.objects.filter(username__iexact=name).exists() \
-                or len(keycloak_admin.get_users({"username": name})) > 0:
+        if not name.isalnum():
+            return Response('Der Username darf keine Sonderzeichen enthalten.', status=status.HTTP_400_BAD_REQUEST)
+
+        if re.search("[äöüÄÖÜß ]", name):
+            return Response('Der Username darf keine Umlaute enthalten.', status=status.HTTP_400_BAD_REQUEST)
+
+        found = find_user(name, 'username', username__iexact=name)
+        if found:
             return Response('Username ist bereits in Benutzung.', status=status.HTTP_409_CONFLICT)
         return Response('Username ist frei.', status=status.HTTP_200_OK)
 
@@ -395,7 +416,40 @@ class CheckEmail(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         email = serializer.data['email']
 
-        if User.objects.filter(email__iexact=email).exists() \
-                or len(keycloak_admin.get_users({"email": email})) > 0:
+        found = find_user(email, 'email', email__iexact=email)
+
+        if found:
             return Response('Email ist bereits in Benutzung.', status=status.HTTP_409_CONFLICT)
         return Response('Email ist frei.', status=status.HTTP_200_OK)
+
+
+class CheckPassword(viewsets.ViewSet):
+
+    def create(self, request, *args, **kwargs) -> Response:
+        serializer = CheckPasswordSerializer(data=request.data, many=False)
+        serializer.is_valid(raise_exception=True)
+        password = serializer.data['password']
+
+        if bool(re.search(r' ', password)):
+            return Response('Das Passwort darf kein Leerzeichen enthalten.', status=status.HTTP_400_BAD_REQUEST)
+
+        if len(password) < 8:
+            return Response('Das Passwort muss mindestens 8 Zeichen enthalten.', status=status.HTTP_400_BAD_REQUEST)
+
+        if not bool(re.search(r'\d', password)):
+            return Response('Das Passwort muss mindestens eine Zahl enthalten.',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not re.search("[!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ ]", password):
+            return Response('Das Passwort muss mindestens ein Sonderzeichen enthalten.',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not any(x.isupper() for x in password):
+            return Response('Das Passwort muss mindestens einen Großbuchstaben enthalten.',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not any(x.islower() for x in password):
+            return Response('Das Passwort muss mindestens einen Kleinbuchstaben enthalten.',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response('Passwort ist gültig.', status=status.HTTP_200_OK)

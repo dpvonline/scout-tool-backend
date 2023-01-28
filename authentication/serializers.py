@@ -323,3 +323,7 @@ class CheckUsernameSerializer(serializers.Serializer):
 
 class CheckEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
+
+
+class CheckPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True)
