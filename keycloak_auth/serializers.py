@@ -101,7 +101,7 @@ class GroupSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
     permission = serializers.SerializerMethodField()
     scouthierarchy = ScoutHierarchySerializer(many=False)
-    links = ExternalLinksSerializer(many=False)
+    externallinks = ExternalLinksSerializer(many=False)
 
     class Meta:
         model = KeycloakGroup
