@@ -184,8 +184,12 @@ class Portion(TimeStampMixin, NutrientsMixin):
         self.sodium_mg = round(
             self.ingredient.sodium_mg * self.weight_g / 100, 2)
         self.carbohydrate_g = round(
-            self.ingredient.carbohydrate_g * self.weight_g / 100, 2)
-        self.fibre_g = round(self.ingredient.fibre_g * self.weight_g / 100, 2)
+            self.ingredient.carbohydrate_g * self.weight_g / 100, 2
+        )
+        fibre_g = 0
+        if self.ingredient.fibre_g:
+            fibre_g = self.ingredient.fibre_g
+        self.fibre_g = round(fibre_g * self.weight_g / 100, 2)
 
         super(Portion, self).save(*args, **kwargs)
 
