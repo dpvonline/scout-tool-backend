@@ -22,7 +22,7 @@ from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
     FullUserSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
-    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer
+    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer
 
 User: CustomUser = get_user_model()
 
@@ -386,3 +386,16 @@ class CheckUsername(viewsets.ViewSet):
                 or len(keycloak_admin.get_users({"username": name})) > 0:
             return Response('Username ist bereits in Benutzung.', status=status.HTTP_409_CONFLICT)
         return Response('Username ist frei.', status=status.HTTP_200_OK)
+
+
+class CheckEmail(viewsets.ViewSet):
+
+    def create(self, request, *args, **kwargs) -> Response:
+        serializer = CheckEmailSerializer(data=request.data, many=False)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.data['email']
+
+        if User.objects.filter(email__iexact=email).exists() \
+                or len(keycloak_admin.get_users({"email": email})) > 0:
+            return Response('Email ist bereits in Benutzung.', status=status.HTTP_409_CONFLICT)
+        return Response('Email ist frei.', status=status.HTTP_200_OK)

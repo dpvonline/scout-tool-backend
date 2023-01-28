@@ -279,7 +279,6 @@ class RequestGroupAccessSerializer(serializers.ModelSerializer):
 
 
 class StatusRequestGroupAccessPutSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RequestGroupAccess
         fields = '__all__'
@@ -320,3 +319,7 @@ class StatusRequestGroupGetAccessSerializer(serializers.ModelSerializer):
 
 class CheckUsernameSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
+
+
+class CheckEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
