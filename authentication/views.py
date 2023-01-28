@@ -452,4 +452,8 @@ class CheckPassword(viewsets.ViewSet):
             return Response('Das Passwort muss mindestens einen Kleinbuchstaben enthalten.',
                             status=status.HTTP_400_BAD_REQUEST)
 
+        if re.match(r'[^@]+@[^@]+\.[^@]+', password):
+            return Response('Das Passwort darf keine Email Adresse sein.',
+                            status=status.HTTP_400_BAD_REQUEST)
+
         return Response('Passwort ist gültig.', status=status.HTTP_200_OK)
