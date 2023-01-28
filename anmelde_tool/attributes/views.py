@@ -3,6 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from basic.helper import choice_to_json
 from . import models as attribute_models
 from . import serializers as attribute_serializers
 from .choices import TravelType
@@ -44,4 +45,5 @@ class TravelTypeViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request) -> Response:
-        return Response(TravelType.choices, status=status.HTTP_200_OK)
+        result = choice_to_json(TravelType.choices)
+        return Response(result, status=status.HTTP_200_OK)

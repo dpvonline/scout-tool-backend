@@ -1,7 +1,9 @@
 from django.core.management.base import BaseCommand
-from keycloak import KeycloakAdmin
+
+from backend.settings import keycloak_admin
+from basic.models import ScoutHierarchy
+from keycloak_auth.helper import get_or_create_keycloak_model
 from keycloak_auth.models import KeycloakGroup
-from backend.settings import env
 
 
 class Command(BaseCommand):
@@ -9,31 +11,62 @@ class Command(BaseCommand):
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
         super(Command, self).__init__(stdout, stderr, no_color, force_color)
-        self.keycloak_admin = KeycloakAdmin(
-            server_url=env('BASE_URI'),
-            client_id=env('KEYCLOAK_ADMIN_USER'),
-            client_secret_key=env('KEYCLOAK_ADMIN_PASSWORD'),
-            realm_name=env('KEYCLOAK_APP_REALM'),
-            user_realm_name=env('KEYCLOAK_APP_REALM'),
-            verify=True
-        )
         self.groups = {}
+        self.groups_added = []
+        self.groups_deleted = []
 
     def handle(self, *args, **options):
-        all_groups = self.keycloak_admin.get_groups()
+        print('checking django groups')
+        all_django_groups = KeycloakGroup.objects.all()
+        for group in all_django_groups:
+            name = self.generate_name(group)
+            self.groups[name] = False
 
+        print('checking keycloak groups')
+        all_groups = keycloak_admin.get_groups()
         for group in all_groups:
             self.get_subgroup(group)
 
+        print('Checking diff')
+        for group in self.groups:
+            if not self.groups[group]:
+                self.groups_deleted.append(group)
+
+        if self.groups_added:
+            print('')
+            print('added groups:')
+            for group in self.groups_added:
+                print(group)
+
+        if self.groups_deleted:
+            print('')
+            print('groups to be deleted:')
+            for group in self.groups_deleted:
+                print(group)
+
+        print('Assign KeycloakGroup to ScoutHierarchies')
+        for scout_hierarchy in ScoutHierarchy.objects.all():
+            if not scout_hierarchy.keycloak:
+                keycloak_group = keycloak_admin.get_group_by_path(
+                    path=scout_hierarchy.keycloak_group_name,
+                    search_in_subgroups=True
+                )
+                if keycloak_group:
+                    django_keycloak_group = KeycloakGroup.objects.get(keycloak_id=keycloak_group['id'])
+                    scout_hierarchy.keycloak = django_keycloak_group
+                    scout_hierarchy.save()
+
+        print('')
+        print('Checks finished')
+        if not self.groups_added and not self.groups_deleted:
+            print('All fine')
+
     def get_subgroup(self, group, parent: KeycloakGroup = None):
-        keycloak_group: KeycloakGroup = KeycloakGroup.objects.filter(keycloak_id=group['id'])
-        if not keycloak_group.exists():
-            keycloak_group = KeycloakGroup.objects.create(
-                keycloak_id=group['id'],
-                name=group['name'],
-                parent=parent
-            )
-        elif keycloak_group.name != group['name']:
+        keycloak_group, created = get_or_create_keycloak_model(group, parent)
+        if created:
+            self.groups_added.append(self.generate_name(keycloak_group))
+
+        if keycloak_group.name != group['name']:
             keycloak_group.name = group['name']
             keycloak_group.save()
 
@@ -41,5 +74,18 @@ class Command(BaseCommand):
             keycloak_group.parent = parent
             keycloak_group.save()
 
+        name = self.generate_name(keycloak_group)
+        self.groups[name] = True
+
         for sub_group in group['subGroups']:
             self.get_subgroup(sub_group, keycloak_group)
+
+    def generate_name(self, group: KeycloakGroup):
+        parents = []
+        iterator: KeycloakGroup = group
+        while iterator:
+            parents.append(iterator.name)
+            iterator = iterator.parent
+        parents.reverse()
+        name = '_'.join(parents)
+        return name

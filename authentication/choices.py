@@ -20,3 +20,9 @@ class BundesPostTextChoice(models.TextChoices):
     DIGITAL = 'digital', _('Nur Digital')
     DIGITAL_POST = 'digital_post', _('Digital und Post')
     POST = 'post', _('Nur per Post')
+
+
+class RequestGroupAccessChoices(models.TextChoices):
+    NONE = 'nothing', _('Nicht überprüft')
+    ACCEPTED = 'accepted', _('Akzeptiert')
+    DECLINED = 'declined', _('Abgelehnt')

@@ -39,7 +39,7 @@ class ScoutOrganisationLevelChoices(models.TextChoices):
         plural_dict = {
             'Verband': 'Verbände',
             'Bund': 'Bünde',
-            'Ringe': 'Ringe',
+            'Ring': 'Ringe',
             'Stamm': 'Stämme',
             'Gruppe': 'Gruppe',
             'Scout': 'Pfadfinder*innen'
@@ -47,4 +47,11 @@ class ScoutOrganisationLevelChoices(models.TextChoices):
         if choice in plural_dict:
             return plural_dict[choice]
         else:
-            raise KeyError('Choice does not exist')
+            raise KeyError(f'Choice: {choice} does not exist')
+
+
+class Gender(models.TextChoices):
+    Male = 'M', _('Männlich')
+    Female = 'F', _('Weiblich')
+    Divers = 'D', _('Divers')
+    Nothing = 'N', _('Keine Angabe')

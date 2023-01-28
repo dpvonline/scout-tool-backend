@@ -26,13 +26,6 @@ class RegistrationTypeSingle(models.TextChoices):
     External = 'E', _('Extern')
 
 
-class Gender(models.TextChoices):
-    Male = 'M', _('Männlich')
-    Female = 'F', _('Weiblich')
-    Divers = 'D', _('Divers')
-    Nothing = 'N', _('Keine Angabe')
-
-
 class ParticipantActionConfirmation(models.TextChoices):
     Nothing = 'N', _('Nichts')
     Delete = 'D', _('Abmelden')

@@ -4,6 +4,9 @@ from pathlib import Path
 import environ
 from keycloak import KeycloakAdmin
 
+from authentication.KeycloakOpenIDExtended import KeycloakOpenIDExtended
+from keycloak_auth.KeycloakAdminExtended import KeycloakAdminExtended
+
 env = environ.Env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,7 +56,8 @@ INSTALLED_APPS = [
     'anmelde_tool.attributes',
     'authentication',
     'messaging',
-    'keycloak_auth'
+    'keycloak_auth',
+    'food'
 ]
 
 MIDDLEWARE = [
@@ -250,9 +254,18 @@ CELERY_RESULT_BACKEND = env('CELERY_BROKER')
 #     },
 # }
 
-keycloak_admin = KeycloakAdmin(server_url=env('BASE_URI'),
-                               client_id=env('KEYCLOAK_ADMIN_USER'),
-                               client_secret_key=env('KEYCLOAK_ADMIN_PASSWORD'),
-                               realm_name=env('KEYCLOAK_APP_REALM'),
-                               user_realm_name=env('KEYCLOAK_APP_REALM'),
-                               verify=True)
+keycloak_admin = KeycloakAdminExtended(
+    server_url=env('BASE_URI'),
+    client_id=env('KEYCLOAK_ADMIN_USER'),
+    client_secret_key=env('KEYCLOAK_ADMIN_PASSWORD'),
+    realm_name=env('KEYCLOAK_APP_REALM'),
+    user_realm_name=env('KEYCLOAK_APP_REALM'),
+    verify=True,
+    auto_refresh_token=['get', 'put', 'post', 'delete']
+)
+
+keycloak_user = KeycloakOpenIDExtended(
+    server_url=env('BASE_URI'),
+    client_id=env('OIDC_RP_CLIENT_ID'),
+    realm_name=env('OIDC_RP_REALMNAME'),
+)

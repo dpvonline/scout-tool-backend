@@ -1,31 +1,35 @@
 import uuid
 
-from anmelde_tool.event.choices import choices as event_choices
-from authentication.choices import BundesPostTextChoice
-from backend.timestamp_mixin import TimeStampMixin
-from basic import models as basic_models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from anmelde_tool.event.choices import choices as event_choices
+from authentication.choices import BundesPostTextChoice, RequestGroupAccessChoices
 from authentication.choices import EmailNotificationType
-from basic.models import ScoutHierarchy
+from backend.timestamp_mixin import TimeStampMixin
+from basic import models as basic_models
+from basic.choices import Gender
 from keycloak_auth.models import KeycloakGroup
 
 
 class CustomUser(AbstractUser):
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False,
+        editable=False
+    )
     email = models.EmailField(unique=True, blank=False)
-    scout_organisation = models.ForeignKey(ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
-    mobile_number = models.CharField(max_length=20, blank=True, null=True)
-    scout_name = models.CharField(max_length=20, blank=True, null=True)
     dsgvo_confirmed = models.BooleanField(default=False, null=True)
     email_notification = models.CharField(
         max_length=10,
         choices=EmailNotificationType.choices,
-        default=EmailNotificationType.FULL
+        default=EmailNotificationType.FULL,
     )
     password = models.CharField(max_length=128, blank=True, null=True)
     sms_notification = models.BooleanField(default=True)
-    keycloak_id = models.CharField(max_length=32, blank=True, null=True)
+    keycloak_id = models.CharField(max_length=36, blank=True, null=True, unique=True)
 
     def __str__(self):
         return self.username
@@ -56,8 +60,8 @@ class Person(TimeStampMixin):
     birthday = models.DateField(null=True, blank=True)
     gender = models.CharField(
         max_length=1,
-        choices=event_choices.Gender.choices,
-        default=event_choices.Gender.Nothing
+        choices=Gender.choices,
+        default=Gender.Nothing
     )
     active = models.BooleanField(default=False)
     person_verified = models.BooleanField(default=False)
@@ -72,13 +76,17 @@ class Person(TimeStampMixin):
         choices=event_choices.ScoutLevelTypes.choices,
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
-    created_by = models.ManyToManyField(CustomUser, related_name='creator')
+    created_by = models.ManyToManyField(CustomUser, related_name='creator', blank=True)
 
 
 class RequestGroupAccess(TimeStampMixin):
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, related_name='user')
-    group = models.ForeignKey(KeycloakGroup, on_delete=models.PROTECT)
-    accepted = models.BooleanField(default=False)
-    declined = models.BooleanField(default=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='user')
+    group = models.ForeignKey(KeycloakGroup, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(
+        max_length=8,
+        choices=RequestGroupAccessChoices.choices,
+        default=RequestGroupAccessChoices.NONE
+    )
+    text = models.TextField(null=True, blank=True)
     checked_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='checked_by')
