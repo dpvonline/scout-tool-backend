@@ -86,12 +86,22 @@ class GroupChildrenSerializer(serializers.ModelSerializer):
         return obj.keycloak_id
 
 
+class ExternalLinksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KeycloakGroup
+        fields = (
+            'wiki',
+            'cloud'
+        )
+
+
 class GroupSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
     children = serializers.SerializerMethodField()
     permission = serializers.SerializerMethodField()
     scouthierarchy = ScoutHierarchySerializer(many=False)
+    links = ExternalLinksSerializer(many=False)
 
     class Meta:
         model = KeycloakGroup
@@ -101,7 +111,8 @@ class GroupSerializer(serializers.ModelSerializer):
             'parent',
             'children',
             'permission',
-            'scouthierarchy'
+            'scouthierarchy',
+            'externallinks'
         )
 
     def get_parent(self, obj: KeycloakGroup):

@@ -31,3 +31,11 @@ class KeycloakGroup(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ExternalLinks(models.Model):
+    id = models.AutoField(primary_key=True)
+    wiki = models.URLField(blank=True, null=True)
+    cloud = models.URLField(blank=True, null=True)
+    keycloak_group = models.OneToOneField(KeycloakGroup, on_delete=models.CASCADE)
+
