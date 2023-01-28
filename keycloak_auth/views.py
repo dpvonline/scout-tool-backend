@@ -128,18 +128,15 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
 
         group_id = get_group_id(self.kwargs)
         token = self.request.META.get('HTTP_AUTHORIZATION')
-        try:
-            user_groups = keycloak_user.get_group_users(token, request.user.keycloak_id)
-        except KeycloakGetError:
-            raise NotAuthorized()
+        # try:
+        #     user_groups = keycloak_user.get_group_users(token, request.user.keycloak_id)
+        # except KeycloakGetError:
+        #     raise NotAuthorized()
         keycloak_group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
-
-        if any(val['id'] == keycloak_group.keycloak_id for val in user_groups):
-            raise AlreadyInGroup()
-
+        # if any(val['id'] == keycloak_group.keycloak_id for val in user_groups):
+        #     raise AlreadyInGroup()
         if RequestGroupAccess.objects.filter(user=request.user, group=keycloak_group).exists():
             raise AlreadyAccessRequested()
-
         data = serializer.data
         data['group'] = keycloak_group.id
         if not data.get('user'):
