@@ -109,7 +109,8 @@ class Tag(TimeStampMixin):
     name = models.CharField(max_length=255, blank=True)
     description = models.CharField(max_length=255, blank=True)
     tag_category = models.ForeignKey(
-        TagCategory, on_delete=models.PROTECT, null=True)
+        TagCategory, on_delete=models.PROTECT, null=True
+    )
     is_ingredient = models.BooleanField(default=True)
     is_recipe = models.BooleanField(default=True)
 
@@ -156,9 +157,11 @@ class Ingredient(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
 class Portion(TimeStampMixin, NutrientsMixin):
     name = models.CharField(max_length=255)
     measuring_unit = models.ForeignKey(
-        MeasuringUnit, on_delete=models.PROTECT, blank=True, null=True, default=3)
+        MeasuringUnit, on_delete=models.PROTECT, blank=True, null=True, default=3
+    )
     ingredient = models.ForeignKey(
-        Ingredient, on_delete=models.CASCADE, default=1)
+        Ingredient, on_delete=models.CASCADE, default=1
+    )
     quantity = models.FloatField(default=1)
     rank = models.IntegerField(default=1)
     # readonly
@@ -174,18 +177,26 @@ class Portion(TimeStampMixin, NutrientsMixin):
 
         # Nutrients
         self.energy_kj = round(
-            self.ingredient.energy_kj * self.weight_g / 100, 2)
+            self.ingredient.energy_kj * self.weight_g / 100, 2
+        )
         self.protein_g = round(
-            self.ingredient.protein_g * self.weight_g / 100, 2)
+            self.ingredient.protein_g * self.weight_g / 100, 2
+        )
         self.fat_g = round(self.ingredient.fat_g * self.weight_g / 100, 2)
         self.fat_sat_g = round(
-            self.ingredient.fat_sat_g * self.weight_g / 100, 2)
+            self.ingredient.fat_sat_g * self.weight_g / 100, 2
+        )
         self.sugar_g = round(self.ingredient.sugar_g * self.weight_g / 100, 2)
         self.sodium_mg = round(
-            self.ingredient.sodium_mg * self.weight_g / 100, 2)
+            self.ingredient.sodium_mg * self.weight_g / 100, 2
+        )
         self.carbohydrate_g = round(
-            self.ingredient.carbohydrate_g * self.weight_g / 100, 2)
-        self.fibre_g = round(self.ingredient.fibre_g * self.weight_g / 100, 2)
+            self.ingredient.carbohydrate_g * self.weight_g / 100, 2
+        )
+        fibre_g = 0
+        if self.ingredient.fibre_g:
+            fibre_g = self.ingredient.fibre_g
+        self.fibre_g = round(fibre_g * self.weight_g / 100, 2)
 
         super(Portion, self).save(*args, **kwargs)
 
@@ -270,11 +281,13 @@ class Recipe(TimeStampMixin, NutrientsMixin):
     meal_type = models.CharField(
         max_length=11,
         choices=MealType.choices,
-        default=MealType.LUNCH_WARM)
+        default=MealType.LUNCH_WARM
+    )
     status = models.CharField(
         max_length=11,
         choices=RecipeStatus.choices,
-        default=RecipeStatus.SIMULATOR)
+        default=RecipeStatus.SIMULATOR
+    )
     # readonly
     nutri_class = models.FloatField(null=True, blank=True)
     nutri_points = models.FloatField(null=True, blank=True)
@@ -302,7 +315,8 @@ class Recipe(TimeStampMixin, NutrientsMixin):
 
 class RecipeItem(TimeStampMixin, NutrientsMixin, NutriPointsMixin):
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, blank=True, null=True, related_name='recipe_items')
+        Recipe, on_delete=models.CASCADE, blank=True, null=True, related_name='recipe_items'
+    )
     portion = models.ForeignKey(Portion, on_delete=models.PROTECT, related_name='recipe_items')
     quantity = models.FloatField(default=1)
     # readonly
@@ -389,7 +403,8 @@ class Package(TimeStampMixin):
 class Price(TimeStampMixin):
     price_eur = models.FloatField()
     retailer = models.ForeignKey(
-        Retailer, on_delete=models.PROTECT, blank=True)
+        Retailer, on_delete=models.PROTECT, blank=True
+    )
     package = models.ForeignKey(Package, on_delete=models.PROTECT, null=True)
 
     # readonly
@@ -397,7 +412,8 @@ class Price(TimeStampMixin):
 
     def save(self, *args, **kwargs):
         self.price_per_kg = round(
-            self.price_eur / (self.package.weight_package_g / 1000), 2)
+            self.price_eur / (self.package.weight_package_g / 1000), 2
+        )
         super(Price, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -405,6 +421,7 @@ class Price(TimeStampMixin):
 
     def __repr__(self):
         return self.__str__()
+
 
 class PhysicalActivityLevel(TimeStampMixin):
     name = models.CharField(max_length=255)
@@ -416,6 +433,7 @@ class PhysicalActivityLevel(TimeStampMixin):
 
     def __repr__(self):
         return self.__str__()
+
 
 class Event(TimeStampMixin):
     name = models.CharField(max_length=255)
@@ -430,6 +448,7 @@ class Event(TimeStampMixin):
 
     def __repr__(self):
         return self.__str__()
+
 
 class MealDay(TimeStampMixin):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
@@ -451,7 +470,9 @@ class Meal(TimeStampMixin):
     meal_type = models.CharField(
         max_length=10,
         choices=MealType.choices,
-        default=MealType.LUNCH_WARM)
+        default=MealType.LUNCH_WARM
+    )
+
     def __str__(self):
         return f'{self.name}'
 
@@ -558,16 +579,20 @@ def post_save_recipe(sender, instance, created, **kwargs):
         for item in nutri_items:
             value = instance._meta.get_field(item).value_from_object(instance)
             temp_points = NutriClass.get_points(
-                item, physical_viscosity, value)
+                item, physical_viscosity, value
+            )
             setattr(instance, f"nutri_points_{item}", temp_points)
             nutri_points = temp_points + nutri_points
 
         instance.nutri_points = nutri_points
         instance.nutri_class = NutriClass.get_nutri_class(
-            'solid', instance.nutri_points)
+            'solid', instance.nutri_points
+        )
         instance.processed = True
         instance.save()
 
         if created:
-            Portion.objects.create(ingredient=instance,
-                                   name=f'{instance.name} in g')
+            Portion.objects.create(
+                ingredient=instance,
+                name=f'{instance.name} in g'
+            )
