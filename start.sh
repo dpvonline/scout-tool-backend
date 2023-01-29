@@ -18,4 +18,4 @@ echo "Synchronising with keycloak server"
 #python manage.py initialize_keycloak_groups
 
 echo "Start server"
-gunicorn backend.wsgi:application --bind 0.0.0.0:8000 # --workers=5 --threads=8
+gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers=5 --threads=8

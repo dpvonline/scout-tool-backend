@@ -9,8 +9,8 @@ services:
     volumes:
       - ./:/usr/src/app/
       - .:/db.sqlite3
-    ports:
-      - "8000:8000"
+    expose:
+      - "UN8000"
     env_file:
       - ./backend/.env
     depends_on:
