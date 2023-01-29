@@ -278,7 +278,6 @@ class RequestGroupAccessSerializer(serializers.ModelSerializer):
         fields = ('user',)
 
 
-
 class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
@@ -302,13 +301,11 @@ class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
 
 
 class StatusRequestGroupAccessPutSerializer(serializers.ModelSerializer):
-    user = UserRequestSerializer(many=False, read_only=True)
-    status = serializers.CharField(source='get_status_display')
-    checked_by = UserRequestSerializer(many=False, read_only=True)
-    group = GroupRequestGroupAccessSerializer(many=False, read_only=True)
+
     class Meta:
         model = RequestGroupAccess
         fields = '__all__'
+
 
 class StatusRequestGroupGetAccessSerializer(serializers.ModelSerializer):
     user = UserRequestSerializer(many=False, read_only=True)

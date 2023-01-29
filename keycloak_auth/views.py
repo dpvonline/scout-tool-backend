@@ -9,7 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
 from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer, \
-    StatusRequestGroupAccessPutSerializer
+    StatusRequestGroupAccessPutSerializer, StatusRequestGroupGetAccessSerializer
 from backend.settings import keycloak_admin, keycloak_user
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId, \
     NotAuthorized
@@ -128,15 +128,18 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
 
         group_id = get_group_id(self.kwargs)
         token = self.request.META.get('HTTP_AUTHORIZATION')
-        # try:
-        #     user_groups = keycloak_user.get_group_users(token, request.user.keycloak_id)
-        # except KeycloakGetError:
-        #     raise NotAuthorized()
+        try:
+            user_groups = keycloak_user.get_user_groups(token, request.user.keycloak_id)
+        except KeycloakGetError:
+            raise NotAuthorized()
+
         keycloak_group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
-        # if any(val['id'] == keycloak_group.keycloak_id for val in user_groups):
-        #     raise AlreadyInGroup()
+
+        if any(val['id'] == keycloak_group.keycloak_id for val in user_groups):
+            raise AlreadyInGroup()
         if RequestGroupAccess.objects.filter(user=request.user, group=keycloak_group).exists():
             raise AlreadyAccessRequested()
+
         data = serializer.data
         data['group'] = keycloak_group.id
         if not data.get('user'):
@@ -146,7 +149,10 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+        request_group = RequestGroupAccess.objects.get(id=serializer.data['id'])
+        result_serializer = StatusRequestGroupGetAccessSerializer(request_group)
+        return Response(result_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         group_id = get_group_id(self.kwargs)

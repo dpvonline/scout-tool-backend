@@ -46,7 +46,7 @@ def post_save_user(sender, instance: CustomUser, **kwargs):
 
 
 def post_save_request_group_access(sender, instance: RequestGroupAccess, **kwargs):
-    if not instance.pk:
+    if not instance.pk or not instance.user:
         return
 
     in_group = False
