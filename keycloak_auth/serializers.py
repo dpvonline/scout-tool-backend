@@ -150,16 +150,16 @@ class FullGroupSerializer(serializers.ModelSerializer):
     def get_is_member(self, obj: KeycloakGroup) -> bool:
         request = self.context.get('request')
         token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            keycloak_groups = keycloak_user.get_user_groups(
-                token,
-                request.user.keycloak_id,
-                brief_representation=True
-            )
-        except KeycloakGetError:
-            raise NotAuthorized()
+        # try:
+        #     keycloak_groups = keycloak_user.get_user_groups(
+        #         token,
+        #         request.user.keycloak_id,
+        #         brief_representation=True
+        #     )
+        # except KeycloakGetError:
+        #     raise NotAuthorized()
 
-        if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
-            return True
+        # if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
+        #     return True
 
         return False
