@@ -361,8 +361,12 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         try:
-            keycloak_groups = keycloak_user.get_user_groups(
-                token,
+            # keycloak_groups = keycloak_user.get_user_groups(
+            #     token,
+            #     self.request.user.keycloak_id,
+            #     brief_representation=True
+            #     )
+            keycloak_groups = keycloak_admin.get_user_groups(
                 self.request.user.keycloak_id,
                 brief_representation=True
                 )

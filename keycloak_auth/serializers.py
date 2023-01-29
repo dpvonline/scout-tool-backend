@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from authentication.models import CustomUser, Person
 from authentication.serializers import UserScoutHierarchySerializer
-from backend.settings import keycloak_user
+from backend.settings import keycloak_user, keycloak_admin
 from basic.serializers import ScoutHierarchySerializer
 from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.choices import CreateGroupChoices
@@ -150,16 +150,20 @@ class FullGroupSerializer(serializers.ModelSerializer):
     def get_is_member(self, obj: KeycloakGroup) -> bool:
         request = self.context.get('request')
         token = request.META.get('HTTP_AUTHORIZATION')
-        # try:
-        #     keycloak_groups = keycloak_user.get_user_groups(
-        #         token,
-        #         request.user.keycloak_id,
-        #         brief_representation=True
-        #     )
-        # except KeycloakGetError:
-        #     raise NotAuthorized()
+        try:
+            # keycloak_groups = keycloak_user.get_user_groups(
+            #     token,
+            #     request.user.keycloak_id,
+            #     brief_representation=True
+            # )
+            keycloak_groups = keycloak_admin.get_user_groups(
+                request.user.keycloak_id,
+                brief_representation=True
+            )
+        except KeycloakGetError:
+            raise NotAuthorized()
 
-        # if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
-        #     return True
+        if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
+            return True
 
         return False
