@@ -329,10 +329,3 @@ class CheckEmailSerializer(serializers.Serializer):
 
 class CheckPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
-
-
-class NotificationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Notification
-        fields = '__all__'
