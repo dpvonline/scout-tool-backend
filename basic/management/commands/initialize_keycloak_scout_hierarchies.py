@@ -30,10 +30,10 @@ class Command(BaseCommand):
         for group in all_groups:
             self.get_subgroup(group)
 
-        # print('creating missing scout hierarchies in keycloak')
-        # heads = ScoutHierarchy.objects.filter(name='DPBM')
-        # for head in heads:
-        #     self.recursive_group_initialisation(head)
+        print('creating missing scout hierarchies in keycloak')
+        heads = ScoutHierarchy.objects.filter(name='DPBM')
+        for head in heads:
+            self.recursive_group_initialisation(head)
 
         if self.groups_added:
             print('')
@@ -152,7 +152,7 @@ class Command(BaseCommand):
             keycloak_group.parent = parent
             keycloak_group.save()
 
-        keycloak_admin.add_group_permissions(group, True)
+        # keycloak_admin.add_group_permissions(group, True)
 
         for sub_group in group['subGroups']:
             self.get_subgroup(sub_group, keycloak_group)
