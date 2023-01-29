@@ -7,7 +7,7 @@ services:
     build: ./
     command: /start.sh
     expose:
-      - "8000"
+      - "8000:8000"
     env_file:
       - .env
     depends_on:
@@ -16,7 +16,7 @@ services:
   nginx-proxy:
     container_name: nginx-proxy
     image: jwilder/nginx-proxy:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - "443:443"
       - "80:80"
@@ -30,6 +30,7 @@ services:
 
   nginx-proxy-letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
@@ -44,7 +45,7 @@ services:
   celery:
     build: ./
     command: /start-celeryworker.sh
-    restart: unless-stopped
+    restart: always
     env_file:
       - .env
     depends_on:
@@ -54,7 +55,7 @@ services:
   celery-beat:
     build: ./
     command: /start-celerybeat.sh
-    restart: unless-stopped
+    restart: always
     env_file:
       - .env
     depends_on:
@@ -64,7 +65,7 @@ services:
   flower:
     build: ./
     command: /start-flower.sh
-    restart: unless-stopped
+    restart: always
     ports:
       - "5555:5555"
     env_file:
