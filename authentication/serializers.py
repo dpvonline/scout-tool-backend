@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from anmelde_tool.event.choices.choices import ScoutLevelTypes, LeaderTypes
 from authentication.choices import BundesPostTextChoice, EmailNotificationType
-from authentication.models import CustomUser, Person, RequestGroupAccess
+from authentication.models import CustomUser, Person, RequestGroupAccess, Notification
 from basic.choices import Gender
 from basic.models import ScoutHierarchy, EatHabit
 from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer, ScoutHierarchyDetailedSerializer
@@ -66,6 +66,7 @@ class UserRequestSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'email',
+            'username',
             'scout_name',
             'scout_group',
             'first_name',
@@ -328,3 +329,10 @@ class CheckEmailSerializer(serializers.Serializer):
 
 class CheckPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
+        fields = '__all__'
