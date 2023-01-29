@@ -12,13 +12,15 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from anmelde_tool.event.registration.views import create_missing_eat_habits
-from backend.settings import env, keycloak_admin
+from backend.settings import env, keycloak_admin, keycloak_user
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.helper import choice_to_json
 from basic.models import ScoutHierarchy, ZipCode, EatHabit
 from basic.permissions import IsStaffOrReadOnly
+from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.helper import REGEX_GROUP, check_group_admin_permission
 from keycloak_auth.models import KeycloakGroup
+from keycloak_auth.serializers import FullGroupSerializer
 from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
@@ -354,18 +356,31 @@ class MyDecidableRequestGroupAccessViewSet(mixins.RetrieveModelMixin, mixins.Lis
 
 
 class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
-    serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        keycloak_groups = keycloak_admin.get_user_groups(
-            user_id=self.request.user.keycloak_id,
-            brief_representation=True
-        )
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        try:
+            keycloak_groups = keycloak_user.get_user_groups(
+                token,
+                self.request.user.keycloak_id,
+                brief_representation=True
+            )
+        except KeycloakGetError:
+            raise NotAuthorized()
+
         ids = [val['id'] for val in keycloak_groups]
         return KeycloakGroup.objects.filter(keycloak_id__in=ids)
 
+    def list(self, request, *args, **kwargs) -> Response:
+        groups = self.get_queryset()
+        serializer = FullGroupSerializer(groups, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UserPermissionViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
     def list(self, request) -> Response:
         composite_client_roles = keycloak_admin.get_composite_client_roles_of_user(
             request.user.keycloak_id,
@@ -437,23 +452,33 @@ class CheckPassword(viewsets.ViewSet):
             return Response('Das Passwort muss mindestens 8 Zeichen enthalten.', status=status.HTTP_400_BAD_REQUEST)
 
         if not bool(re.search(r'\d', password)):
-            return Response('Das Passwort muss mindestens eine Zahl enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens eine Zahl enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not re.search("[!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ ]", password):
-            return Response('Das Passwort muss mindestens ein Sonderzeichen enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens ein Sonderzeichen enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not any(x.isupper() for x in password):
-            return Response('Das Passwort muss mindestens einen Großbuchstaben enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens einen Großbuchstaben enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not any(x.islower() for x in password):
-            return Response('Das Passwort muss mindestens einen Kleinbuchstaben enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens einen Kleinbuchstaben enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if re.match(r'[^@]+@[^@]+\.[^@]+', password):
-            return Response('Das Passwort darf keine Email Adresse sein.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort darf keine Email Adresse sein.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response('Passwort ist gültig.', status=status.HTTP_200_OK)

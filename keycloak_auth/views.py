@@ -16,7 +16,7 @@ from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAcces
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
-    GroupSerializer, GroupParentSerializer
+    FullGroupSerializer, GroupParentSerializer
 
 User: CustomUser = get_user_model()
 
@@ -82,13 +82,13 @@ class AllGroupsViewSet(viewsets.ViewSet):
             results = KeycloakGroup.objects.filter(name__icontains=search_params)
         else:
             results = KeycloakGroup.objects.filter(parent=None)
-        serializer = GroupSerializer(results, many=True, context={'request': request})
+        serializer = FullGroupSerializer(results, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs) -> Response:
         group_id = get_group_id(kwargs)
         group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
-        serializer = GroupSerializer(group, many=False, context={'request': request})
+        serializer = FullGroupSerializer(group, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -191,5 +191,5 @@ class GroupParentViewSet(viewsets.ViewSet):
     def list(self, request, *args, **kwargs):
         group_id = get_group_id(kwargs)
         results = KeycloakGroup.objects.filter(keycloak_id=group_id).first()
-        serializer = GroupSerializer(results, many=False)
+        serializer = FullGroupSerializer(results, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)

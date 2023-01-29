@@ -1,9 +1,12 @@
 from django.contrib.auth import get_user_model
+from keycloak import KeycloakGetError
 from rest_framework import serializers
 
 from authentication.models import CustomUser, Person
 from authentication.serializers import UserScoutHierarchySerializer
+from backend.settings import keycloak_user
 from basic.serializers import ScoutHierarchySerializer
+from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.choices import CreateGroupChoices
 from keycloak_auth.enums import PermissionType
 from keycloak_auth.models import KeycloakGroup
@@ -96,11 +99,12 @@ class ExternalLinksSerializer(serializers.ModelSerializer):
         )
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class FullGroupSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
     children = serializers.SerializerMethodField()
     permission = serializers.SerializerMethodField()
+    is_member = serializers.SerializerMethodField()
     scouthierarchy = ScoutHierarchySerializer(many=False)
     externallinks = ExternalLinksSerializer(many=False)
 
@@ -113,7 +117,8 @@ class GroupSerializer(serializers.ModelSerializer):
             'children',
             'permission',
             'scouthierarchy',
-            'externallinks'
+            'externallinks',
+            'is_member'
         )
 
     def get_parent(self, obj: KeycloakGroup):
@@ -132,12 +137,29 @@ class GroupSerializer(serializers.ModelSerializer):
         else:
             return None
 
-    def get_permission(self, obj: KeycloakGroup) -> PermissionType:
+    def get_permission(self, obj: KeycloakGroup) -> str:
         request = self.context.get('request')
         admin_perm = request_group_access(request, obj.keycloak_id, PermissionType.ADMIN)
         if admin_perm:
-            return PermissionType.ADMIN
+            return "Administrator"
         view_perm = request_group_access(request, obj.keycloak_id, PermissionType.VIEW)
         if view_perm:
-            return PermissionType.VIEW
+            return "Einsehen"
         return PermissionType.NONE
+
+    def get_is_member(self, obj: KeycloakGroup) -> bool:
+        request = self.context.get('request')
+        token = request.META.get('HTTP_AUTHORIZATION')
+        try:
+            keycloak_groups = keycloak_user.get_user_groups(
+                token,
+                request.user.keycloak_id,
+                brief_representation=True
+            )
+        except KeycloakGetError:
+            raise NotAuthorized()
+
+        if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
+            return True
+
+        return False
