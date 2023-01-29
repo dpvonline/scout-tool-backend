@@ -365,7 +365,7 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
                 token,
                 self.request.user.keycloak_id,
                 brief_representation=True
-            )
+                )
         except KeycloakGetError:
             raise NotAuthorized()
 

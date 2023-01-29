@@ -120,7 +120,7 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
 
 class RequestGroupAccessViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = StatusRequestGroupAccessPutSerializer
+    serializer_class = StatusRequestGroupGetAccessSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         serializer = RequestGroupAccessSerializer(data=request.data)
@@ -145,7 +145,7 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
         if not data.get('user'):
             data['user'] = request.user.id
 
-        serializer = self.get_serializer(data=data)
+        serializer = StatusRequestGroupAccessPutSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
