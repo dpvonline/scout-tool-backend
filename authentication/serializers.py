@@ -5,9 +5,9 @@ from rest_framework import serializers
 
 from anmelde_tool.event.choices.choices import ScoutLevelTypes, LeaderTypes
 from authentication.choices import BundesPostTextChoice, EmailNotificationType
-from authentication.models import CustomUser, Person, RequestGroupAccess, Notification
+from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.choices import Gender
-from basic.models import ScoutHierarchy, EatHabit
+from basic.models import ScoutHierarchy
 from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer, ScoutHierarchyDetailedSerializer
 from keycloak_auth.models import KeycloakGroup
 
