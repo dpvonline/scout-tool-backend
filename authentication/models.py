@@ -86,7 +86,8 @@ class RequestGroupAccess(TimeStampMixin):
     status = models.CharField(
         max_length=8,
         choices=RequestGroupAccessChoices.choices,
-        default=RequestGroupAccessChoices.NONE
+        default=RequestGroupAccessChoices.NONE,
     )
-    text = models.TextField(null=True, blank=True)
+    application_text = models.TextField(null=True, blank=True)
+    response_text = models.TextField(null=True, blank=True)
     checked_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='checked_by')

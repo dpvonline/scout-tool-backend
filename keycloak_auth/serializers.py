@@ -18,6 +18,7 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = (
+            'id',
             'scout_name',
             'last_name',
             'first_name',

@@ -278,12 +278,6 @@ class RequestGroupAccessSerializer(serializers.ModelSerializer):
         fields = ('user',)
 
 
-class StatusRequestGroupAccessPutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RequestGroupAccess
-        fields = '__all__'
-
-
 class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
     id = serializers.SerializerMethodField()
@@ -304,6 +298,13 @@ class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
 
     def get_id(self, obj: KeycloakGroup):
         return obj.keycloak_id
+
+
+class StatusRequestGroupAccessPutSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RequestGroupAccess
+        fields = '__all__'
 
 
 class StatusRequestGroupGetAccessSerializer(serializers.ModelSerializer):

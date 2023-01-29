@@ -36,7 +36,7 @@ class KeycloakOpenIDExtended(KeycloakOpenID):
         params = {"briefRepresentation": brief_representation}
         params_path = {"realm-name": self.realm_name, "id": user_id}
         self.connection.add_param_headers('Authorization', token)
-        data_raw = self.raw_get(
+        data_raw = self.connection.raw_get(
             urls_patterns.URL_ADMIN_USER_GROUPS.format(**params_path), **params
         )
         return raise_error_from_response(data_raw, KeycloakGetError)
