@@ -9,7 +9,7 @@ from basic.serializers import ScoutHierarchySerializer
 from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.choices import CreateGroupChoices
 from keycloak_auth.enums import PermissionType
-from keycloak_auth.models import KeycloakGroup
+from keycloak_auth.models import KeycloakGroup, ExternalLinks
 from keycloak_auth.permissions import request_group_access
 
 User: CustomUser = get_user_model()
@@ -92,7 +92,7 @@ class GroupChildrenSerializer(serializers.ModelSerializer):
 
 class ExternalLinksSerializer(serializers.ModelSerializer):
     class Meta:
-        model = KeycloakGroup
+        model = ExternalLinks
         fields = (
             'wiki',
             'cloud'
