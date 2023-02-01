@@ -39,3 +39,5 @@ class ExternalLinks(models.Model):
     cloud = models.URLField(blank=True, null=True)
     keycloak_group = models.OneToOneField(KeycloakGroup, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.keycloak_group.name
