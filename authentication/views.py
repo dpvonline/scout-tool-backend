@@ -76,11 +76,10 @@ class PersonalData(viewsets.ViewSet):
             scout_group = get_object_or_404(ScoutHierarchy, id=scout_group_id)
             request.user.person.scout_group = scout_group
             person_edited = True
-
-        zip_code_id = request.data.get('zip_code')
-        if zip_code_id and (request.user.person.zip_code is None
-                            or zip_code_id != request.user.person.zip_code.id):
-            zip_code = get_object_or_404(ZipCode, id=zip_code_id)
+        zip_code_no = request.data.get('zip_code')
+        if zip_code_no and (request.user.person.zip_code is None
+                            or zip_code_no != request.user.person.zip_code.id):
+            zip_code = get_object_or_404(ZipCode, zip_code=zip_code_no)
             request.user.person.zip_code = zip_code
             person_edited = True
 
@@ -93,7 +92,8 @@ class PersonalData(viewsets.ViewSet):
                 with transaction.atomic():
                     request.user.person.eat_habits.clear()
                     for eat_habit in eat_habits_formatted:
-                        eat_habit_id = get_object_or_404(EatHabit, name__iexact=eat_habit).id
+                        eat_habit_id = get_object_or_404(
+                            EatHabit, name__iexact=eat_habit).id
                         request.user.person.eat_habits.add(eat_habit_id)
                 person_edited = True
 
@@ -253,8 +253,10 @@ class RegisterViewSet(viewsets.ViewSet):
                 username=serializers.data.get('username'),
                 email=serializers.data.get('email'),
                 dsgvo_confirmed=serializers.data.get('dsgvo_confirmed', False),
-                email_notification=serializers.data.get('email_notification', EmailNotificationType.FULL),
-                sms_notification=serializers.data.get('sms_notification', True),
+                email_notification=serializers.data.get(
+                    'email_notification', EmailNotificationType.FULL),
+                sms_notification=serializers.data.get(
+                    'sms_notification', True),
                 keycloak_id=new_keycloak_user_id
             )
         except Exception as exception:
@@ -273,7 +275,8 @@ class RegisterViewSet(viewsets.ViewSet):
                 zip_code = None
                 if serializers.data.get('zip_code'):
                     zip_code_raw = serializers.data.get('zip_code')
-                    zip_code_queryset = ZipCode.objects.filter(zip_code__icontains=zip_code_raw)
+                    zip_code_queryset = ZipCode.objects.filter(
+                        zip_code__icontains=zip_code_raw)
                     if zip_code_queryset.count() > 0:
                         zip_code = zip_code_queryset.first()
 
@@ -283,7 +286,8 @@ class RegisterViewSet(viewsets.ViewSet):
                     first_name=serializers.data.get('first_name', ''),
                     last_name=serializers.data.get('last_name', ''),
                     address=serializers.data.get('address', ''),
-                    address_supplement=serializers.data.get('address_supplement', ''),
+                    address_supplement=serializers.data.get(
+                        'address_supplement', ''),
                     zip_code=zip_code,
                     scout_group=serializers.data.get('scout_group'),
                     phone_number=serializers.data.get('mobile_number', ''),
@@ -295,9 +299,11 @@ class RegisterViewSet(viewsets.ViewSet):
                     scout_level=serializers.data.get('scout_level', '')
                 )
             except Exception as exception:
-                print('failed initialising django person model,removing keycloak and django user')
+                print(
+                    'failed initialising django person model,removing keycloak and django user')
                 print(f'{exception=}')
-                new_django_user.delete()  # when django user is deleted, keycloak user is deleted as well
+                # when django user is deleted, keycloak user is deleted as well
+                new_django_user.delete()
                 return Response(
                     {
                         'status': 'failed',
@@ -369,7 +375,7 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
             keycloak_groups = keycloak_admin.get_user_groups(
                 self.request.user.keycloak_id,
                 brief_representation=True
-                )
+            )
         except KeycloakGetError:
             raise NotAuthorized()
 
@@ -378,7 +384,8 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
 
     def list(self, request, *args, **kwargs) -> Response:
         groups = self.get_queryset()
-        serializer = FullGroupSerializer(groups, many=True, context={'request': request})
+        serializer = FullGroupSerializer(
+            groups, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

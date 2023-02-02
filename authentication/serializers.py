@@ -223,6 +223,7 @@ class EditPersonSerializer(serializers.Serializer):
     scout_name = serializers.CharField(required=False)
     first_name = serializers.CharField(required=False)
     last_name = serializers.CharField(required=False)
+    birthday = serializers.DateField(required=False)
     address = serializers.CharField(required=False)
     address_supplement = serializers.CharField(required=False)
     zip_code = serializers.IntegerField(required=False)
