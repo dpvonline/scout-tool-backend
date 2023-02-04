@@ -338,16 +338,18 @@ class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
         if (event_id):
             return event_models.Event.objects.filter(id=event_id).all()
 
-        if self.request.user.is_superuser:
-            return event_models.Event.objects.filter(is_public=True, end_date__gte=timezone.now())
-        else:
-            list_parent_organistations = []
-            iterator: basic_models.ScoutHierarchy = self.request.user.scout_organisation
-            while iterator is not None:
-                list_parent_organistations.append(iterator)
-                iterator = iterator.parent
-            return event_models.Event.objects.filter(is_public=True, end_date__gte=timezone.now(),
-                                                     limited_registration_hierarchy__in=list_parent_organistations)
+        return event_models.Event.objects.filter(is_public=True)
+        # ToDo: Hagi fix it
+        # if self.request.user.is_superuser:
+        #     return event_models.Event.objects.filter(is_public=True, end_date__gte=timezone.now())
+        # else:
+        #     list_parent_organistations = []
+        #     iterator: basic_models.ScoutHierarchy = self.request.user.scout_organisation
+        #     while iterator is not None:
+        #         list_parent_organistations.append(iterator)
+        #         iterator = iterator.parent
+        #     return event_models.Event.objects.filter(is_public=True, end_date__gte=timezone.now(),
+        #                                              limited_registration_hierarchy__in=list_parent_organistations)
 
 
 class ScoutHierarchyViewSet(mixins.CreateModelMixin,
