@@ -13,6 +13,20 @@ class MessageTypeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MessageReadSerializer(serializers.ModelSerializer):
+    supervisor = serializers.SlugRelatedField(
+        many=False,
+        required=False,
+        read_only=False,
+        slug_field='email',
+        queryset=User.objects.all()
+    )
+    message_type = MessageTypeSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Message
+        fields = '__all__'
+
 class MessageSerializer(serializers.ModelSerializer):
     supervisor = serializers.SlugRelatedField(
         many=False,
@@ -21,7 +35,6 @@ class MessageSerializer(serializers.ModelSerializer):
         slug_field='email',
         queryset=User.objects.all()
     )
-
     class Meta:
         model = Message
         fields = '__all__'

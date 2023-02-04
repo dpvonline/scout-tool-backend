@@ -26,12 +26,13 @@ class Message(TimeStampMixin):
     created_by_email = models.CharField(max_length=60, blank=True, null=True)
     supervisor = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     message_type = models.ForeignKey(MessageType, on_delete=models.CASCADE)
+    message_subject = models.CharField(max_length=100, blank=True, null=True)
     message_body = models.CharField(max_length=10000)
     internal_comment = models.CharField(max_length=10000, blank=True, null=True)
     is_processed = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.message_body
+        return self.message_subject
 
     def __repr__(self):
         return self.__str__()
