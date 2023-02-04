@@ -289,11 +289,11 @@ class RegisterViewSet(viewsets.ViewSet):
                     address_supplement=serializers.data.get(
                         'address_supplement', ''),
                     zip_code=zip_code,
-                    scout_group=serializers.data.get('scout_group'),
-                    phone_number=serializers.data.get('mobile_number', ''),
+                    scout_group=ScoutHierarchy.objects.get(id = serializers.data.get('scout_group')),
+                    phone_number=serializers.data.get('phone_number', ''),
                     email=serializers.data.get('email'),
                     bundespost=serializers.data.get('bundespost', ''),
-                    birthday=serializers.data.get('birth_date'),
+                    birthday=serializers.data.get('birthday'),
                     gender=serializers.data.get('gender', ''),
                     leader=serializers.data.get('leader', ''),
                     scout_level=serializers.data.get('scout_level', '')
