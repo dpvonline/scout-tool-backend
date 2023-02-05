@@ -19,7 +19,6 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             'userextended',
             'first_name',
             'last_name',
-            'id',
             'mobile_number',
             'scout_name',
             'scout_organisation',

@@ -24,8 +24,9 @@ class MessageType(TimeStampMixin):
 class Message(TimeStampMixin):
     id = models.AutoField(auto_created=True, primary_key=True)
     created_by_email = models.CharField(max_length=60, blank=True, null=True)
-    supervisor = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    message_type = models.ForeignKey(MessageType, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True, related_name="created_by")
+    supervisor = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True, related_name="supervisor")
+    message_type = models.ForeignKey(MessageType, on_delete=models.PROTECT)
     message_subject = models.CharField(max_length=100, blank=True, null=True)
     message_body = models.CharField(max_length=10000)
     internal_comment = models.CharField(max_length=10000, blank=True, null=True)
