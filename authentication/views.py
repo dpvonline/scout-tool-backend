@@ -289,7 +289,7 @@ class RegisterViewSet(viewsets.ViewSet):
                     address_supplement=serializers.data.get(
                         'address_supplement', ''),
                     zip_code=zip_code,
-                    scout_group=ScoutHierarchy.objects.get(id = serializers.data.get('scout_group')),
+                    scout_group=ScoutHierarchy.objects.get(id=serializers.data.get('scout_group')),
                     phone_number=serializers.data.get('phone_number', ''),
                     email=serializers.data.get('email'),
                     bundespost=serializers.data.get('bundespost', ''),
@@ -367,15 +367,15 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         try:
-            # keycloak_groups = keycloak_user.get_user_groups(
-            #     token,
-            #     self.request.user.keycloak_id,
-            #     brief_representation=True
-            #     )
-            keycloak_groups = keycloak_admin.get_user_groups(
+            keycloak_groups = keycloak_user.get_user_groups(
+                token,
                 self.request.user.keycloak_id,
                 brief_representation=True
             )
+        # keycloak_groups = keycloak_admin.get_user_groups(
+        #     self.request.user.keycloak_id,
+        #     brief_representation=True
+        # )
         except KeycloakGetError:
             raise NotAuthorized()
 
