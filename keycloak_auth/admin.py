@@ -1,8 +1,6 @@
 from django.contrib import admin
 
-from .models import KeycloakGroup, KeycloakRole, ExternalLinks
-
-admin.site.register(KeycloakRole)
+from .models import KeycloakGroup, ExternalLinks
 
 
 @admin.register(KeycloakGroup)

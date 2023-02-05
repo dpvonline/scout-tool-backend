@@ -116,6 +116,8 @@ class FullGroupSerializer(serializers.ModelSerializer):
             'parent',
             'children',
             'permission',
+            'membership_allowed',
+            'description',
             'scouthierarchy',
             'externallinks',
             'is_member'
