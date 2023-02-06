@@ -182,14 +182,5 @@ class PartialUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'person',
-            'id',
+            'keycloak_id',
         )
-
-    def to_representation(self, obj):
-        """Move fields from person to user representation."""
-        representation = super().to_representation(obj)
-        person_representation = representation.pop('person')
-        for key in person_representation:
-            representation[key] = person_representation[key]
-
-        return representation

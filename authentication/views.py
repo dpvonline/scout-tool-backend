@@ -352,13 +352,15 @@ class MyDecidableRequestGroupAccessViewSet(mixins.RetrieveModelMixin, mixins.Lis
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        keycload_ids = []
-        for group in self.request.user.groups.all():
-            if check_group_admin_permission(group.name):
-                keycloak_id = REGEX_GROUP.findall(group.name)[0]
-                keycload_ids.append(keycloak_id)
-
-        return RequestGroupAccess.objects.filter(group__keycloak_id__in=keycload_ids)
+        if self.request.user.is_superuser:
+            return RequestGroupAccess.objects.all()
+        else:
+            keycload_ids = []
+            for group in self.request.user.groups.all():
+                if check_group_admin_permission(group.name):
+                    keycloak_id = REGEX_GROUP.findall(group.name)[0]
+                    keycload_ids.append(keycloak_id)
+            return RequestGroupAccess.objects.filter(group__keycloak_id__in=keycload_ids)
 
 
 class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
@@ -372,10 +374,6 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
                 self.request.user.keycloak_id,
                 brief_representation=True
             )
-        # keycloak_groups = keycloak_admin.get_user_groups(
-        #     self.request.user.keycloak_id,
-        #     brief_representation=True
-        # )
         except KeycloakGetError:
             raise NotAuthorized()
 
