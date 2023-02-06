@@ -158,15 +158,15 @@ class FullGroupSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         token = request.META.get('HTTP_AUTHORIZATION')
         try:
-            # keycloak_groups = keycloak_user.get_user_groups(
-            #     token,
-            #     request.user.keycloak_id,
-            #     brief_representation=True
-            # )
-            keycloak_groups = keycloak_admin.get_user_groups(
+            keycloak_groups = keycloak_user.get_user_groups(
+                token,
                 request.user.keycloak_id,
                 brief_representation=True
             )
+            # keycloak_groups = keycloak_admin.get_user_groups(
+            #     request.user.keycloak_id,
+            #     brief_representation=True
+            # )
         except KeycloakGetError:
             raise NotAuthorized()
 
