@@ -34,13 +34,18 @@ class UserListSerializer(serializers.ModelSerializer):
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
     person = PersonSerializer(many=False, read_only=True)
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
+            'id',
             'keycloak_id',
             'person'
         )
+
+    def get_id(self, obj: KeycloakGroup):
+        return obj.keycloak_id
 
 
 class CreateGroupSerializer(serializers.Serializer):
