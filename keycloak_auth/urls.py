@@ -5,6 +5,7 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register(r'group', views.AllGroupsViewSet, basename='group')
+router.register(r'members', views.AllMembersViewSet, basename='members')
 
 group_router = routers.NestedSimpleRouter(router, r'group', lookup='group')
 group_router.register(r'members', views.GroupMembersViewSet, basename='members')

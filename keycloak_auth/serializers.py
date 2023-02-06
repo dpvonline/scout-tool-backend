@@ -163,10 +163,6 @@ class FullGroupSerializer(serializers.ModelSerializer):
                 request.user.keycloak_id,
                 brief_representation=True
             )
-            # keycloak_groups = keycloak_admin.get_user_groups(
-            #     request.user.keycloak_id,
-            #     brief_representation=True
-            # )
         except KeycloakGetError:
             raise NotAuthorized()
 
@@ -174,3 +170,26 @@ class FullGroupSerializer(serializers.ModelSerializer):
             return True
 
         return False
+
+
+class PartialUserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the UserExtended model for Get/list/Retrieve requests
+    """
+    person = PersonSerializer(many=False)
+
+    class Meta:
+        model = User
+        fields = (
+            'person',
+            'id',
+        )
+
+    def to_representation(self, obj):
+        """Move fields from person to user representation."""
+        representation = super().to_representation(obj)
+        person_representation = representation.pop('person')
+        for key in person_representation:
+            representation[key] = person_representation[key]
+
+        return representation

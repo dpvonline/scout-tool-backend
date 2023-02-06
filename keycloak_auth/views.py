@@ -16,7 +16,7 @@ from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAcces
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
-    FullGroupSerializer, GroupParentSerializer
+    FullGroupSerializer, GroupParentSerializer, PartialUserSerializer
 
 User: CustomUser = get_user_model()
 
@@ -193,3 +193,18 @@ class GroupParentViewSet(viewsets.ViewSet):
         results = KeycloakGroup.objects.filter(keycloak_id=group_id).first()
         serializer = FullGroupSerializer(results, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PartialUserSerializer
+
+    def get_queryset(self):
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        try:
+            group_members = keycloak_user.get_all_users(token)
+        except KeycloakGetError:
+            raise NotAuthorized()
+        ids = [val['id'] for val in group_members if val['enabled']]
+        user = User.objects.filter(keycloak_id__in=ids)
+        return user
