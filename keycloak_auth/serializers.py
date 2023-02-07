@@ -177,10 +177,15 @@ class PartialUserSerializer(serializers.ModelSerializer):
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
     person = PersonSerializer(many=False)
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
+            'id',
             'person',
             'keycloak_id',
         )
+        
+    def get_id(self, obj: KeycloakGroup):
+        return obj.keycloak_id
