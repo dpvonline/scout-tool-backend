@@ -1,4 +1,5 @@
 import re
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
@@ -490,3 +491,24 @@ class CheckPassword(viewsets.ViewSet):
             )
 
         return Response('Passwort ist gültig.', status=status.HTTP_200_OK)
+
+
+class MyMembersViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PersonSerializer
+
+    def get_queryset(self):
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+
+        if not self.request.user.person.scout_group or not self.request.user.person.scout_group.keycloak:
+            return Person.objects.none()
+
+        group_id = self.request.user.person.scout_group.keycloak.keycloak_id
+
+        try:
+            keycloak_user.get_group_users(token, group_id)
+        except KeycloakGetError:
+            raise NotAuthorized()
+
+        user = Person.objects.filter(scout_group=self.request.user.person.scout_group)
+        return user
