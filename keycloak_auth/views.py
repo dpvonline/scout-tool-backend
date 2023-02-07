@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from keycloak import KeycloakGetError, KeycloakAuthenticationError
 from rest_framework import viewsets, status, mixins
 from rest_framework.generics import get_object_or_404
@@ -208,5 +209,15 @@ class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
         except KeycloakAuthenticationError:
             raise NotAuthorized()
         ids = [val['id'] for val in group_members if val['enabled']]
+
         user = User.objects.filter(keycloak_id__in=ids)
+        search_param = self.request.GET.get('search')
+
+        if search_param:
+            user = user.filter(
+                Q(person__scout_name__icontains=search_param)
+                | Q(person__first_name__icontains=search_param)
+                | Q(person__last_name__icontains=search_param)
+                | Q(person__scout_group__name__icontains=search_param)
+            )
         return user

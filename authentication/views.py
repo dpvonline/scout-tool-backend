@@ -401,17 +401,16 @@ class UserPermissionViewSet(viewsets.ViewSet):
 
 
 def find_user(value, keycloak_param, *filter_args, **filter_kwargs):
-    found = False
     if User.objects.filter(*filter_args, **filter_kwargs).exists():
-        found = True
+        return True
 
     keycloak_users = keycloak_admin.get_users({keycloak_param: value})
     if keycloak_users:
         for user in keycloak_users:
             if value == user[keycloak_param]:
-                found = True
-                break
-    return found
+                return True
+
+    return False
 
 
 class CheckUsername(viewsets.ViewSet):
