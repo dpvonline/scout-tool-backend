@@ -26,7 +26,8 @@ from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
     FullUserSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
-    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer, CheckPasswordSerializer
+    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer, CheckPasswordSerializer, \
+    MemberSerializer
 
 User: CustomUser = get_user_model()
 
@@ -495,7 +496,7 @@ class CheckPassword(viewsets.ViewSet):
 
 class MyMembersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = PersonSerializer
+    serializer_class = MemberSerializer
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
@@ -512,3 +513,9 @@ class MyMembersViewSet(viewsets.ModelViewSet):
 
         user = Person.objects.filter(scout_group=self.request.user.person.scout_group)
         return user
+
+    def get_serializer_class(self):
+        if self.action == 'create' or self.action == 'update':
+            return EditPersonSerializer
+        else:
+            return MemberSerializer

@@ -215,6 +215,46 @@ class PersonSerializer(serializers.ModelSerializer):
         )
 
 
+class MemberUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email'
+        )
+
+
+class MemberSerializer(serializers.ModelSerializer):
+    zip_code = ZipCodeDetailedSerializer(many=False, required=False, read_only=True)
+    scout_group = ScoutHierarchyDetailedSerializer(many=False, required=False, read_only=True)
+    bundespost = serializers.CharField(source='get_bundespost_display')
+    gender = serializers.CharField(source='get_gender_display')
+    scout_level = serializers.CharField(source='get_scout_level_display')
+    leader = serializers.CharField(source='get_leader_display')
+    user = MemberUserSerializer(many=False)
+
+    class Meta:
+        model = Person
+        fields = (
+            'id',
+            'scout_name',
+            'first_name',
+            'last_name',
+            'address',
+            'address_supplement',
+            'zip_code',
+            'scout_group',
+            'phone_number',
+            'email',
+            'bundespost',
+            'birthday',
+            'gender',
+            'leader',
+            'scout_level',
+            'user'
+        )
+
+
 class EditPersonSerializer(serializers.Serializer):
     email = serializers.CharField(required=False)
     dsgvo_confirmed = serializers.BooleanField(required=False)
@@ -303,7 +343,6 @@ class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
 
 
 class StatusRequestGroupAccessPutSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RequestGroupAccess
         fields = '__all__'
