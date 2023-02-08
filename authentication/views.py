@@ -1,4 +1,5 @@
 import re
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
@@ -12,18 +13,21 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from anmelde_tool.event.registration.views import create_missing_eat_habits
-from backend.settings import env, keycloak_admin
+from backend.settings import env, keycloak_admin, keycloak_user
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.helper import choice_to_json
 from basic.models import ScoutHierarchy, ZipCode, EatHabit
 from basic.permissions import IsStaffOrReadOnly
+from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.helper import REGEX_GROUP, check_group_admin_permission
 from keycloak_auth.models import KeycloakGroup
+from keycloak_auth.serializers import FullGroupSerializer
 from .choices import BundesPostTextChoice
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePersonSerializer, RegisterSerializer, \
     FullUserSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
-    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer, CheckPasswordSerializer
+    CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer, CheckPasswordSerializer, \
+    MemberSerializer
 
 User: CustomUser = get_user_model()
 
@@ -74,11 +78,10 @@ class PersonalData(viewsets.ViewSet):
             scout_group = get_object_or_404(ScoutHierarchy, id=scout_group_id)
             request.user.person.scout_group = scout_group
             person_edited = True
-
-        zip_code_id = request.data.get('zip_code')
-        if zip_code_id and (request.user.person.zip_code is None
-                            or zip_code_id != request.user.person.zip_code.id):
-            zip_code = get_object_or_404(ZipCode, id=zip_code_id)
+        zip_code_no = request.data.get('zip_code')
+        if zip_code_no and (request.user.person.zip_code is None
+                            or zip_code_no != request.user.person.zip_code.id):
+            zip_code = get_object_or_404(ZipCode, zip_code=zip_code_no)
             request.user.person.zip_code = zip_code
             person_edited = True
 
@@ -91,7 +94,8 @@ class PersonalData(viewsets.ViewSet):
                 with transaction.atomic():
                     request.user.person.eat_habits.clear()
                     for eat_habit in eat_habits_formatted:
-                        eat_habit_id = get_object_or_404(EatHabit, name__iexact=eat_habit).id
+                        eat_habit_id = get_object_or_404(
+                            EatHabit, name__iexact=eat_habit).id
                         request.user.person.eat_habits.add(eat_habit_id)
                 person_edited = True
 
@@ -251,8 +255,10 @@ class RegisterViewSet(viewsets.ViewSet):
                 username=serializers.data.get('username'),
                 email=serializers.data.get('email'),
                 dsgvo_confirmed=serializers.data.get('dsgvo_confirmed', False),
-                email_notification=serializers.data.get('email_notification', EmailNotificationType.FULL),
-                sms_notification=serializers.data.get('sms_notification', True),
+                email_notification=serializers.data.get(
+                    'email_notification', EmailNotificationType.FULL),
+                sms_notification=serializers.data.get(
+                    'sms_notification', True),
                 keycloak_id=new_keycloak_user_id
             )
         except Exception as exception:
@@ -271,7 +277,8 @@ class RegisterViewSet(viewsets.ViewSet):
                 zip_code = None
                 if serializers.data.get('zip_code'):
                     zip_code_raw = serializers.data.get('zip_code')
-                    zip_code_queryset = ZipCode.objects.filter(zip_code__icontains=zip_code_raw)
+                    zip_code_queryset = ZipCode.objects.filter(
+                        zip_code__icontains=zip_code_raw)
                     if zip_code_queryset.count() > 0:
                         zip_code = zip_code_queryset.first()
 
@@ -281,21 +288,24 @@ class RegisterViewSet(viewsets.ViewSet):
                     first_name=serializers.data.get('first_name', ''),
                     last_name=serializers.data.get('last_name', ''),
                     address=serializers.data.get('address', ''),
-                    address_supplement=serializers.data.get('address_supplement', ''),
+                    address_supplement=serializers.data.get(
+                        'address_supplement', ''),
                     zip_code=zip_code,
-                    scout_group=serializers.data.get('scout_group'),
-                    phone_number=serializers.data.get('mobile_number', ''),
+                    scout_group=ScoutHierarchy.objects.get(id=serializers.data.get('scout_group')),
+                    phone_number=serializers.data.get('phone_number', ''),
                     email=serializers.data.get('email'),
                     bundespost=serializers.data.get('bundespost', ''),
-                    birthday=serializers.data.get('birth_date'),
+                    birthday=serializers.data.get('birthday'),
                     gender=serializers.data.get('gender', ''),
                     leader=serializers.data.get('leader', ''),
                     scout_level=serializers.data.get('scout_level', '')
                 )
             except Exception as exception:
-                print('failed initialising django person model,removing keycloak and django user')
+                print(
+                    'failed initialising django person model,removing keycloak and django user')
                 print(f'{exception=}')
-                new_django_user.delete()  # when django user is deleted, keycloak user is deleted as well
+                # when django user is deleted, keycloak user is deleted as well
+                new_django_user.delete()
                 return Response(
                     {
                         'status': 'failed',
@@ -344,28 +354,44 @@ class MyDecidableRequestGroupAccessViewSet(mixins.RetrieveModelMixin, mixins.Lis
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        keycload_ids = []
-        for group in self.request.user.groups.all():
-            if check_group_admin_permission(group.name):
-                keycloak_id = REGEX_GROUP.findall(group.name)[0]
-                keycload_ids.append(keycloak_id)
-
-        return RequestGroupAccess.objects.filter(group__keycloak_id__in=keycload_ids)
+        if self.request.user.is_superuser:
+            return RequestGroupAccess.objects.all()
+        else:
+            keycload_ids = []
+            for group in self.request.user.groups.all():
+                if check_group_admin_permission(group.name):
+                    keycloak_id = REGEX_GROUP.findall(group.name)[0]
+                    keycload_ids.append(keycloak_id)
+            return RequestGroupAccess.objects.filter(group__keycloak_id__in=keycload_ids)
 
 
 class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
-    serializer_class = GroupSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        keycloak_groups = keycloak_admin.get_user_groups(
-            user_id=self.request.user.keycloak_id,
-            brief_representation=True
-        )
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        try:
+            keycloak_groups = keycloak_user.get_user_groups(
+                token,
+                self.request.user.keycloak_id,
+                brief_representation=True
+            )
+        except KeycloakGetError:
+            raise NotAuthorized()
+
         ids = [val['id'] for val in keycloak_groups]
         return KeycloakGroup.objects.filter(keycloak_id__in=ids)
 
+    def list(self, request, *args, **kwargs) -> Response:
+        groups = self.get_queryset()
+        serializer = FullGroupSerializer(
+            groups, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class UserPermissionViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
     def list(self, request) -> Response:
         composite_client_roles = keycloak_admin.get_composite_client_roles_of_user(
             request.user.keycloak_id,
@@ -377,17 +403,16 @@ class UserPermissionViewSet(viewsets.ViewSet):
 
 
 def find_user(value, keycloak_param, *filter_args, **filter_kwargs):
-    found = False
     if User.objects.filter(*filter_args, **filter_kwargs).exists():
-        found = True
+        return True
 
     keycloak_users = keycloak_admin.get_users({keycloak_param: value})
     if keycloak_users:
         for user in keycloak_users:
             if value == user[keycloak_param]:
-                found = True
-                break
-    return found
+                return True
+
+    return False
 
 
 class CheckUsername(viewsets.ViewSet):
@@ -437,23 +462,60 @@ class CheckPassword(viewsets.ViewSet):
             return Response('Das Passwort muss mindestens 8 Zeichen enthalten.', status=status.HTTP_400_BAD_REQUEST)
 
         if not bool(re.search(r'\d', password)):
-            return Response('Das Passwort muss mindestens eine Zahl enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens eine Zahl enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not re.search("[!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ ]", password):
-            return Response('Das Passwort muss mindestens ein Sonderzeichen enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens ein Sonderzeichen enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not any(x.isupper() for x in password):
-            return Response('Das Passwort muss mindestens einen Großbuchstaben enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens einen Großbuchstaben enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not any(x.islower() for x in password):
-            return Response('Das Passwort muss mindestens einen Kleinbuchstaben enthalten.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort muss mindestens einen Kleinbuchstaben enthalten.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if re.match(r'[^@]+@[^@]+\.[^@]+', password):
-            return Response('Das Passwort darf keine Email Adresse sein.',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Das Passwort darf keine Email Adresse sein.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response('Passwort ist gültig.', status=status.HTTP_200_OK)
+
+
+class MyMembersViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = MemberSerializer
+
+    def get_queryset(self):
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+
+        if not self.request.user.person.scout_group or not self.request.user.person.scout_group.keycloak:
+            return Person.objects.none()
+
+        group_id = self.request.user.person.scout_group.keycloak.keycloak_id
+
+        try:
+            keycloak_user.get_group_users(token, group_id)
+        except KeycloakGetError:
+            raise NotAuthorized()
+
+        user = Person.objects.filter(scout_group=self.request.user.person.scout_group)
+        return user
+
+    def get_serializer_class(self):
+        if self.action == 'create' or self.action == 'update':
+            return EditPersonSerializer
+        else:
+            return MemberSerializer

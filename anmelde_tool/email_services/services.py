@@ -20,4 +20,4 @@ def send_payment_reminder_mail(event_id):
 
 def send_custom_mail(event_id, data):
     if email_active:
-        news_mail.delay(event_id, data, EmailType.StandardEmail).start()
+        news_mail.delay(event_id, data, EmailType.StandardEmail)

@@ -47,7 +47,7 @@ class Command(BaseCommand):
         print('Assign KeycloakGroup to ScoutHierarchies')
         for scout_hierarchy in ScoutHierarchy.objects.all():
             if not scout_hierarchy.keycloak:
-                keycloak_group = keycloak_admin.get_group_by_path(
+                keycloak_group: dict = keycloak_admin.get_group_by_path(
                     path=scout_hierarchy.keycloak_group_name,
                     search_in_subgroups=True
                 )
@@ -55,6 +55,9 @@ class Command(BaseCommand):
                     django_keycloak_group = KeycloakGroup.objects.get(keycloak_id=keycloak_group['id'])
                     scout_hierarchy.keycloak = django_keycloak_group
                     scout_hierarchy.save()
+            if scout_hierarchy.keycloak and not scout_hierarchy.keycloak.membership_allowed:
+                scout_hierarchy.keycloak.membership_allowed = True
+                scout_hierarchy.keycloak.save()
 
         print('')
         print('Checks finished')

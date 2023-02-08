@@ -217,10 +217,11 @@ class EventOverviewSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def match_registration_allowed_level(user: User, registration_level: int) -> bool:
-        if registration_level == 6:
-            return user.userextended.scout_organisation.level.id in {5, 6}
-        elif registration_level in {2, 3, 4, 5}:
-            return user.userextended.scout_organisation.level.id >= registration_level
+        # ToDo: Hagi fix it
+        # if registration_level == 6:
+        #     return user.userextended.scout_organisation.level.id in {5, 6}
+        # elif registration_level in {2, 3, 4, 5}:
+        #     return user.userextended.scout_organisation.level.id >= registration_level
         return False
 
     def get_registration_options(self, obj: event_models.Event) -> dict:
@@ -231,28 +232,29 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         allow_edit_group_reg = False
         allow_edit_single_reg = False
 
-        user_orga = user.userextended.scout_organisation
-        orga_filter = Q(scout_organisation=user_orga)
+        # ToDo: Hagi fix it
+        # user_orga = user.userextended.scout_organisation
+        # orga_filter = Q(scout_organisation=user_orga)
 
-        if user_orga.parent:
-            orga_filter |= Q(scout_organisation=user_orga.parent)
-            if user_orga.parent.parent:
-                orga_filter |= Q(scout_organisation=user_orga.parent.parent)
+        # if user_orga.parent:
+        #     orga_filter |= Q(scout_organisation=user_orga.parent)
+        #     if user_orga.parent.parent:
+        #         orga_filter |= Q(scout_organisation=user_orga.parent.parent)
 
-        existing_group: QuerySet = obj.registration_set. \
-            filter(orga_filter, single=False)
-        group: QuerySet[event_models.Registration] = existing_group. \
-            filter(responsible_persons__in=[user.id])
-        single: QuerySet[event_models.Registration] = obj.registration_set. \
-            filter(responsible_persons__in=[user.id], single=True)
+        # existing_group: QuerySet = obj.registration_set. \
+        #     filter(orga_filter, single=False)
+        # group: QuerySet[event_models.Registration] = existing_group. \
+        #     filter(responsible_persons__in=[user.id])
+        # single: QuerySet[event_models.Registration] = obj.registration_set. \
+        #     filter(responsible_persons__in=[user.id], single=True)
 
-        if existing_group.exists():
-            group_id = existing_group.first().id
-            allow_edit_group_reg = group.exists() and existing_group.exists() and self.get_can_edit(obj)
+        # if existing_group.exists():
+        #     group_id = existing_group.first().id
+        #     allow_edit_group_reg = group.exists() and existing_group.exists() and self.get_can_edit(obj)
 
-        if single.exists():
-            single_id = single.first().id
-            allow_edit_single_reg = self.get_can_edit(obj) and not allow_edit_group_reg
+        # if single.exists():
+        #     single_id = single.first().id
+        #     allow_edit_single_reg = self.get_can_edit(obj) and not allow_edit_group_reg
 
         allow_new_group_reg = not group_id \
                               and not single_id \

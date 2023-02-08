@@ -152,5 +152,7 @@ class Command(BaseCommand):
             keycloak_group.parent = parent
             keycloak_group.save()
 
+        # keycloak_admin.add_group_permissions(group, True)
+
         for sub_group in group['subGroups']:
             self.get_subgroup(sub_group, keycloak_group)

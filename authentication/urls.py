@@ -11,6 +11,7 @@ router.register(r'my-requests', views.MyDecidableRequestGroupAccessViewSet, base
 router.register(r'my-own-requests', views.MyOwnRequestGroupAccessViewSet, basename='my-requests')
 
 router.register(r'my-groups', views.UserGroupViewSet, basename='my-groups')
+router.register(r'my-members', views.MyMembersViewSet, basename='my-members')
 router.register(r'my-permissions', views.UserPermissionViewSet, basename='my-permissions')
 
 router.register(r'check-username', views.CheckUsername, basename='check-username')

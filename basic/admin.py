@@ -35,6 +35,7 @@ class ScoutHierarchyAdmin(admin.ModelAdmin):
     list_filter = ('level',)
     search_fields = ('name', 'zip_code__zip_code', 'zip_code__city', 'abbreviation')
     ordering = ('name',)
+    autocomplete_fields = ('keycloak',)
 
 
 @admin.register(ZipCode)

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from keycloak import KeycloakGetError
+from django.db.models import Q
+from keycloak import KeycloakGetError, KeycloakAuthenticationError
 from rest_framework import viewsets, status, mixins
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -16,7 +17,7 @@ from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAcces
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
-    GroupSerializer, GroupParentSerializer
+    FullGroupSerializer, GroupParentSerializer, PartialUserSerializer
 
 User: CustomUser = get_user_model()
 
@@ -82,13 +83,13 @@ class AllGroupsViewSet(viewsets.ViewSet):
             results = KeycloakGroup.objects.filter(name__icontains=search_params)
         else:
             results = KeycloakGroup.objects.filter(parent=None)
-        serializer = GroupSerializer(results, many=True, context={'request': request})
+        serializer = FullGroupSerializer(results, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs) -> Response:
         group_id = get_group_id(kwargs)
         group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
-        serializer = GroupSerializer(group, many=False, context={'request': request})
+        serializer = FullGroupSerializer(group, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -120,7 +121,7 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
 
 class RequestGroupAccessViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = StatusRequestGroupAccessPutSerializer
+    serializer_class = StatusRequestGroupGetAccessSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         serializer = RequestGroupAccessSerializer(data=request.data)
@@ -145,7 +146,7 @@ class RequestGroupAccessViewSet(viewsets.ModelViewSet):
         if not data.get('user'):
             data['user'] = request.user.id
 
-        serializer = self.get_serializer(data=data)
+        serializer = StatusRequestGroupAccessPutSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -191,5 +192,32 @@ class GroupParentViewSet(viewsets.ViewSet):
     def list(self, request, *args, **kwargs):
         group_id = get_group_id(kwargs)
         results = KeycloakGroup.objects.filter(keycloak_id=group_id).first()
-        serializer = GroupSerializer(results, many=False)
+        serializer = FullGroupSerializer(results, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PartialUserSerializer
+
+    def get_queryset(self):
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        try:
+            group_members = keycloak_user.get_all_users(token)
+        except KeycloakGetError:
+            raise NotAuthorized()
+        except KeycloakAuthenticationError:
+            raise NotAuthorized()
+        ids = [val['id'] for val in group_members if val['enabled']]
+
+        user = User.objects.filter(keycloak_id__in=ids)
+        search_param = self.request.GET.get('search')
+
+        if search_param:
+            user = user.filter(
+                Q(person__scout_name__icontains=search_param)
+                | Q(person__first_name__icontains=search_param)
+                | Q(person__last_name__icontains=search_param)
+                | Q(person__scout_group__name__icontains=search_param)
+            )
+        return user

@@ -1,5 +1,5 @@
 from keycloak import KeycloakOpenID, urls_patterns
-from keycloak.exceptions import raise_error_from_response, KeycloakGetError
+from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakAuthenticationError
 
 URL_ALL_USERS = "admin/realms/{realm-name}/users"
 URL_GROUP_USERS = "admin/realms/{realm-name}/groups/{group-id}/members"
@@ -8,10 +8,10 @@ URL_GROUP_USERS = "admin/realms/{realm-name}/groups/{group-id}/members"
 class KeycloakOpenIDExtended(KeycloakOpenID):
 
     def get_all_users(self, token):
-        params_path = {"realm-name": self.realm_name}
-        self.connection.add_param_headers('Authorization', f'Bearer {token}')
-        data_raw = self.connection.raw_get(URL_ALL_USERS.format(**params_path))
-        return raise_error_from_response(data_raw, KeycloakGetError)
+        params_path = {'realm-name': self.realm_name}
+        self.connection.add_param_headers('Authorization', token)
+        data_raw = self.connection.raw_get(urls_patterns.URL_ADMIN_USERS.format(**params_path))
+        return raise_error_from_response(data_raw, [KeycloakGetError, KeycloakAuthenticationError])
 
     def get_group_users(self, token: str, group_id: str):
         params_path = {'realm-name': self.realm_name, 'group-id': group_id}

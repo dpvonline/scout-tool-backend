@@ -1,8 +1,7 @@
-from .models import Person
-
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+
 from .models import CustomUser, RequestGroupAccess
+from .models import Person
 
 
 # admin.site.register(CustomUser, UserAdmin)
@@ -26,3 +25,4 @@ class PersonAdmin(admin.ModelAdmin):
 @admin.register(RequestGroupAccess)
 class RequestGroupAccessAdmin(admin.ModelAdmin):
     autocomplete_fields = ('user', 'group')
+    list_display = ('user', 'group', 'status', 'checked_by')

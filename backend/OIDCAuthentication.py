@@ -67,7 +67,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
             edited = True
 
         if claims.get('fahrtenname', ''):
-            if user.person.scout_name is not claims.get('fahrtenname', ''):
+            if user.person.scout_name != claims.get('fahrtenname', ''):
                 user.person.scout_name = claims.get('fahrtenname', '')
                 edited = True
         else:
