@@ -23,7 +23,6 @@ class PersonSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'scout_name',
-            'last_name',
             'first_name',
             'scout_group'
         )
@@ -186,6 +185,6 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'person',
             'keycloak_id',
         )
-        
+
     def get_id(self, obj: KeycloakGroup):
         return obj.keycloak_id
