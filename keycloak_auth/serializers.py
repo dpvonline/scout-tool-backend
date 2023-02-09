@@ -177,6 +177,9 @@ class PartialUserSerializer(serializers.ModelSerializer):
     """
     person = PersonSerializer(many=False)
     id = serializers.SerializerMethodField()
+    scout_name = serializers.SerializerMethodField()
+    first_name = serializers.SerializerMethodField()
+    stamm_bund = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -184,7 +187,19 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'id',
             'person',
             'keycloak_id',
+            'scout_name',
+            'first_name',
+            'stamm_bund'
         )
 
     def get_id(self, obj: KeycloakGroup):
         return obj.keycloak_id
+    
+    def get_scout_name(self, obj: KeycloakGroup):
+        return obj.person.scout_name
+    
+    def get_first_name(self, obj: KeycloakGroup):
+        return obj.person.first_name
+    
+    def get_stamm_bund(self, obj: KeycloakGroup):
+        return obj.person.scout_group and f"{obj.person.scout_group.name}"
