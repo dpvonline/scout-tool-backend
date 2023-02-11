@@ -40,3 +40,20 @@ class KeycloakOpenIDExtended(KeycloakOpenID):
             urls_patterns.URL_ADMIN_USER_GROUPS.format(**params_path), **params
         )
         return raise_error_from_response(data_raw, KeycloakGetError)
+
+    def group_user_add(self, token, user_id, group_id):
+        """Add user to group (user_id and group_id).
+
+        :param user_id:  id of user
+        :type user_id: str
+        :param group_id:  id of group to add to
+        :type group_id: str
+        :return: Keycloak server response
+        :rtype: bytes
+        """
+        params_path = {"realm-name": self.realm_name, "id": user_id, "group-id": group_id}
+        self.connection.add_param_headers('Authorization', token)
+        data_raw = self.connection.raw_put(
+            urls_patterns.URL_ADMIN_USER_GROUP.format(**params_path), data=None
+        )
+        return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[204])

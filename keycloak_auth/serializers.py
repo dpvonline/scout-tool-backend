@@ -194,12 +194,16 @@ class PartialUserSerializer(serializers.ModelSerializer):
 
     def get_id(self, obj: KeycloakGroup):
         return obj.keycloak_id
-    
+
     def get_scout_name(self, obj: KeycloakGroup):
         return obj.person.scout_name
-    
+
     def get_first_name(self, obj: KeycloakGroup):
         return obj.person.first_name
-    
+
     def get_stamm_bund(self, obj: KeycloakGroup):
         return obj.person.scout_group and f"{obj.person.scout_group.name}"
+
+
+class MemberUserIdSerializer(serializers.Serializer):
+    user_id = serializers.CharField(required=True)

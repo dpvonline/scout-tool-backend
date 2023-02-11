@@ -17,7 +17,7 @@ from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAcces
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
-    FullGroupSerializer, GroupParentSerializer, PartialUserSerializer
+    FullGroupSerializer, GroupParentSerializer, PartialUserSerializer, MemberUserIdSerializer
 
 User: CustomUser = get_user_model()
 
@@ -221,3 +221,57 @@ class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
                 | Q(person__scout_group__name__icontains=search_param)
             )
         return user
+
+
+class InviteMemberViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = MemberUserIdSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_id = serializer.data.get('user_id')
+        group_id = get_group_id(kwargs)
+
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        # try:
+        # keycloak_user.group_user_add(token, user_id, group_id)
+        keycloak_admin.group_user_add(user_id, group_id)
+        # except KeycloakGetError:
+        #     raise NotAuthorized()
+        return Response('ok', status=status.HTTP_200_OK)
+
+
+class LeaveGroupViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        user_id = request.user.keycloak_id
+        group_id = get_group_id(kwargs)
+
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        # try:
+        # keycloak_user.group_user_add(token, user_id, group_id)
+        keycloak_admin.group_user_remove(user_id, group_id)
+        # except KeycloakGetError:
+        #     raise NotAuthorized()
+        return Response('ok', status=status.HTTP_200_OK)
+
+
+class KickMemberViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = MemberUserIdSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user_id = serializer.data.get('user_id')
+        group_id = get_group_id(kwargs)
+
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        # try:
+        # keycloak_user.group_user_add(token, user_id, group_id)
+        keycloak_admin.group_user_remove(user_id, group_id)
+        # except KeycloakGetError:
+        #     raise NotAuthorized()
+        return Response('ok', status=status.HTTP_200_OK)
