@@ -1,5 +1,6 @@
 from keycloak import KeycloakOpenID, urls_patterns
-from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakAuthenticationError
+from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakAuthenticationError, \
+    KeycloakPutError
 
 URL_ALL_USERS = "admin/realms/{realm-name}/users"
 URL_GROUP_USERS = "admin/realms/{realm-name}/groups/{group-id}/members"
