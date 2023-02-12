@@ -1,71 +1,74 @@
 [
   {
-    "model": "messaging.messagetype",
+    "model": "messaging.issuetype",
     "pk": 1,
     "fields": {
       "id": 1,
-      "name": "Verbesserungsvorschlag",
-      "is_comment": true,
-      "description": "",
-      "sorting": 1
+      "name": "Vorschlag",
+      "description": "Du hast eine Idee und möchtest die uns gerne mitteilen.",
+      "sorting": 1,
+      "is_public": true
     }
   },
   {
-    "model": "messaging.messagetype",
+    "model": "messaging.issuetype",
     "pk": 2,
     "fields": {
       "id": 2,
-      "name": "Fehlermeldung",
-      "is_comment": false,
-      "description": "",
-      "sorting": 2
+      "name": "Fehler melden",
+      "description": "Dir ist ein Fehler aufgefallen und du möchtest ihn gerne melden.",
+      "sorting": 2,
+      "is_public": true
     }
   },
   {
-    "model": "messaging.messagetype",
+    "model": "messaging.issuetype",
     "pk": 3,
     "fields": {
-      "id": 3,
-      "name": "Rechtsschreibfehler",
-      "is_comment": true,
-      "description": "",
-      "sorting": 3
+      "sorting": 3,
+      "created_at": "2022-04-16T21:16:48.803Z",
+      "updated_at": "2022-04-16T21:16:48.803Z",
+      "name": "Anmelde-Tool",
+      "description": "Dir ist im Zusammenhang mit einer Anmeldung etwas aufgefallen und du möchtest das Team erreichen.",
+      "is_public": true
     }
   },
   {
-    "model": "messaging.messagetype",
+    "model": "messaging.issuetype",
     "pk": 4,
     "fields": {
       "sorting": 4,
       "created_at": "2022-04-16T21:16:48.803Z",
       "updated_at": "2022-04-16T21:16:48.803Z",
-      "name": "Frage zu einer Veranstaltung",
-      "is_comment": false,
-      "description": ""
+      "name": "Heimabend Inspirator",
+      "description": "Dir ist im Zusammenhang mit dem Heimabend Inspirator etwas aufgefallen und du möchtest das Team erreichen.",
+      "is_public": true
     }
   },
   {
-    "model": "messaging.messagetype",
+    "model": "messaging.issuetype",
     "pk": 5,
     "fields": {
       "sorting": 5,
-      "created_at": "2022-04-16T21:16:48.803Z",
-      "updated_at": "2022-04-16T21:16:48.803Z",
-      "name": "Frage zu einer Veranstaltung",
-      "is_comment": false,
-      "description": ""
+      "created_at": "2022-04-16T21:45:17.080Z",
+      "updated_at": "2022-04-16T21:45:17.080Z",
+      "name": "Digi Biber",
+      "description": "Dir ist im Zusammenhang mit dem Digi Biber etwas aufgefallen und du möchtest das Team erreichen.",
+      "is_public": true
     }
   },
   {
-    "model": "messaging.messagetype",
-    "pk": 6,
+    "model": "messaging.issue",
+    "pk": "bed3d1cb-96f3-4c20-8304-0aa8f1913b41",
     "fields": {
-      "sorting": 6,
-      "created_at": "2022-04-16T21:45:17.080Z",
-      "updated_at": "2022-04-16T21:45:17.080Z",
-      "name": "Ich möchte im Team mitmachen",
-      "is_comment": false,
-      "description": ""
+      "issue_type": 1,
+      "created_by_name": "Robert",
+      "created_by_email": "Robert@hratuga.de",
+      "created_by": null,
+      "processors": [1],
+      "priority": "normal",
+      "status": "unread",
+      "issue_subject": "Problem mit dem Login"
     }
   }
 ]
