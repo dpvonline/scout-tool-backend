@@ -44,31 +44,5 @@
       "description": "Dir ist im Zusammenhang mit dem Heimabend Inspirator etwas aufgefallen und du möchtest das Team erreichen.",
       "is_public": true
     }
-  },
-  {
-    "model": "messaging.issuetype",
-    "pk": 5,
-    "fields": {
-      "sorting": 5,
-      "created_at": "2022-04-16T21:45:17.080Z",
-      "updated_at": "2022-04-16T21:45:17.080Z",
-      "name": "Digi Biber",
-      "description": "Dir ist im Zusammenhang mit dem Digi Biber etwas aufgefallen und du möchtest das Team erreichen.",
-      "is_public": true
-    }
-  },
-  {
-    "model": "messaging.issue",
-    "pk": "bed3d1cb-96f3-4c20-8304-0aa8f1913b41",
-    "fields": {
-      "issue_type": 1,
-      "created_by_name": "Robert",
-      "created_by_email": "Robert@hratuga.de",
-      "created_by": null,
-      "processors": [1],
-      "priority": "normal",
-      "status": "unread",
-      "issue_subject": "Problem mit dem Login"
-    }
   }
 ]
