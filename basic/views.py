@@ -126,7 +126,7 @@ class SearchViewSet(viewsets.ViewSet):
     def list(self, request) -> Response:
         query = request.GET.get("query", None)
 
-        groups = Group.objects.all()
+        groups = keycloak_models.KeycloakGroup.objects.all()
         # users = authentication_models.CustomUser.objects.all()
         issues = messaging_models.Issue.objects.all()
 
@@ -136,7 +136,7 @@ class SearchViewSet(viewsets.ViewSet):
             issues = issues.filter(issue_subject__icontains=query)
             
             
-        return_groups = authentication_serializers.GroupSerializer(groups, many=True).data
+        return_groups = keycloak_serializers.FullGroupSerializer(groups, many=True).data
         # return_users = authentication_serializers.UserShortSerializer(users, many=True).data
         return_issues = messaging_serializers.IssueSerializer(issues, many=True).data
 

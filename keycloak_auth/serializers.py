@@ -145,28 +145,31 @@ class FullGroupSerializer(serializers.ModelSerializer):
 
     def get_permission(self, obj: KeycloakGroup) -> str:
         request = self.context.get('request')
-        admin_perm = request_group_access(request, obj.keycloak_id, PermissionType.ADMIN)
-        if admin_perm:
-            return "Administrator"
-        view_perm = request_group_access(request, obj.keycloak_id, PermissionType.VIEW)
-        if view_perm:
-            return "Ansicht"
+        if request:
+            admin_perm = request_group_access(request, obj.keycloak_id, PermissionType.ADMIN)
+            if admin_perm:
+                return "Administrator"
+            view_perm = request_group_access(request, obj.keycloak_id, PermissionType.VIEW)
+            if view_perm:
+                return "Ansicht"
+            return PermissionType.NONE
         return PermissionType.NONE
 
     def get_is_member(self, obj: KeycloakGroup) -> bool:
         request = self.context.get('request')
-        token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            keycloak_groups = keycloak_user.get_user_groups(
-                token,
-                request.user.keycloak_id,
-                brief_representation=True
-            )
-        except KeycloakGetError:
-            raise NotAuthorized()
+        if request and request.META:
+            token = request.META.get('HTTP_AUTHORIZATION')
+            try:
+                keycloak_groups = keycloak_user.get_user_groups(
+                    token,
+                    request.user.keycloak_id,
+                    brief_representation=True
+                )
+            except KeycloakGetError:
+                raise NotAuthorized()
 
-        if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
-            return True
+            if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
+                return True
 
         return False
 
