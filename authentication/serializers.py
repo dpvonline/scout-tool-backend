@@ -142,7 +142,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class EmailSettingsSerializer(serializers.ModelSerializer):
     """
-    Serializer for the UserExtended model containing only email and sms custom_notifications, so that they can be changed
+    Serializer for the UserExtended model containing only email and sms notifications, so that they can be changed
     without being logged in
     """
 

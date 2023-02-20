@@ -21,10 +21,10 @@ def delete_user_async(instance):
         try:
             keycloak_user = keycloak_admin.get_user(instance.keycloak_id)
 
-            # if keycloak_user['username'] == instance.username:
-            #     keycloak_admin.delete_user(instance.keycloak_id)
-            # else:
-            #     print('shit')
+            if keycloak_user['username'] == instance.username:
+                keycloak_admin.delete_user(instance.keycloak_id)
+            else:
+                print('shit')
 
         except KeycloakGetError:
             pass
