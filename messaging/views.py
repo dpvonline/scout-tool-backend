@@ -5,9 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 
 from messaging.models import Message, IssueType, Issue
-from messaging.serializers import MessageSerializer, IssueReadSerializer, IssueTypeSerializer, IssueTypeReadSerializer, IssueTypeReadShortSerializer, MessageReadSerializer
+from messaging.serializers import MessageSerializer, IssueReadSerializer, IssueTypeSerializer, IssueTypeReadSerializer, IssueTypeReadShortSerializer, MessageReadSerializer, IssueSerializer
 from basic.helper import choice_to_json
-from .choices import MessagePriorityChoise
+from .choices import MessagePriorityChoise, MessageStatusChoise
 from authentication.models import CustomUser
 
 # Issue
@@ -17,8 +17,8 @@ class IssueReadViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
 class IssueViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.all().order_by('-created_at')
-    serializer_class = MessageSerializer
+    queryset = Issue.objects.all().order_by('-created_at')
+    serializer_class = IssueSerializer
 
 class IssueInitCreateViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
@@ -99,4 +99,20 @@ class MessagePriorityChoiseViewSet(viewsets.ViewSet):
         @return: Response which MessagePriorityChoise choices
         """
         result = choice_to_json(MessagePriorityChoise.choices)
+        return Response(result, status=status.HTTP_200_OK)
+
+# Status
+
+class MessageStatusChoiseViewSet(viewsets.ViewSet):
+    """
+    Viewset for message statues
+    """
+
+    # pylint: disable=no-self-use
+    def list(self, request) -> Response:
+        """
+        @param request: standard django request
+        @return: Response which MessageStatusChoise choices
+        """
+        result = choice_to_json(MessageStatusChoise.choices)
         return Response(result, status=status.HTTP_200_OK)

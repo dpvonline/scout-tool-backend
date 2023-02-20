@@ -6,9 +6,19 @@ from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.http import Http404, JsonResponse
+from django.contrib.auth.models import Group
 
 from basic import models as basic_models
+from messaging import models as messaging_models
+from authentication import models as authentication_models
+from keycloak_auth import models as keycloak_models
+
 from basic import serializers as basic_serializers
+from messaging import serializers as messaging_serializers
+from authentication import serializers as authentication_serializers
+from keycloak_auth import serializers as keycloak_serializers
+
 from basic.api_exceptions import TooManySearchResults, NoSearchResults, NoSearchValue
 from basic.choices import Gender, DescriptionType
 from basic.helper import choice_to_json
@@ -106,7 +116,32 @@ class FrontendThemeViewSet(viewsets.ModelViewSet):
 
 
 class GenderViewSet(viewsets.ViewSet):
-
+    
     def list(self, request) -> Response:
         result = choice_to_json(Gender.choices)
         return Response(result, status=status.HTTP_200_OK)
+
+class SearchViewSet(viewsets.ViewSet):
+    
+    def list(self, request) -> Response:
+        query = request.GET.get("query", None)
+
+        groups = Group.objects.all()
+        # users = authentication_models.CustomUser.objects.all()
+        issues = messaging_models.Issue.objects.all()
+
+        if query:
+            groups = groups.filter(name__icontains=query)
+            # users = users.filter(name__icontains=query)
+            issues = issues.filter(issue_subject__icontains=query)
+            
+            
+        return_groups = authentication_serializers.GroupSerializer(groups, many=True).data
+        # return_users = authentication_serializers.UserShortSerializer(users, many=True).data
+        return_issues = messaging_serializers.IssueSerializer(issues, many=True).data
+
+        return Response({
+            "group": return_groups,
+            # "user": return_users,
+            "issue": return_issues,
+        })
