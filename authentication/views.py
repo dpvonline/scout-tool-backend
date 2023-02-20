@@ -173,7 +173,7 @@ class EmailSettingsViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, v
 
 class EmailNotificationTypeViewSet(viewsets.ViewSet):
     """
-    Viewset for retrieving the choices of notifications
+    Viewset for retrieving the choices of custom_notifications
     """
     permission_classes = [IsAuthenticated]
 
