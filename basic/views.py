@@ -136,12 +136,16 @@ class SearchViewSet(viewsets.ViewSet):
             issues = issues.filter(issue_subject__icontains=query)
             
             
-        return_groups = keycloak_serializers.FullGroupSerializer(groups, many=True).data
-        # return_users = authentication_serializers.UserShortSerializer(users, many=True).data
-        return_issues = messaging_serializers.IssueSerializer(issues, many=True).data
+            return_groups = keycloak_serializers.FullGroupSerializer(groups, many=True).data
+            # return_users = authentication_serializers.UserShortSerializer(users, many=True).data
+            return_issues = messaging_serializers.IssueSerializer(issues, many=True).data
 
+            return Response({
+                "group": return_groups,
+                # "user": return_users,
+                "issue": return_issues,
+            })
         return Response({
-            "group": return_groups,
-            # "user": return_users,
-            "issue": return_issues,
+            "group": [],
+            "issue": [],
         })
