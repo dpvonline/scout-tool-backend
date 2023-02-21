@@ -62,19 +62,6 @@ services:
       - redis
       - web
 
-  flower:
-    build: ./
-    command: /start-flower.sh
-    restart: always
-    ports:
-      - "5555:5555"
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - celery
-      - celery-beat
-
   redis:
     image: redis:latest
 

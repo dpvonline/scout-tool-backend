@@ -195,17 +195,24 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'stamm_bund'
         )
 
-    def get_id(self, obj: KeycloakGroup):
+    def get_id(self, obj: User):
         return obj.keycloak_id
 
-    def get_scout_name(self, obj: KeycloakGroup):
-        return obj.person.scout_name
+    def get_scout_name(self, obj: User):
+        if hasattr(obj, 'person'):
+            return obj.person.scout_name
+        print(obj)
+        return ''
 
-    def get_first_name(self, obj: KeycloakGroup):
-        return obj.person.first_name
+    def get_first_name(self, obj: User):
+        if hasattr(obj, 'person'):
+            return obj.person.first_name
+        return ''
 
-    def get_stamm_bund(self, obj: KeycloakGroup):
-        return obj.person.scout_group and f"{obj.person.scout_group.name}"
+    def get_stamm_bund(self, obj: User):
+        if hasattr(obj, 'person'):
+            return obj.person.scout_group and f"{obj.person.scout_group.name}"
+        return ''
 
 
 class MemberUserIdSerializer(serializers.Serializer):

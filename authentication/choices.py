@@ -7,6 +7,8 @@ class EmailNotificationType(models.TextChoices):
     Choices a user can select, how often he wants to receive emails"
     """
     FULL = 'Full', _('Alles')
+    EVERY_3H = '3H', _('Alle 3 Stunden')
+    EVERY_12H = '12H', _('Alle 12 Stunden')
     DAILY = 'Daily', _('Täglich')
     WEEKLY = 'Weekly', _('Wöchentlich')
     IMPORTANT = 'Important', _('Nur wichtiges')
