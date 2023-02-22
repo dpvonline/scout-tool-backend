@@ -18,8 +18,14 @@ logger = get_task_logger(__name__)
 
 @receiver(pre_delete, sender=CustomUser, dispatch_uid='pre_delete_user')
 def pre_delete_user(sender, instance: CustomUser, **kwargs):
-    instance.person.delete()
-    delete_keycloak_user_async.delay(instance.keycloak_id, instance.username)
+    try:
+        instance.person.delete()
+    except:
+        pass
+    try:
+        delete_keycloak_user_async.delay(instance.keycloak_id, instance.username)
+    except:
+        pass
 
 
 @shared_task

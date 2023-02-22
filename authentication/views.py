@@ -95,7 +95,8 @@ class PersonalData(viewsets.ViewSet):
                     request.user.person.eat_habits.clear()
                     for eat_habit in eat_habits_formatted:
                         eat_habit_id = get_object_or_404(
-                            EatHabit, name__iexact=eat_habit).id
+                            EatHabit, name__iexact=eat_habit
+                        ).id
                         request.user.person.eat_habits.add(eat_habit_id)
                 person_edited = True
 
@@ -256,13 +257,15 @@ class RegisterViewSet(viewsets.ViewSet):
                 email=serializers.data.get('email'),
                 dsgvo_confirmed=serializers.data.get('dsgvo_confirmed', False),
                 email_notification=serializers.data.get(
-                    'email_notification', EmailNotificationType.FULL),
+                    'email_notification', EmailNotificationType.FULL
+                ),
                 sms_notification=serializers.data.get(
-                    'sms_notification', True),
+                    'sms_notification', True
+                ),
                 keycloak_id=new_keycloak_user_id
             )
         except Exception as exception:
-            print('failed initialising django user,removing keycloak user')
+            print('failed initialising django user, removing keycloak user')
             print(f'{exception=}')
             keycloak_admin.delete_user(new_keycloak_user_id)
             return Response(
@@ -272,13 +275,19 @@ class RegisterViewSet(viewsets.ViewSet):
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+        if serializers.data.get('scout_group'):
+            scout_organisation = ScoutHierarchy.objects.get(id=serializers.data.get('scout_group'))
+        else:
+            scout_organisation = None
+
         if new_keycloak_user_id and new_django_user:
             try:
                 zip_code = None
                 if serializers.data.get('zip_code'):
                     zip_code_raw = serializers.data.get('zip_code')
                     zip_code_queryset = ZipCode.objects.filter(
-                        zip_code__icontains=zip_code_raw)
+                        zip_code__icontains=zip_code_raw
+                    )
                     if zip_code_queryset.count() > 0:
                         zip_code = zip_code_queryset.first()
 
@@ -289,9 +298,10 @@ class RegisterViewSet(viewsets.ViewSet):
                     last_name=serializers.data.get('last_name', ''),
                     address=serializers.data.get('address', ''),
                     address_supplement=serializers.data.get(
-                        'address_supplement', ''),
+                        'address_supplement', ''
+                    ),
                     zip_code=zip_code,
-                    scout_group=ScoutHierarchy.objects.get(id=serializers.data.get('scout_group')),
+                    scout_group=scout_organisation,
                     phone_number=serializers.data.get('phone_number', ''),
                     email=serializers.data.get('email'),
                     bundespost=serializers.data.get('bundespost', ''),
@@ -302,7 +312,8 @@ class RegisterViewSet(viewsets.ViewSet):
                 )
             except Exception as exception:
                 print(
-                    'failed initialising django person model,removing keycloak and django user')
+                    'failed initialising django person model,removing keycloak and django user'
+                )
                 print(f'{exception=}')
                 # when django user is deleted, keycloak user is deleted as well
                 new_django_user.delete()
@@ -319,10 +330,6 @@ class RegisterViewSet(viewsets.ViewSet):
             redirect_uri=env('FRONT_URL')
         )
 
-        if serializers.data.get('scout_organisation'):
-            scout_organisation = serializers.data.get('scout_organisation')
-        else:
-            scout_organisation = None
         if scout_organisation and scout_organisation.keycloak:
             try:
                 request_group_access = RequestGroupAccess.objects.create(
@@ -385,7 +392,8 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
     def list(self, request, *args, **kwargs) -> Response:
         groups = self.get_queryset()
         serializer = FullGroupSerializer(
-            groups, many=True, context={'request': request})
+            groups, many=True, context={'request': request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

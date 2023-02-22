@@ -15,7 +15,7 @@ echo "Load food inspi data"
 #python manage.py loaddata data/food-init/*.json
 
 echo "Synchronising with keycloak server"
-#python manage.py initialize_keycloak_groups
+python manage.py initialize_keycloak_groups
 
 echo "Start server"
 gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers=5 --threads=8
