@@ -11,8 +11,8 @@ User: CustomUser = get_user_model()
 
 
 @shared_task
-def instant_notification(recipient_ids: list[str]):
-    recipients = User.objects.filter(id__in=recipient_ids)
+def instant_notification(recipient_id: str):
+    recipients = User.objects.get(id=recipient_id)
     print(f'instant notification for: {recipients}')
 
 

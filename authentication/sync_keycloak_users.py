@@ -2,7 +2,7 @@ from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.contrib.auth import get_user_model
 
-from authentication.models import CustomUser, Person
+from authentication.models import CustomUser
 from backend.OIDCAuthentication import MyOIDCAB
 from backend.settings import keycloak_admin
 
@@ -48,6 +48,17 @@ def import_keycloak_members():
             fahrtenname = attributes.get('fahrtenname', '')
             stamm = attributes.get('stamm', '')
 
+            if isinstance(verband, list):
+                verband = verband[0]
+
+            if isinstance(bund, list):
+                bund = bund[0]
+
+            if isinstance(fahrtenname, list):
+                fahrtenname = fahrtenname[0]
+
+            if isinstance(stamm, list):
+                stamm = stamm[0]
         claim = {
             'sub': keycloak_user.get('id', ''),
             'email_verified': keycloak_user.get('firstName', ''),
@@ -62,8 +73,6 @@ def import_keycloak_members():
             'email': keycloak_user.get('email', ''),
         }
         django_user = oicd.create_user(claim)
-        django_user.person = Person.objects.create()
-        django_user.save()
         count += 1
 
     logger.info(f'{count} Users have been added')
