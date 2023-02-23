@@ -3,12 +3,11 @@ from celery.utils.log import get_task_logger
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from notifications.models import Notification
 from notifications.signals import notify
 
-from backend.settings import keycloak_admin
 from authentication.models import CustomUser
-from messaging.models import Issue, IssueType
+from backend.settings import keycloak_admin
+from messaging.models import Issue
 
 User: CustomUser = get_user_model()
 
