@@ -2,9 +2,11 @@ import os
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 from keycloak import KeycloakAdmin
 
 from authentication.KeycloakOpenIDExtended import KeycloakOpenIDExtended
+from authentication.choices import EmailNotificationType
 from keycloak_auth.KeycloakAdminExtended import KeycloakAdminExtended
 
 env = environ.Env()
@@ -37,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'storages',
-    'ebhealthcheck.apps.EBHealthCheckConfig',
+    # 'ebhealthcheck.apps.EBHealthCheckConfig',
     'django_extensions',
     'django_filters',
     'mozilla_django_oidc',
@@ -57,7 +59,9 @@ INSTALLED_APPS = [
     'authentication',
     'messaging',
     'keycloak_auth',
-    'food'
+    'food',
+    'notifications',
+    'authentication.custom_notifications'
 ]
 
 MIDDLEWARE = [
@@ -246,13 +250,34 @@ GRAPHENE = {
 
 CELERY_BROKER_URL = env('CELERY_BROKER')
 CELERY_RESULT_BACKEND = env('CELERY_BROKER')
-
-# CELERY_BEAT_SCHEDULE = {
-#     "sample_task": {
-#         "task": "event.sample_task.sample_task",
-#         "schedule": crontab(minute="*/1"),
-#     },
-# }
+USE_CELERY = env.bool('USE_CELERY')
+CELERY_TIMEZONE = 'Europe/Berlin'
+CELERY_BEAT_SCHEDULE = {
+    "import_keycloak_members": {
+        "task": "authentication.sync_keycloak_users.import_keycloak_members",
+        "schedule": crontab(minute="*/15"),
+    },
+    "notifications_3h": {
+        "task": "authentication.custom_notifications.email_services.hourly_notification",
+        "schedule": crontab(hour="1,4,7,10,13,16,19,22", minute=0),
+        'args': {EmailNotificationType.EVERY_3H}
+    },
+    "notifications_12h": {
+        "task": "authentication.custom_notifications.email_services.hourly_notification",
+        "schedule": crontab(hour="11,23", minute=0),
+        'args': {EmailNotificationType.EVERY_12H}
+    },
+    "notifications_24h": {
+        "task": "authentication.custom_notifications.email_services.hourly_notification",
+        "schedule": crontab(hour="0", minute=0),
+        'args': {EmailNotificationType.DAILY}
+    },
+    "notifications_7d": {
+        "task": "authentication.custom_notifications.email_services.hourly_notification",
+        "schedule": crontab(hour="23", minute=0, day_of_week="SUN"),
+        'args': {EmailNotificationType.WEEKLY}
+    },
+}
 
 keycloak_admin = KeycloakAdminExtended(
     server_url=env('BASE_URI'),

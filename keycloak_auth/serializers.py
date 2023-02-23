@@ -145,28 +145,31 @@ class FullGroupSerializer(serializers.ModelSerializer):
 
     def get_permission(self, obj: KeycloakGroup) -> str:
         request = self.context.get('request')
-        admin_perm = request_group_access(request, obj.keycloak_id, PermissionType.ADMIN)
-        if admin_perm:
-            return "Administrator"
-        view_perm = request_group_access(request, obj.keycloak_id, PermissionType.VIEW)
-        if view_perm:
-            return "Ansicht"
+        if request:
+            admin_perm = request_group_access(request, obj.keycloak_id, PermissionType.ADMIN)
+            if admin_perm:
+                return "Administrator"
+            view_perm = request_group_access(request, obj.keycloak_id, PermissionType.VIEW)
+            if view_perm:
+                return "Ansicht"
+            return PermissionType.NONE
         return PermissionType.NONE
 
     def get_is_member(self, obj: KeycloakGroup) -> bool:
         request = self.context.get('request')
-        token = request.META.get('HTTP_AUTHORIZATION')
-        try:
-            keycloak_groups = keycloak_user.get_user_groups(
-                token,
-                request.user.keycloak_id,
-                brief_representation=True
-            )
-        except KeycloakGetError:
-            raise NotAuthorized()
+        if request and request.META:
+            token = request.META.get('HTTP_AUTHORIZATION')
+            try:
+                keycloak_groups = keycloak_user.get_user_groups(
+                    token,
+                    request.user.keycloak_id,
+                    brief_representation=True
+                )
+            except KeycloakGetError:
+                raise NotAuthorized()
 
-        if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
-            return True
+            if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
+                return True
 
         return False
 
@@ -177,6 +180,9 @@ class PartialUserSerializer(serializers.ModelSerializer):
     """
     person = PersonSerializer(many=False)
     id = serializers.SerializerMethodField()
+    scout_name = serializers.SerializerMethodField()
+    first_name = serializers.SerializerMethodField()
+    stamm_bund = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -184,7 +190,30 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'id',
             'person',
             'keycloak_id',
+            'scout_name',
+            'first_name',
+            'stamm_bund'
         )
 
-    def get_id(self, obj: KeycloakGroup):
+    def get_id(self, obj: User):
         return obj.keycloak_id
+
+    def get_scout_name(self, obj: User):
+        if hasattr(obj, 'person'):
+            return obj.person.scout_name
+        print(obj)
+        return ''
+
+    def get_first_name(self, obj: User):
+        if hasattr(obj, 'person'):
+            return obj.person.first_name
+        return ''
+
+    def get_stamm_bund(self, obj: User):
+        if hasattr(obj, 'person'):
+            return obj.person.scout_group and f"{obj.person.scout_group.name}"
+        return ''
+
+
+class MemberUserIdSerializer(serializers.Serializer):
+    user_id = serializers.CharField(required=True)

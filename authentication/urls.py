@@ -29,4 +29,5 @@ router.register(r'bundespost-types', views.BundesPostViewSet, basename='bundespo
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
+    path('notification/', include('authentication.custom_notifications.urls'))
 ]

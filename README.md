@@ -23,6 +23,8 @@ Windows
 # Load Example Data
 
 1) `python manage.py add_users`
+1) `python manage.py initialize_keycloak_groups`
+1) `python manage.py initialize_keycloak_scout_hierarchies`
 
 Mac, Linux:
 
@@ -56,7 +58,7 @@ Descriptions:
 
 Basic: 
 
-`python -Xutf8 manage.py dumpdata basic --exclude=basic.MessageType --exclude=basic.ZipCode --exclude=basic.description --exclude=basic.ScoutOrgaLevel --exclude=basic.ScoutHierarchy -o data\test\1_completeBasic.json`
+`python -Xutf8 manage.py dumpdata basic --exclude=basic.IssueType --exclude=basic.ZipCode --exclude=basic.description --exclude=basic.ScoutOrgaLevel --exclude=basic.ScoutHierarchy -o data\test\1_completeBasic.json`
 
 Email: 
 
