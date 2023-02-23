@@ -18,8 +18,8 @@ class IssueTypeReadSerializer(serializers.ModelSerializer):
         model = IssueType
         fields = '__all__'
 
-class IssueTypeReadShortSerializer(serializers.ModelSerializer):
 
+class IssueTypeReadShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueType
         fields = (
@@ -41,7 +41,7 @@ class IssueReadSerializer(serializers.ModelSerializer):
     created_by = UserRequestSerializer(many=False, read_only=True)
     issue_type = IssueTypeReadSerializer(many=False, read_only=True)
     processors = UserRequestSerializer(many=True, read_only=True)
-    
+
     def get_messages(self, obj):
         messages = Message.objects.filter(issue=obj.id).order_by('-created_at', '-updated_at')
         return MessageReadSerializer(messages, many=True).data
@@ -60,10 +60,11 @@ class IssueSerializer(serializers.ModelSerializer):
 class MessageReadSerializer(serializers.ModelSerializer):
     issue = IssueSerializer(many=False, read_only=False)
     created_by = UserRequestSerializer(many=False, read_only=True)
-    
+
     class Meta:
         model = Message
         fields = '__all__'
+
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

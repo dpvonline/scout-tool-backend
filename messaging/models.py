@@ -30,7 +30,8 @@ class Issue(TimeStampMixin):
     issue_type = models.ForeignKey(IssueType, on_delete=models.PROTECT)
     created_by_name = models.CharField(max_length=60, blank=True, null=True)
     created_by_email = models.CharField(max_length=60, blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True, related_name="issue_created_by")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True,
+                                   related_name="issue_created_by")
     processors = models.ManyToManyField(User, blank=True)
     priority = models.CharField(
         max_length=30,
@@ -44,7 +45,6 @@ class Issue(TimeStampMixin):
     )
     issue_subject = models.CharField(max_length=100, blank=True, null=True)
 
-
     def __str__(self):
         return self.issue_subject
 
@@ -54,12 +54,12 @@ class Issue(TimeStampMixin):
 
 class Message(TimeStampMixin):
     id = models.AutoField(auto_created=True, primary_key=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True, related_name="message_created_by")
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True,
+                                   related_name="message_created_by")
     issue = models.ForeignKey(Issue, on_delete=models.PROTECT, related_name="issue", blank=True, null=True)
     message_body = models.CharField(max_length=10000)
     is_public = models.BooleanField(default=False)
     has_been_read = models.BooleanField(default=False)
-
 
     def __str__(self):
         return self.message_body

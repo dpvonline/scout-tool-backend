@@ -3,9 +3,11 @@ from notifications.models import Notification
 from rest_framework import serializers
 
 from authentication.models import RequestGroupAccess, CustomUser
-from authentication.serializers import UserRequestSerializer, GroupRequestGroupAccessSerializer
+from authentication.serializers import UserRequestSerializer, StatusRequestGroupGetAccessSerializer
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import GroupParentSerializer
+from messaging.models import Issue
+from messaging.serializers import IssueReadSerializer
 
 User: CustomUser = get_user_model()
 
@@ -14,9 +16,11 @@ class GenericNotificationRelatedField(serializers.RelatedField):  # noqa
 
     def to_representation(self, value):
         if isinstance(value, RequestGroupAccess):
-            return GroupRequestGroupAccessSerializer(value).data
+            return StatusRequestGroupGetAccessSerializer(value).data
         if isinstance(value, KeycloakGroup):
             return GroupParentSerializer(value).data
+        if isinstance(value, Issue):
+            return IssueReadSerializer(value).data
         else:
             return None
 

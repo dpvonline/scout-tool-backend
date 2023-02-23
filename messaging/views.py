@@ -5,10 +5,12 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 
 from messaging.models import Message, IssueType, Issue
-from messaging.serializers import MessageSerializer, IssueReadSerializer, IssueTypeSerializer, IssueTypeReadSerializer, IssueTypeReadShortSerializer, MessageReadSerializer, IssueSerializer
+from messaging.serializers import MessageSerializer, IssueReadSerializer, IssueTypeSerializer, IssueTypeReadSerializer, \
+    IssueTypeReadShortSerializer, MessageReadSerializer, IssueSerializer
 from basic.helper import choice_to_json
 from .choices import MessagePriorityChoise, MessageStatusChoise
 from authentication.models import CustomUser
+
 
 # Issue
 class IssueReadViewSet(viewsets.ModelViewSet):
@@ -16,14 +18,16 @@ class IssueReadViewSet(viewsets.ModelViewSet):
     serializer_class = IssueReadSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
+
 class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all().order_by('-created_at')
     serializer_class = IssueSerializer
 
+
 class IssueInitCreateViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueReadSerializer
-    
+
     def create(self, request, *args, **kwargs):
         if request.user.id:
             request.data['created_by'] = CustomUser.objects.filter(id=request.user.id).first()
@@ -31,7 +35,7 @@ class IssueInitCreateViewSet(viewsets.ModelViewSet):
             request.data['created_by_email'] = None
         else:
             request.data['created_by'] = None
-        
+
         issue = Issue(
             created_by_name=request.data.get('created_by_name'),
             created_by_email=request.data.get('created_by_email'),
@@ -51,7 +55,8 @@ class IssueInitCreateViewSet(viewsets.ModelViewSet):
         )
         message.save()
 
-        return Response({'created issue and messsage'}, status=status.HTTP_201_CREATED)
+        return Response({'created issue and message'}, status=status.HTTP_201_CREATED)
+
 
 # Message
 
@@ -63,7 +68,7 @@ class MessageReadViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all().order_by('-created_at')
     serializer_class = MessageSerializer
-    
+
     def create(self, request, *args, **kwargs) -> Response:
         request.data['created_by'] = request.user.id
 
@@ -76,9 +81,11 @@ class IssueTypeReadViewSet(viewsets.ModelViewSet):
     queryset = IssueType.objects.all()
     serializer_class = IssueTypeReadSerializer
 
+
 class IssueTypeViewSet(viewsets.ModelViewSet):
     queryset = IssueType.objects.all()
     serializer_class = IssueTypeSerializer
+
 
 class IssueTypeReadShortViewSet(viewsets.ModelViewSet):
     queryset = IssueType.objects.all()
@@ -100,6 +107,7 @@ class MessagePriorityChoiseViewSet(viewsets.ViewSet):
         """
         result = choice_to_json(MessagePriorityChoise.choices)
         return Response(result, status=status.HTTP_200_OK)
+
 
 # Status
 

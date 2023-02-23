@@ -85,12 +85,22 @@ def move_user_into_group(instance_pk):
     user_groups = keycloak_admin.get_user_groups(user_id=instance.user.keycloak_id)
     if any(d['id'] == instance.group.keycloak_id for d in user_groups):
         in_group = True
+    decision = ''
     if instance.status == RequestGroupAccessChoices.ACCEPTED:
         if not in_group:
             keycloak_admin.group_user_add(user_id=instance.user.keycloak_id, group_id=instance.group.keycloak_id)
+        decision = 'angenommen'
     elif instance.status == RequestGroupAccessChoices.DECLINED:
         if in_group:
             keycloak_admin.group_user_remove(user_id=instance.user.keycloak_id, group_id=instance.group.keycloak_id)
+        decision = 'abgelehnt'
+
+    notify.send(
+        sender=instance.checked_by,
+        recipient=instance.user,
+        verb=f'Deine Gruppenanfrage wurde {decision}',
+        target=instance.RequestGroupAccess,
+    )
 
 
 @shared_task
@@ -115,7 +125,7 @@ def create_notification_async(instance_pk):
     notify.send(
         sender=instance.user,
         recipient=recipients,
-        verb='möchte gerne in der Gruppe aufgenommen werden.',
+        verb=f'möchte gerne in der Gruppe aufgenommen werden.',
         target=instance.group,
     )
     ids = list(recipients.values_list('id', flat=True))
