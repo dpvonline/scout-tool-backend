@@ -7,3 +7,4 @@ class AuthenticationConfig(AppConfig):
 
     def ready(self):
         import authentication.signals  # noqa
+        from authentication.sync_keycloak_users import import_keycloak_members # noqa

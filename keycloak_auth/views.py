@@ -6,6 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from notifications.signals import notify
 
 from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
@@ -239,6 +240,16 @@ class InviteMemberViewSet(mixins.CreateModelMixin, GenericViewSet):
         keycloak_admin.group_user_add(user_id, group_id)
         # except KeycloakGetError:
         #     raise NotAuthorized()
+
+        user = User.objects.get(keycloak_id=user_id)
+        group = KeycloakGroup.objects.get(keycloak_id=group_id)
+        notify.send(
+            sender=request.user,
+            recipient=user,
+            verb=f'Du wurdest einer Gruppe hinzugefügt.',
+            target=group,
+        )
+
         return Response('ok', status=status.HTTP_200_OK)
 
 
@@ -274,6 +285,15 @@ class KickMemberViewSet(mixins.CreateModelMixin, GenericViewSet):
         keycloak_admin.group_user_remove(user_id, group_id)
         # except KeycloakGetError:
         #     raise NotAuthorized()
+
+        user = User.objects.get(keycloak_id=user_id)
+        group = KeycloakGroup.objects.get(keycloak_id=group_id)
+        notify.send(
+            sender=request.user,
+            recipient=user,
+            verb=f'Du wurdest aus einer Gruppe enfernt.',
+            target=group,
+        )
         return Response('ok', status=status.HTTP_200_OK)
 
 

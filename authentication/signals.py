@@ -6,7 +6,6 @@ from django.dispatch import receiver
 from keycloak import KeycloakGetError
 from notifications.signals import notify
 
-from authentication.custom_notifications.email_services import instant_notification
 from backend.settings import keycloak_admin
 from .choices import RequestGroupAccessChoices
 from .models import CustomUser, RequestGroupAccess
@@ -99,7 +98,7 @@ def move_user_into_group(instance_pk):
         sender=instance.checked_by,
         recipient=instance.user,
         verb=f'Deine Gruppenanfrage wurde {decision}',
-        target=instance.RequestGroupAccess,
+        target=instance,
     )
 
 
@@ -107,6 +106,7 @@ def move_user_into_group(instance_pk):
 def create_notification_async(instance_pk):
     instance = RequestGroupAccess.objects.get(id=instance_pk)
     admin_name = f'group-{instance.group.keycloak_id}-admin-role'
+
     all_group_recipients = keycloak_admin.get_client_role_groups(
         keycloak_admin.realm_management_client_id,
         admin_name
@@ -116,9 +116,11 @@ def create_notification_async(instance_pk):
         admin_name
     )
     recipient_ids = [val['id'] for val in all_user_recipients if val['enabled']]
+
     for group_recipient in all_group_recipients:
         group_members = keycloak_admin.get_group_members(group_recipient['id'])
-        recipient_ids += [val['id'] for val in group_members if val['enabled']]
+        recipient_ids.extend([val['id'] for val in group_members if val['enabled']])
+
     recipients = User.objects.filter(keycloak_id__in=recipient_ids)
     if recipients.count() == 0:
         recipients = User.objects.filter(is_staff=True)
@@ -128,5 +130,3 @@ def create_notification_async(instance_pk):
         verb=f'möchte gerne in der Gruppe aufgenommen werden.',
         target=instance.group,
     )
-    ids = list(recipients.values_list('id', flat=True))
-    instant_notification.delay(ids)
