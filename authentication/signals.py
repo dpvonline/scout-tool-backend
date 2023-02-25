@@ -1,14 +1,13 @@
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.contrib.auth import get_user_model
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
-from keycloak import KeycloakGetError
 from notifications.signals import notify
 
 from backend.settings import keycloak_admin
 from .choices import RequestGroupAccessChoices
-from .models import CustomUser, RequestGroupAccess
+from .models import CustomUser, RequestGroupAccess, Person
 
 User: CustomUser = get_user_model()
 
@@ -42,27 +41,81 @@ logger = get_task_logger(__name__)
 #         pass
 
 
-# @receiver(post_save, sender=CustomUser, dispatch_uid='post_save_user')
-# def post_save_user(sender, instance: CustomUser, **kwargs):
-# if not instance.pk or not instance.keycloak_id or not hasattr(instance, 'person'):
-#     return
-# keycloak_user = keycloak_admin.get_user(instance.keycloak_id)
-#
-# if keycloak_user['username'] == instance.username:
-#     scout_organisation = instance.person.scout_group and instance.person.scout_group.name
-#     keycloak_admin.update_user(
-#         instance.keycloak_id, {
-#             'email': instance.email,
-#             'firstName': instance.person.first_name,
-#             'lastName': instance.person.last_name,
-#             'attributes': {
-#                 'verband': 'DPV',
-#                 'fahrtenname': instance.person.scout_name,
-#                 'bund': '',
-#                 'stamm': scout_organisation
-#             }
-#         }
-#     )
+@receiver(post_save, sender=CustomUser, dispatch_uid='post_save_user')
+def post_save_user(sender, instance: CustomUser, created, **kwargs):
+    if not instance.keycloak_id and not created:
+        return
+    keycloak_user = keycloak_admin.get_user(instance.keycloak_id)
+
+    if keycloak_user['username'] == instance.username:
+        first_name = keycloak_user['firstName']
+        last_name = keycloak_user['lastName']
+        email = keycloak_user['email']
+
+        if first_name != instance.first_name:
+            first_name = instance.first_name
+
+        if last_name != instance.last_name:
+            last_name = instance.last_name
+
+        if email != instance.email:
+            email = instance.email
+
+        keycloak_admin.update_user(
+            instance.keycloak_id, {
+                'email': email,
+                'firstName': first_name,
+                'lastName': last_name,
+            }
+        )
+
+
+@receiver(post_save, sender=Person, dispatch_uid='post_save_person')
+def post_save_person(sender, instance: Person, created, **kwargs):
+    if not instance.user or not instance.user.keycloak_id and not created:
+        return
+    keycloak_user = keycloak_admin.get_user(instance.user.keycloak_id)
+
+    if keycloak_user['username'] == instance.user.username:
+        verband = keycloak_user['attributes'].get('verband')
+        bund = keycloak_user['attributes'].get('bund')
+        stamm = keycloak_user['attributes'].get('stamm')
+        fahrtenname = keycloak_user['attributes'].get('fahrtenname')
+
+        if verband:
+            verband = verband[0]
+
+        if bund:
+            bund = bund[0]
+
+        if fahrtenname:
+            fahrtenname = fahrtenname[0]
+
+        if stamm:
+            stamm = stamm[0]
+
+        if instance.scout_group and verband != instance.scout_group.verband:
+            verband = instance.scout_group.verband
+
+        if instance.scout_group and bund != instance.scout_group.bund:
+            bund = instance.scout_group.bund
+
+        if instance.scout_group and stamm != instance.scout_group.name:
+            stamm = instance.scout_group.name
+
+        if fahrtenname != instance.scout_name:
+            fahrtenname = instance.scout_name
+
+        keycloak_admin.update_user(
+            instance.user.keycloak_id, {
+                'attributes': {
+                    'verband': verband,
+                    'fahrtenname': fahrtenname,
+                    'bund': bund,
+                    'stamm': stamm
+                }
+            }
+        )
 
 
 @receiver(post_save, sender=RequestGroupAccess, dispatch_uid='post_save_request_group_access')
