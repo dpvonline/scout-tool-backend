@@ -17,13 +17,13 @@ logger = get_task_logger(__name__)
 @receiver(post_save, sender=Issue, dispatch_uid='pre_delete_user')
 def post_save_issue(sender, instance: Issue, **kwargs):
     try:
-        delete_keycloak_user_async.delay(instance.id)
+        create_notification_issue.delay(instance.id)
     except:
         pass
 
 
 @shared_task
-def delete_keycloak_user_async(issue_id):
+def create_notification_issue(issue_id):
     if not issue_id:
         return
 
@@ -42,8 +42,13 @@ def delete_keycloak_user_async(issue_id):
 
     recipients = User.objects.filter(keycloak_id__in=recipients_ids)
 
+    if issue.created_by:
+        sender = issue.created_by
+    else:
+        sender = User.objects.filter(username='admin').first()
+
     notify.send(
-        sender=issue.created_by,
+        sender=sender,
         recipient=recipients,
         verb=f'Dir wurde ein neue Anfrage zugewiesen.',
         target=issue,
