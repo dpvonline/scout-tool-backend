@@ -49,7 +49,8 @@ class MarkAsReadViewSet(mixins.CreateModelMixin, GenericViewSet):
     serializer_class = UpdateNotificationSerializer
 
     def create(self, request, *args, **kwargs):
-        queryset = get_queryset(request)
+        id = request.data.get('id', None)
+        queryset = get_queryset(request).filter(id=id)
 
         queryset.update(unread=False)
         return Response({'code': 'OK'}, status=status.HTTP_200_OK)
@@ -60,7 +61,8 @@ class MarkAsUnreadViewSet(mixins.CreateModelMixin, GenericViewSet):
     serializer_class = NotificationSerializer
 
     def create(self, request, *args, **kwargs):
-        queryset = get_queryset(request)
+        id = request.data.get('id', None)
+        queryset = get_queryset(request).filter(id=id)
 
         queryset.update(unread=True)
         return Response({'code': 'OK'}, status=status.HTTP_200_OK)
@@ -71,7 +73,8 @@ class DeleteViewSet(mixins.CreateModelMixin, GenericViewSet):
     serializer_class = NotificationSerializer
 
     def create(self, request, *args, **kwargs):
-        queryset = get_queryset(request)
+        id = request.data.get('id', None)
+        queryset = get_queryset(request).filter(id=id)
 
         queryset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
