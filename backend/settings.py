@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     'keycloak_auth',
     'food',
     'notifications',
-    'authentication.custom_notifications'
+    'authentication.custom_notifications',
+    'inspi'
 ]
 
 MIDDLEWARE = [
