@@ -11,4 +11,5 @@ urlpatterns = [
     path('message/', include('messaging.urls')),
     path('food/', include('food.urls')),
     path('keycloak/', include('keycloak_auth.urls')),
+    path('inspi/', include('inspi.urls')),
 ]

@@ -100,6 +100,22 @@ class ScoutHierarchy(TimeStampMixin):
     def children(self):
         return ScoutHierarchy.objects.filter(parent=self.id)
 
+    @property
+    def bund(self):
+        iterator: ScoutHierarchy = self
+        while iterator is not None:
+            if iterator.level.name == 'Bund':
+                return iterator.name
+            iterator = iterator.parent
+
+    @property
+    def verband(self):
+        iterator: ScoutHierarchy = self
+        while iterator is not None:
+            if iterator.level.name == 'Verband':
+                return iterator.name
+            iterator = iterator.parent
+
     def __str__(self):
         return f"{self.level} - {self.name}"
 
