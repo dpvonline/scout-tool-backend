@@ -127,6 +127,6 @@ def create_notification_async(instance_pk):
     notify.send(
         sender=instance.user,
         recipient=recipients,
-        verb=f'möchte gerne in der Gruppe aufgenommen werden.',
+        verb=f'Eine Person möchte gerne in eine Gruppe aufgenommen werden.',
         target=instance.group,
     )
