@@ -41,10 +41,22 @@ logger = get_task_logger(__name__)
 #         pass
 
 
-@receiver(post_save, sender=CustomUser, dispatch_uid='post_save_user')
-def post_save_user(sender, instance: CustomUser, created, **kwargs):
-    if not instance.keycloak_id and not created:
+# @receiver(post_save, sender=CustomUser, dispatch_uid='post_save_user')
+# def post_save_user(sender, instance: CustomUser, created, **kwargs):
+#     if not created:
+#         save_keycloak_user(instance)
+
+
+# @receiver(post_save, sender=Person, dispatch_uid='post_save_person')
+# def post_save_person(sender, instance: Person, created, **kwargs):
+#     if not created:
+#         save_keycloak_person(instance)
+
+
+def save_keycloak_user(instance: User):
+    if not instance.keycloak_id:
         return
+
     keycloak_user = keycloak_admin.get_user(instance.keycloak_id)
 
     if keycloak_user['username'] == instance.username:
@@ -70,10 +82,10 @@ def post_save_user(sender, instance: CustomUser, created, **kwargs):
         )
 
 
-@receiver(post_save, sender=Person, dispatch_uid='post_save_person')
-def post_save_person(sender, instance: Person, created, **kwargs):
-    if not instance.user or not instance.user.keycloak_id and not created:
+def save_keycloak_person(instance: Person):
+    if not instance.user or not instance.user.keycloak_id:
         return
+
     keycloak_user = keycloak_admin.get_user(instance.user.keycloak_id)
 
     if keycloak_user['username'] == instance.user.username:

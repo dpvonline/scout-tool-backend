@@ -28,6 +28,7 @@ from .serializers import GroupSerializer, EmailSettingsSerializer, ResponsiblePe
     FullUserSerializer, EditPersonSerializer, UserSerializer, PersonSerializer, \
     CheckUsernameSerializer, StatusRequestGroupGetAccessSerializer, CheckEmailSerializer, CheckPasswordSerializer, \
     MemberSerializer
+from .signals import save_keycloak_user, save_keycloak_person
 
 User: CustomUser = get_user_model()
 
@@ -64,6 +65,7 @@ class PersonalData(viewsets.ViewSet):
         user_data = user_serializer.data
 
         user_serializer.update(request.user, user_data)
+        save_keycloak_user(request.user)
 
         person_serializer = PersonSerializer(data=serializer.data)
         person_serializer.is_valid(raise_exception=True)
@@ -102,6 +104,7 @@ class PersonalData(viewsets.ViewSet):
 
         if person_edited:
             request.user.person.save()
+        save_keycloak_person(request.user.person)
 
         result = FullUserSerializer(request.user, many=False)
         return Response(result.data, status=status.HTTP_200_OK)

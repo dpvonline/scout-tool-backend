@@ -77,6 +77,7 @@ class Person(TimeStampMixin):
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
     created_by = models.ManyToManyField(CustomUser, related_name='creator', blank=True)
+    edited_last = models.DateTimeField(auto_now=True)
 
 
 class RequestGroupAccess(TimeStampMixin):
