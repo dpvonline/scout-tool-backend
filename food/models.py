@@ -490,6 +490,18 @@ class MealItem(TimeStampMixin):
 
     def __repr__(self):
         return self.__str__()
+    
+    
+class PollItem(TimeStampMixin):
+    item_1 = models.ForeignKey(Package, on_delete=models.PROTECT, related_name='package_item_1')
+    item_2 = models.ForeignKey(Package, on_delete=models.PROTECT, related_name='package_item_2')
+    winner = models.ForeignKey(Package, on_delete=models.PROTECT, related_name='package_winner', null=True)
+
+    def __str__(self):
+        return f'{self.winner}'
+
+    def __repr__(self):
+        return self.__str__()
 
 
 # pylint: disable=unused-argument

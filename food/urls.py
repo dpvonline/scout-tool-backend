@@ -22,6 +22,8 @@ router.register(r'recipe-clone', views.RecipeCloneViewSet, basename='recipe-clon
 
 router.register(r'package', views.PackageViewSet)
 router.register(r'package-read', views.PackageReadViewSet)
+router.register(r'package-random-poll', views.PackageRandomPollViewSet)
+router.register(r'poll-item', views.PollItemLevelViewSet)
 
 router.register(r'retailer', views.RetailerViewSet)
 
