@@ -169,6 +169,11 @@ class PhysicalActivityLevelViewSet(viewsets.ModelViewSet):
     serializer_class = food_serializers.PhysicalActivityLevelSerializer
 
 
+class PollItemLevelViewSet(viewsets.ModelViewSet):
+    queryset = food_models.PollItem.objects.all()
+    serializer_class = food_serializers.PollItemSerializer
+
+
 class PackageViewSet(viewsets.ModelViewSet):
     queryset = food_models.Package.objects.all()
     serializer_class = food_serializers.PackageSerializer
@@ -179,6 +184,11 @@ class PackageReadViewSet(viewsets.ModelViewSet):
     serializer_class = food_serializers.PackageReadSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['portion__ingredient__id']
+    
+    
+class PackageRandomPollViewSet(viewsets.ModelViewSet):
+    queryset = food_models.Package.objects.order_by("?")[:2]
+    serializer_class = food_serializers.PackageReadPollSerializer
 
 
 class PortionViewSet(viewsets.ModelViewSet):

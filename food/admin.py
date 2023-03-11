@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import MeasuringUnit, Price, Tag, TagCategory, Ingredient, Recipe, Portion, Retailer, Package, \
-    RecipeItem, Hint, Event, Meal, MealDay, MealItem, PhysicalActivityLevel
+    RecipeItem, Hint, Event, Meal, MealDay, MealItem, PhysicalActivityLevel, PollItem
 
 admin.site.register(MeasuringUnit)
 admin.site.register(Tag)
@@ -161,3 +161,4 @@ admin.site.register(Event)
 admin.site.register(MealDay)
 admin.site.register(Meal)
 admin.site.register(MealItem)
+admin.site.register(PollItem)

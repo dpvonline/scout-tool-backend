@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.db.models import Q, QuerySet
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, mixins
 from rest_framework.exceptions import NotFound, MethodNotAllowed
@@ -104,8 +105,6 @@ class EventViewSet(viewsets.ModelViewSet):
         return True
 
     def create(self, request, *args, **kwargs) -> Response:
-        if request.data.get('name', None) is None:
-            request.data['name'] = 'Dummy'
         if (request.data.get('responsible_persons') is None) | (request.data.get('responsible_persons', []) is []):
             request.data['responsible_persons'] = [request.user.email, ]
         serializer: event_serializers.EventCompleteSerializer = self.get_serializer(data=request.data)
@@ -114,26 +113,23 @@ class EventViewSet(viewsets.ModelViewSet):
 
         event: event_models.Event = serializer.save()
         event.responsible_persons.add(request.user)
-        standard_event = event_helper.custom_get_or_404(event_api_exceptions.SomethingNotFound('Standard Event 1'),
-                                                        event_models.StandardEventTemplate,
-                                                        pk=1)
+        # standard_event = event_helper.custom_get_or_404(event_api_exceptions.SomethingNotFound('Standard Event 1'),
+        #                                                 event_models.StandardEventTemplate,
+        #                                                 pk=4)
 
-        add_event_module(standard_event.introduction, event)
+        # add_event_module(standard_event.introduction, event)
 
-        if event.personal_data_required:
-            add_event_module(standard_event.personal_registration, event)
-        else:
-            add_event_module(standard_event.registration, event)
+        # add_event_module(standard_event.personal_registration, event)
 
-        add_event_module(standard_event.summary, event)
+        # add_event_module(standard_event.summary, event)
 
-        for mapper in standard_event.other_required_modules.all():
-            add_event_module(mapper, event)
+        # for mapper in standard_event.other_required_modules.all():
+        #     add_event_module(mapper, event)
 
-        # TODO: When event_planer_modules does not contain all necessary modules, they wont be added
-        if request.data.get('event_planer_modules', None) is None:
-            for planer_module in standard_event.planer_modules.all():
-                event.event_planer_modules.add(planer_module)
+        # # TODO: When event_planer_modules does not contain all necessary modules, they wont be added
+        # if request.data.get('event_planer_modules', None) is None:
+        #     for planer_module in standard_event.planer_modules.all():
+        #         event.event_planer_modules.add(planer_module)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

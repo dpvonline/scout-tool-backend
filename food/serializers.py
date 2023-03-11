@@ -293,6 +293,30 @@ class PackageReadSerializer(serializers.ModelSerializer):
             sum_value = sum_value + item.get('price_per_kg')
         return round(sum_value / count, 2)
 
+class PackageReadPollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.Package
+        fields = (
+            'id',
+            'name',
+        )
+    
+
+class PollItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.PollItem
+        fields = '__all__'
+    
+
+class PackageReadPollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.Package
+        fields = (
+            'id',
+            'name',
+        )
+    
+
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = food_models.Price
