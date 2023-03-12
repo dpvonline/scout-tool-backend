@@ -188,6 +188,8 @@ class PartialUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id',
+            'email',
+            'username',
             'person',
             'keycloak_id',
             'scout_name',

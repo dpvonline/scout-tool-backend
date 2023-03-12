@@ -48,13 +48,13 @@ class RegistrationPutSerializer(serializers.ModelSerializer):
 
 
 class RegistrationGetSerializer(serializers.ModelSerializer):
-    responsible_persons = CurrentUserSerializer(many=True, read_only=True)
-    tags = basic_serializers.TagShortSerializer(many=True, read_only=True)
+    # responsible_persons = CurrentUserSerializer(many=True, read_only=True)
+    # tags = basic_serializers.TagShortSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
 
     class Meta:
         model = event_models.Registration
-        fields = '__all__'
+        fields = ('id','scout_organisation',)
 
 
 class RegistrationSummaryBookingOptionSerializer(serializers.ModelSerializer):
