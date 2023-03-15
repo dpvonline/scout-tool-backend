@@ -564,3 +564,8 @@ class RegistrationViewSet(
             return registration_serializers.RegistrationPutSerializer
         elif self.request.method == 'DESTROY':
             return registration_serializers.RegistrationPutSerializer
+
+
+class SimpleRegistrationViewSet(viewsets.ModelViewSet):
+    queryset = event_models.Registration.objects.all()
+    serializer_class = registration_serializers.RegistrationGetSerializer
