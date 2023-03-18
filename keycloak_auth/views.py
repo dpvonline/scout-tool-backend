@@ -402,10 +402,8 @@ class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(username__icontains=search_param)
                 | Q(email__icontains=search_param)
                 | Q(person__first_name__icontains=search_param)
-                | Q(person__last_name__icontains=search_param)
+                | Q(person__last_name__exact=search_param)
                 | Q(person__email__icontains=search_param)
-                | Q(person__last_name__icontains=search_param)
                 | Q(person__scout_name__icontains=search_param)
-                | Q(person__scout_group__name__icontains=search_param)
             )
         return user
