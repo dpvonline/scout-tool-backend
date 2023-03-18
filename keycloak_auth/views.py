@@ -397,7 +397,7 @@ class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
 
         search_param = self.request.GET.get('search')
 
-        if search_param:
+        if search_param and not search_param == '':
             user = user.filter(
                 Q(username__icontains=search_param)
                 | Q(email__icontains=search_param)
