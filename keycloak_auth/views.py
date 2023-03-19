@@ -216,9 +216,13 @@ class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
 
         if search_param:
             user = user.filter(
-                Q(person__scout_name__icontains=search_param)
+                Q(username__icontains=search_param)
+                | Q(email__icontains=search_param)
                 | Q(person__first_name__icontains=search_param)
                 | Q(person__last_name__icontains=search_param)
+                | Q(person__email__icontains=search_param)
+                | Q(person__last_name__icontains=search_param)
+                | Q(person__scout_name__icontains=search_param)
                 | Q(person__scout_group__name__icontains=search_param)
             )
         return user
@@ -359,6 +363,19 @@ class GroupInvitableMemberViewSet(viewsets.ReadOnlyModelViewSet):
 
         user = User.objects.filter(keycloak_id__in=all_users_ids).exclude(keycloak_id__in=already_member_ids)
 
+        search_param = self.request.GET.get('search')
+
+        if search_param:
+            user = user.filter(
+                Q(username__icontains=search_param)
+                | Q(email__icontains=search_param)
+                | Q(person__first_name__icontains=search_param)
+                | Q(person__last_name__icontains=search_param)
+                | Q(person__email__icontains=search_param)
+                | Q(person__last_name__icontains=search_param)
+                | Q(person__scout_name__icontains=search_param)
+                | Q(person__scout_group__name__icontains=search_param)
+            )
         return user
 
 
@@ -378,4 +395,15 @@ class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
 
         user = User.objects.filter(keycloak_id__in=member_ids).exclude(keycloak_id__in=self.request.user.keycloak_id)
 
+        search_param = self.request.GET.get('search')
+
+        if search_param and not search_param == '':
+            user = user.filter(
+                Q(username__icontains=search_param)
+                | Q(email__icontains=search_param)
+                | Q(person__first_name__icontains=search_param)
+                | Q(person__last_name__exact=search_param)
+                | Q(person__email__icontains=search_param)
+                | Q(person__scout_name__icontains=search_param)
+            )
         return user

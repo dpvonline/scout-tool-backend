@@ -180,6 +180,7 @@ class PartialUserSerializer(serializers.ModelSerializer):
     """
     person = PersonSerializer(many=False)
     id = serializers.SerializerMethodField()
+    display_name = serializers.SerializerMethodField()
     scout_name = serializers.SerializerMethodField()
     first_name = serializers.SerializerMethodField()
     stamm_bund = serializers.SerializerMethodField()
@@ -193,16 +194,34 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'keycloak_id',
             'scout_name',
             'first_name',
-            'stamm_bund'
+            'stamm_bund',
+            'display_name'
+            
         )
 
     def get_id(self, obj: User):
         return obj.keycloak_id
+    
+
+    def get_display_name(self, obj: User):
+        def cut_email(input):
+            return f"{input[0:7]}..."
+        returnString = ''
+
+        if hasattr(obj, 'username') and hasattr(obj, 'email'):
+            returnString += f"{obj.username} ({cut_email(obj.email)})"
+            
+        if hasattr(obj, 'person') and obj.person.scout_name:
+            returnString += f" - {obj.person.scout_name}"
+            
+        if hasattr(obj, 'person') and obj.person.scout_group and obj.person.scout_group.name:
+            returnString += f" - {obj.person.scout_group.name}"
+
+        return returnString
 
     def get_scout_name(self, obj: User):
         if hasattr(obj, 'person'):
             return obj.person.scout_name
-        print(obj)
         return ''
 
     def get_first_name(self, obj: User):
