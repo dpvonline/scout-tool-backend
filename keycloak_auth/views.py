@@ -18,7 +18,8 @@ from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAcces
 from keycloak_auth.helper import check_group_id
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
-    FullGroupSerializer, GroupParentSerializer, PartialUserSerializer, MemberUserIdSerializer
+    FullGroupSerializer, GroupParentSerializer, PartialUserSerializer, MemberUserIdSerializer, \
+    SearchResultUserSerializer
 
 User: CustomUser = get_user_model()
 
