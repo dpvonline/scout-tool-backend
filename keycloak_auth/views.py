@@ -32,6 +32,22 @@ def get_group_id(kwargs):
     return group_id
 
 
+def search_user(request, users):
+    search_param = request.GET.get('search')
+    if search_param:
+        users = users.filter(
+            Q(username__icontains=search_param)
+            | Q(email__icontains=search_param)
+            | Q(person__first_name__icontains=search_param)
+            | Q(person__last_name__icontains=search_param)
+            | Q(person__email__icontains=search_param)
+            | Q(person__last_name__icontains=search_param)
+            | Q(person__scout_name__icontains=search_param)
+            | Q(person__scout_group__name__icontains=search_param)
+        )
+    return users
+
+
 class AllGroupsViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -204,28 +220,17 @@ class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         try:
-            group_members = keycloak_user.get_all_users(token)
+            keycloak_user.get_all_users(token)
         except KeycloakGetError:
             raise NotAuthorized()
         except KeycloakAuthenticationError:
             raise NotAuthorized()
-        ids = [val['id'] for val in group_members if val['enabled']]
 
-        user = User.objects.filter(keycloak_id__in=ids)
-        search_param = self.request.GET.get('search')
+        # ids = [val['id'] for val in group_members if val['enabled']]
 
-        if search_param:
-            user = user.filter(
-                Q(username__icontains=search_param)
-                | Q(email__icontains=search_param)
-                | Q(person__first_name__icontains=search_param)
-                | Q(person__last_name__icontains=search_param)
-                | Q(person__email__icontains=search_param)
-                | Q(person__last_name__icontains=search_param)
-                | Q(person__scout_name__icontains=search_param)
-                | Q(person__scout_group__name__icontains=search_param)
-            )
-        return user
+        users = User.objects.all()
+
+        return search_user(self.request, users)
 
 
 class InviteMemberViewSet(mixins.CreateModelMixin, GenericViewSet):
@@ -325,7 +330,7 @@ class GroupGroupAdminViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GroupUserAdminViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = PartialUserSerializer
+    serializer_class = SearchResultUserSerializer
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
@@ -347,41 +352,28 @@ class GroupUserAdminViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GroupInvitableMemberViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = PartialUserSerializer
+    serializer_class = SearchResultUserSerializer
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         group_id = get_group_id(self.kwargs)
         try:
             group_members = keycloak_user.get_group_users(token, group_id)
-            all_users = keycloak_user.get_all_users(token)
+            keycloak_user.get_all_users(token)
         except KeycloakGetError:
             raise NotAuthorized()
 
         already_member_ids = [val['id'] for val in group_members if val['enabled']]
-        all_users_ids = [val['id'] for val in all_users if val['enabled']]
+        # all_users_ids = [val['id'] for val in all_users if val['enabled']]
 
-        user = User.objects.filter(keycloak_id__in=all_users_ids).exclude(keycloak_id__in=already_member_ids)
+        users = User.objects.all().exclude(keycloak_id__in=already_member_ids)
 
-        search_param = self.request.GET.get('search')
-
-        if search_param:
-            user = user.filter(
-                Q(username__icontains=search_param)
-                | Q(email__icontains=search_param)
-                | Q(person__first_name__icontains=search_param)
-                | Q(person__last_name__icontains=search_param)
-                | Q(person__email__icontains=search_param)
-                | Q(person__last_name__icontains=search_param)
-                | Q(person__scout_name__icontains=search_param)
-                | Q(person__scout_group__name__icontains=search_param)
-            )
-        return user
+        return search_user(self.request, users)
 
 
 class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = PartialUserSerializer
+    serializer_class = SearchResultUserSerializer
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
@@ -393,17 +385,6 @@ class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
 
         member_ids = [val['id'] for val in group_members if val['enabled']]
 
-        user = User.objects.filter(keycloak_id__in=member_ids).exclude(keycloak_id__in=self.request.user.keycloak_id)
+        users = User.objects.filter(keycloak_id__in=member_ids).exclude(keycloak_id__in=self.request.user.keycloak_id)
 
-        search_param = self.request.GET.get('search')
-
-        if search_param and not search_param == '':
-            user = user.filter(
-                Q(username__icontains=search_param)
-                | Q(email__icontains=search_param)
-                | Q(person__first_name__icontains=search_param)
-                | Q(person__last_name__exact=search_param)
-                | Q(person__email__icontains=search_param)
-                | Q(person__scout_name__icontains=search_param)
-            )
-        return user
+        return search_user(self.request, users)

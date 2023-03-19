@@ -15,6 +15,29 @@ from keycloak_auth.permissions import request_group_access
 User: CustomUser = get_user_model()
 
 
+def cut_email(input):
+    first_half = input.split('@')
+    return f"{first_half[0][0:5]}...@"
+
+
+def get_display_name(obj: User):
+    return_list = []
+
+    if hasattr(obj, 'person') and obj.person.scout_name:
+        return_list.append(f"{obj.person.scout_name}")
+
+    if hasattr(obj, 'username') and obj.username:
+        return_list.append(obj.username)
+
+    if hasattr(obj, 'email') and obj.email:
+        return_list.append(f"({cut_email(obj.email)})")
+
+    if hasattr(obj, 'person') and obj.person.scout_group and obj.person.scout_group.name:
+        return_list.append(f"Stamm {obj.person.scout_group.name}")
+
+    return ' '.join(return_list)
+
+
 class PersonSerializer(serializers.ModelSerializer):
     scout_group = UserScoutHierarchySerializer(many=False)
 
@@ -196,28 +219,13 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'first_name',
             'stamm_bund',
             'display_name'
-            
         )
 
     def get_id(self, obj: User):
         return obj.keycloak_id
-    
 
     def get_display_name(self, obj: User):
-        def cut_email(input):
-            return f"{input[0:7]}..."
-        returnString = ''
-
-        if hasattr(obj, 'username') and hasattr(obj, 'email'):
-            returnString += f"{obj.username} ({cut_email(obj.email)})"
-            
-        if hasattr(obj, 'person') and obj.person.scout_name:
-            returnString += f" - {obj.person.scout_name}"
-            
-        if hasattr(obj, 'person') and obj.person.scout_group and obj.person.scout_group.name:
-            returnString += f" - {obj.person.scout_group.name}"
-
-        return returnString
+        return get_display_name(obj)
 
     def get_scout_name(self, obj: User):
         if hasattr(obj, 'person'):
@@ -233,6 +241,21 @@ class PartialUserSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'person'):
             return obj.person.scout_group and f"{obj.person.scout_group.name}"
         return ''
+
+
+class SearchResultUserSerializer(serializers.ModelSerializer):
+    display_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'keycloak_id',
+            'display_name'
+        )
+
+    def get_display_name(self, obj: User):
+        return get_display_name(obj)
 
 
 class MemberUserIdSerializer(serializers.Serializer):
