@@ -330,7 +330,7 @@ class GroupGroupAdminViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GroupUserAdminViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = PartialUserSerializer
+    serializer_class = SearchResultUserSerializer
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
@@ -352,7 +352,7 @@ class GroupUserAdminViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GroupInvitableMemberViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = PartialUserSerializer
+    serializer_class = SearchResultUserSerializer
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
@@ -373,7 +373,7 @@ class GroupInvitableMemberViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = PartialUserSerializer
+    serializer_class = SearchResultUserSerializer
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
