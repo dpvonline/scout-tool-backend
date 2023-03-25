@@ -72,7 +72,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
 class CreateGroupSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
-    parent_id = serializers.CharField(required=False)
+    parent_id = serializers.CharField(required=True)
     type = serializers.ChoiceField(required=True, choices=CreateGroupChoices.choices)
 
 

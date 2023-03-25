@@ -15,6 +15,12 @@ class WrongParentGroupId(APIException):
     default_code = 'wrong_group_id'
 
 
+class GroupAlreadyExists(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Die Gruppe existiert bereits.'
+    default_code = 'wrong_group_id'
+
+
 class AlreadyInGroup(APIException):
     status_code = status.HTTP_405_METHOD_NOT_ALLOWED
     default_detail = 'Du bist bereits in der Gruppe.'

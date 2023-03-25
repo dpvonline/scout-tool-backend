@@ -146,8 +146,7 @@ class KeycloakAdminExtended(KeycloakAdmin):
 
         # Assign permission to groups
         if add_permission:
-            self.assign_group_client_roles(group['id'], self.realm_management_client_id, [view_role])
-            self.assign_group_client_roles(group['id'], self.realm_management_client_id, [admin_role])
+            self.assign_group_client_roles(group['id'], self.realm_management_client_id, [view_role, admin_role])
         return view_role, admin_role
 
     def generate_permission(self,

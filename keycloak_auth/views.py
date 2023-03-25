@@ -14,8 +14,9 @@ from authentication.serializers import FullUserSerializer, RequestGroupAccessSer
     StatusRequestGroupAccessPutSerializer, StatusRequestGroupGetAccessSerializer
 from backend.settings import keycloak_admin, keycloak_user
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId, \
-    NotAuthorized
-from keycloak_auth.helper import check_group_id
+    NotAuthorized, GroupAlreadyExists
+from keycloak_auth.choices import CreateGroupChoices
+from keycloak_auth.helper import check_group_id, get_or_create_keycloak_model
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
     FullGroupSerializer, GroupParentSerializer, PartialUserSerializer, MemberUserIdSerializer, \
@@ -55,17 +56,58 @@ class AllGroupsViewSet(viewsets.ViewSet):
     def create(self, request) -> Response:
         serializer = CreateGroupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        group_name = serializer.data.get('name')
+
         parent_id = serializer.data.get('parent_id')
         parent_group = None
         if parent_id:
             parent_group = KeycloakGroup.objects.filter(keycloak_id=parent_id)
             if not parent_group:
                 raise WrongParentGroupId()
+            else:
+                parent_group = parent_group.first()
 
-        created_group = KeycloakGroup.objects.create(
-            name=serializer.data.get('name'),
-            parent=parent_group
+        group_exits = KeycloakGroup.objects.filter(name__iexact=group_name, parent__keycloak_id=parent_id).exists()
+        if group_exits:
+            raise GroupAlreadyExists()
+
+        payload = {'name': group_name}
+
+        group_id = keycloak_admin.create_group(payload=payload, parent=parent_id)
+
+        group = keycloak_admin.get_group(group_id)
+        view_role, admin_role = keycloak_admin.add_group_permissions(group, False)
+
+        group_admin_name = {
+            CreateGroupChoices.EVENT: 'Lagerleitung',
+            CreateGroupChoices.AK: 'Ansprechperson',
+            CreateGroupChoices.GRUPPE: 'Gruppenführung',
+            CreateGroupChoices.OTHER: 'Admin'
+        }
+
+        group_type = serializer.data['type']
+        admin_name = group_admin_name[group_type]
+        admin_group_payload = {'name': admin_name}
+        admin_group_id = keycloak_admin.create_group(payload=admin_group_payload, parent=group_id)
+        admin_group = keycloak_admin.get_group(admin_group_id)
+
+        admin_view_role, admin_admin_role = keycloak_admin.add_group_permissions(admin_group, True)
+
+        keycloak_admin.assign_group_client_roles(
+            admin_group_id, keycloak_admin.realm_management_client_id,
+            [admin_role]
         )
+        keycloak_admin.assign_group_client_roles(
+            group_id, keycloak_admin.realm_management_client_id,
+            [view_role, admin_view_role]
+        )
+
+        created_group, _ = get_or_create_keycloak_model(group, parent_group)
+        created_admin_group, _ = get_or_create_keycloak_model(admin_group, created_group)
+
+        user_id = request.user.keycloak_id
+        keycloak_admin.group_user_add(user_id, admin_group_id)
+
         serializer = GroupParentSerializer(created_group, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
