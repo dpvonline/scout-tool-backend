@@ -2,9 +2,9 @@ import json
 from typing import List
 
 from keycloak import KeycloakAdmin
-from keycloak.exceptions import raise_error_from_response, KeycloakGetError
+from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakPostError
 from keycloak.urls_patterns import URL_ADMIN_CLIENT_AUTHZ_POLICIES, URL_ADMIN_CLIENT_AUTHZ_RESOURCES, \
-    URL_ADMIN_GROUP_CHILD, URL_ADMIN_CLIENT, URL_ADMIN_CLIENT_AUTHZ_SCOPES
+    URL_ADMIN_GROUP_CHILD, URL_ADMIN_CLIENT, URL_ADMIN_CLIENT_AUTHZ_SCOPES, URL_ADMIN_CLIENT_SCOPE
 
 from keycloak_auth.dataclasses import PolicyBase, ResourceRepresentation, PolicyRoleRepresentation, PolicyRole, \
     PolicyAggregate
@@ -14,6 +14,7 @@ URL_ADMIN_CLIENT_AUTHZ_POLICIES_TYPE = URL_ADMIN_CLIENT + "/authz/resource-serve
 URL_ADMIN_CLIENT_AUTHZ_POLICIES_SEARCH = URL_ADMIN_CLIENT + "/authz/resource-server/policy/search"
 URL_ADMIN_CLIENT_AUTHZ_PERMISSION = URL_ADMIN_CLIENT + "/authz/resource-server/permission/{type}"
 URL_ADMIN_GROUP_COUNT = "admin/realms/{realm-name}/groups/count"
+URL_ADMIN_CLIENT_SCOPE_REALM_ROLE_MAPPER = URL_ADMIN_CLIENT_SCOPE + "/scope-mappings/realm"
 
 
 class KeycloakAdminExtended(KeycloakAdmin):
@@ -35,6 +36,10 @@ class KeycloakAdminExtended(KeycloakAdmin):
             elif scope['name'] in view_scopes:
                 self.scopes_view_list.append(scope['id'])
         self.scopes = self.scopes_view_list + self.scopes_manage_list
+
+        self.client_scopes = self.get_client_scopes()
+        self.dpv_oidc_scope = next(k['id'] for k in self.client_scopes if k['name'] == 'dpv_oidc_scope')
+        self.dpv_saml_scope = next(k['id'] for k in self.client_scopes if k['name'] == 'dpv_saml_scope')
 
     def create_client_policy(self, client_id: str, payload: PolicyBase, skip_exists=False):
         params_path = {"realm-name": self.realm_name, "id": client_id, "type": payload.type.value}
@@ -70,6 +75,22 @@ class KeycloakAdminExtended(KeycloakAdmin):
         query = {'name': name}
         data_raw = self.raw_get(URL_ADMIN_CLIENT_AUTHZ_RESOURCES.format(**params_path), **query)
         return raise_error_from_response(data_raw, KeycloakGetError)
+
+    def add_realm_roles_to_client_scope(self, client_id, roles):
+        """Assign realm roles to a client's scope.
+
+        :param client_id: id of client (not client-id)
+        :type client_id: str
+        :param roles: roles list or role (use RoleRepresentation)
+        :type roles: list
+        :return: Keycloak server response
+        :rtype: dict
+        """
+        payload = roles if isinstance(roles, list) else [roles]
+        params_path = {"realm-name": self.realm_name, "scope-id": client_id}
+        data_raw = self.connection.raw_post(
+            URL_ADMIN_CLIENT_SCOPE_REALM_ROLE_MAPPER.format(**params_path), data=json.dumps(payload))
+        return raise_error_from_response(data_raw, KeycloakPostError, expected_codes=[204])
 
     def list_scopes(self, client_id: str):
         params_path = {"realm-name": self.realm_name, "id": client_id}
