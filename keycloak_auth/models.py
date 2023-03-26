@@ -21,6 +21,18 @@ class KeycloakGroup(models.Model):
         else:
             return f'/{self.name}'
 
+    def __generate_tree_name(self) -> str:
+        name = self.name.lower()
+
+        if self.parent:
+            return f'{self.parent.__generate_tree_name()}_{name}'
+        else:
+            return name
+
+    @property
+    def keycloak_role_name(self) -> str:
+        return f'{self.__generate_tree_name()}'
+
     def __str__(self):
         return self.name
 

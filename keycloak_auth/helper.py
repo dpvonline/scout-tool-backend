@@ -1,5 +1,7 @@
 import re
 
+from django.db.models import QuerySet
+
 from keycloak_auth.models import KeycloakGroup
 
 REGEX_GROUP = re.compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
@@ -8,7 +10,7 @@ REGEX_GROUP_ADMIN_PERMISSION = re.compile(
 )
 
 
-def get_or_create_keycloak_model(group: dict, parent_obj: str) -> tuple[KeycloakGroup, bool]:
+def get_or_create_keycloak_model(group: dict, parent_obj: str | KeycloakGroup) -> tuple[KeycloakGroup, bool]:
     if isinstance(parent_obj, KeycloakGroup):
         parent = parent_obj
     elif isinstance(parent_obj, str):
@@ -16,7 +18,7 @@ def get_or_create_keycloak_model(group: dict, parent_obj: str) -> tuple[Keycloak
     else:
         parent = None
 
-    keycloak_groups: KeycloakGroup = KeycloakGroup.objects.filter(keycloak_id=group['id'])
+    keycloak_groups: QuerySet[KeycloakGroup] = KeycloakGroup.objects.filter(keycloak_id=group['id'])
     if not keycloak_groups.exists():
         keycloak_group = KeycloakGroup.objects.create(
             keycloak_id=group['id'],

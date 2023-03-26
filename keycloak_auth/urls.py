@@ -6,6 +6,7 @@ from . import views
 router = routers.SimpleRouter()
 router.register(r'group', views.AllGroupsViewSet, basename='group')
 router.register(r'members', views.AllMembersViewSet, basename='members')
+router.register(r'create-group-choice', views.CreateGroupChoicesViewSet, basename='create-group-choice')
 
 group_router = routers.NestedSimpleRouter(router, r'group', lookup='group')
 group_router.register(r'members', views.GroupMembersViewSet, basename='members')
@@ -18,6 +19,7 @@ group_router.register(r'group-admins', views.GroupGroupAdminViewSet, basename='g
 group_router.register(r'user-admins', views.GroupUserAdminViewSet, basename='user-admins')
 group_router.register(r'inevitable-members', views.GroupInvitableMemberViewSet, basename='inevitable-members')
 group_router.register(r'kickable-members', views.GroupKickableMemberViewSet, basename='kickable-members')
+group_router.register(r'create-group-choice', views.CreateGroupChoicesViewSet, basename='create-group-choice')
 
 request_router = routers.NestedSimpleRouter(group_router, r'requests', lookup='requests')
 request_router.register(r'accept', views.AcceptRequestGroupAccessViewSet, basename='accept')
