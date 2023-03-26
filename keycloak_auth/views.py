@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from notifications.signals import notify
+from basic.helper import choice_to_json
 
 from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
@@ -109,7 +110,7 @@ class AllGroupsViewSet(viewsets.ViewSet):
         keycloak_admin.group_user_add(user_id, admin_group_id)
 
         serializer = GroupParentSerializer(created_group, many=False, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         group_id = get_group_id(kwargs)
@@ -431,3 +432,10 @@ class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
         users = User.objects.filter(keycloak_id__in=member_ids).exclude(keycloak_id__in=self.request.user.keycloak_id)
 
         return search_user(self.request, users)
+
+class CreateGroupChoicesViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request) -> Response:
+        result = choice_to_json(CreateGroupChoices.choices)
+        return Response(result, status=status.HTTP_200_OK)
