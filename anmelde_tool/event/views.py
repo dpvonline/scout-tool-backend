@@ -43,6 +43,11 @@ class EventRegistrationViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSe
     queryset = event_models.Event.objects.all()
     serializer_class = event_serializers.EventRegistrationSerializer
 
+class EventReadViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = event_models.Event.objects.all()
+    serializer_class = event_serializers.EventReadSerializer
+
 
 class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsEventSuperResponsiblePerson]
