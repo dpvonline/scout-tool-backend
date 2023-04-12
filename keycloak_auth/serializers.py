@@ -245,14 +245,19 @@ class PartialUserSerializer(serializers.ModelSerializer):
 
 class SearchResultUserSerializer(serializers.ModelSerializer):
     display_name = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'id',
-            'keycloak_id',
             'display_name'
         )
+
+    def get_id(self, obj: User):
+        if obj.keycloak_id:
+            return obj.keycloak_id
+        return ''
 
     def get_display_name(self, obj: User):
         return get_display_name(obj)
