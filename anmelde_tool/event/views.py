@@ -1,6 +1,6 @@
 from copy import deepcopy
 from datetime import datetime
-
+from datetime import date
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -48,6 +48,20 @@ class EventReadViewSet(viewsets.ModelViewSet):
     queryset = event_models.Event.objects.all()
     serializer_class = event_serializers.EventReadSerializer
 
+
+class MyInvitationsViewSet(viewsets.ModelViewSet):
+    def get_queryset(self) -> QuerySet:
+        return event_models.Event.objects.filter(
+            registration_deadline__gte=timezone.now()
+        ).filter(is_public=True)
+    serializer_class = event_serializers.EventCompleteSerializer
+
+class MyEventViewSet(viewsets.ModelViewSet):
+    def get_queryset(self) -> QuerySet:
+        return event_models.Event.objects.filter(
+            registration_deadline__lte=timezone.now()
+        )
+    serializer_class = event_serializers.EventCompleteSerializer
 
 class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsEventSuperResponsiblePerson]

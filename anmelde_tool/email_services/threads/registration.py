@@ -46,8 +46,8 @@ def registration_confirmed_mail(registration_id: str, email_type: EmailType):
         data = {
             'event_name': event_name,
             'event_pronoun': event_pronoun,
-            'responsible_persons': html.escape(person.userextended.scout_name) or '',
-            'unsubscribe': person.userextended.id,
+            # 'responsible_persons': html.escape(person.userextended.scout_name) or '',
+            # 'unsubscribe': person.userextended.id,
             'participant_count': count,
             'sum': participant_sum,
             'list_participants': list_participants,
