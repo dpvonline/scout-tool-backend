@@ -45,8 +45,8 @@ def payment_reminder_mail(evend_id: str, email_type: EmailType):
             receiver = [person.email, ]
 
             data = {
-                'responsible_persons': html.escape(person.userextended.scout_name) or '',
-                'unsubscribe': person.userextended.id,
+                # 'responsible_persons': html.escape(person.userextended.scout_name) or '',
+                # 'unsubscribe': person.userextended.id,
                 'participant_count': serializer.data['participant_count'],
                 'booking_options': booking_options,
                 'sum': serializer.data['payement']['price'],
