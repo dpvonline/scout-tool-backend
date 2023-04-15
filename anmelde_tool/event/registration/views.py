@@ -577,7 +577,7 @@ class SimpleRegistrationViewSet(viewsets.ModelViewSet):
     
 
 class MyRegistrationViewSet(viewsets.ModelViewSet):
-    serializer_class = registration_serializers.RegistrationGetSerializer
+    serializer_class = registration_serializers.MyRegistrationGetSerializer
     
     def get_queryset(self) -> QuerySet:
-        return event_models.Registration.objects.all()
+        return event_models.Registration.objects.filter(responsible_persons=self.request.user.id)

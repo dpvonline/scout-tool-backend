@@ -6,6 +6,7 @@ from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
 from basic.models import EatHabit
 from anmelde_tool.event import models as event_models
+from anmelde_tool.event import serializers as event_serializers
 
 User = get_user_model()
 
@@ -55,6 +56,16 @@ class RegistrationGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.Registration
         fields = ('id','scout_organisation','responsible_persons',)
+
+class MyRegistrationGetSerializer(serializers.ModelSerializer):
+    responsible_persons = CurrentUserSerializer(many=True, read_only=True)
+    # tags = basic_serializers.TagShortSerializer(many=True, read_only=True)
+    scout_organisation = UserScoutHierarchySerializer()
+    event = event_serializers.EventRegistrationSerializer()
+
+    class Meta:
+        model = event_models.Registration
+        fields = ('id','scout_organisation','responsible_persons','event',)
 
 
 class RegistrationSummaryBookingOptionSerializer(serializers.ModelSerializer):
