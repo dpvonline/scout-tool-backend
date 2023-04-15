@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Q
 from django.utils import timezone
 from rest_framework import serializers
+from authentication import models as auth_models
+import geopy.distance
 
 from anmelde_tool.attributes.serializers import AbstractAttributeGetPolymorphicSerializer
 from basic import serializers as basic_serializers
@@ -133,6 +135,32 @@ class EventPlanerSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.Event
         fields = '__all__'
+        
+class EventLocationShortSerializer(serializers.ModelSerializer):
+    distance = serializers.SerializerMethodField()
+    zip_code = basic_serializers.ZipCodeShortSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = event_models.EventLocation
+        fields = ('name', 'zip_code', 'address', 'distance')
+        
+    def get_distance(self, obj: event_models.EventLocation) -> float:
+        person = auth_models.Person.objects.filter(user=self.context['request'].user).first()
+
+        coords_1 = (obj.zip_code.lat, obj.zip_code.lon)
+        coords_2 = (person.zip_code.lat, person.zip_code.lon)
+
+        return geopy.distance.geodesic(coords_1, coords_2).km
+
+
+class EventReadSerializer(serializers.ModelSerializer):
+    tags = basic_serializers.TagShortSerializer(many=True)
+    location = EventLocationShortSerializer(many=False, read_only=True)
+    eventmodulemapper_set = EventModuleMapperShortSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = event_models.Event
+        fields = '__all__'
 
 
 class AttributeEventModuleMapperSerializer(serializers.ModelSerializer):
@@ -147,14 +175,6 @@ class AttributeEventModuleMapperPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.AttributeEventModuleMapper
         fields = '__all__'
-
-
-class EventLocationShortSerializer(serializers.ModelSerializer):
-    zip_code = basic_serializers.ZipCodeShortSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = event_models.EventLocation
-        fields = ('name', 'zip_code', 'address')
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):

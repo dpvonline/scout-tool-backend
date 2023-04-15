@@ -4,7 +4,8 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register('registration', views.RegistrationViewSet, basename='registration')
-router.register('my-registrations', views.SimpleRegistrationViewSet, basename='registration-read')
+router.register('registration-read', views.RegistrationViewSet, basename='registration')
+router.register('my-registrations', views.MyRegistrationViewSet, basename='my-registrations')
 
 registration_router = routers.NestedSimpleRouter(router, r'registration', lookup='registration')
 registration_router.register(r'single-participant', views.RegistrationSingleParticipantViewSet,

@@ -62,8 +62,8 @@ def news_mail(evend_id: str, data: dict, email_type: EmailType):
             receiver = [person.email, ]
 
             data = {
-                'responsible_persons': html.escape(person.userextended.scout_name) or '',
-                'unsubscribe': person.userextended.id,
+                # 'responsible_persons': html.escape(person.userextended.scout_name) or '',
+                # 'unsubscribe': person.userextended.id,
                 'scout_organisation': scout_organisation,
                 'event_name': event_name,
                 'event_pronoun': event_pronoun,
