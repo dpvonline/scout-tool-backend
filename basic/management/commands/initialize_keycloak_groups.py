@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from keycloak import KeycloakGetError
 
 from backend.settings import keycloak_admin
 from basic.models import ScoutHierarchy
@@ -47,10 +48,13 @@ class Command(BaseCommand):
         print('Assign KeycloakGroup to ScoutHierarchies')
         for scout_hierarchy in ScoutHierarchy.objects.all():
             if not scout_hierarchy.keycloak:
-                keycloak_group: dict = keycloak_admin.get_group_by_path(
-                    path=scout_hierarchy.keycloak_group_name,
-                    search_in_subgroups=True
-                )
+                keycloak_group = None
+                try:
+                    keycloak_group: dict = keycloak_admin.get_group_by_path(
+                        path=scout_hierarchy.keycloak_group_name
+                    )
+                except KeycloakGetError:
+                    pass
                 if keycloak_group:
                     django_keycloak_group = KeycloakGroup.objects.get(keycloak_id=keycloak_group['id'])
                     scout_hierarchy.keycloak = django_keycloak_group

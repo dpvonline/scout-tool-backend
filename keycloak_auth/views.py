@@ -17,8 +17,10 @@ from backend.settings import keycloak_admin, keycloak_user
 from keycloak_auth.api_exceptions import NoGroupId, AlreadyInGroup, AlreadyAccessRequested, WrongParentGroupId, \
     NotAuthorized, GroupAlreadyExists
 from keycloak_auth.choices import CreateGroupChoices
+from keycloak_auth.enums import PermissionType
 from keycloak_auth.helper import check_group_id, get_or_create_keycloak_model
 from keycloak_auth.models import KeycloakGroup
+from keycloak_auth.permissions import request_group_access
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
     FullGroupSerializer, GroupParentSerializer, PartialUserSerializer, MemberUserIdSerializer, \
     SearchResultUserSerializer
@@ -68,6 +70,9 @@ class AllGroupsViewSet(viewsets.ViewSet):
             else:
                 parent_group = parent_group.first()
 
+        if not request_group_access(request, parent_group.keycloak_id, PermissionType.ADMIN):
+            raise NotAuthorized()
+
         group_exits = KeycloakGroup.objects.filter(name__iexact=group_name, parent__keycloak_id=parent_id).exists()
         if group_exits:
             raise GroupAlreadyExists()
@@ -95,11 +100,13 @@ class AllGroupsViewSet(viewsets.ViewSet):
         admin_view_role, admin_admin_role = keycloak_admin.add_group_permissions(admin_group, True)
 
         keycloak_admin.assign_group_client_roles(
-            admin_group_id, keycloak_admin.realm_management_client_id,
+            admin_group_id,
+            keycloak_admin.realm_management_client_id,
             [admin_role]
         )
         keycloak_admin.assign_group_client_roles(
-            group_id, keycloak_admin.realm_management_client_id,
+            group_id,
+            keycloak_admin.realm_management_client_id,
             [view_role, admin_view_role]
         )
 
@@ -108,6 +115,14 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
         user_id = request.user.keycloak_id
         keycloak_admin.group_user_add(user_id, admin_group_id)
+
+        realm_role_payload = {'name': created_group.keycloak_role_name, 'description': group_name}
+        realm_role_name = keycloak_admin.create_realm_role(realm_role_payload, skip_exists=True)
+        realm_role = keycloak_admin.get_realm_role(realm_role_name)
+
+        keycloak_admin.assign_group_realm_roles(group_id, [realm_role])
+        keycloak_admin.add_realm_roles_to_client_scope(keycloak_admin.dpv_oidc_scope, realm_role)
+        keycloak_admin.add_realm_roles_to_client_scope(keycloak_admin.dpv_saml_scope, realm_role)
 
         serializer = GroupParentSerializer(created_group, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -135,7 +150,9 @@ class AllGroupsViewSet(viewsets.ViewSet):
 
     def delete(self, request, *args, **kwargs):
         group_id = get_group_id(kwargs)
-        keycloak_admin.delete_group(group_id=group_id)
+        group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
+        group.delete()
+        # keycloak_admin.delete_group(group_id=group_id)
         return Response(status.HTTP_204_NO_CONTENT)
 
     def list(self, request, *args, **kwargs) -> Response:
@@ -432,6 +449,7 @@ class GroupKickableMemberViewSet(viewsets.ReadOnlyModelViewSet):
         users = User.objects.filter(keycloak_id__in=member_ids).exclude(keycloak_id__in=self.request.user.keycloak_id)
 
         return search_user(self.request, users)
+
 
 class CreateGroupChoicesViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
