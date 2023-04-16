@@ -360,7 +360,7 @@ class StatusRequestGroupGetAccessSerializer(serializers.ModelSerializer):
 
 
 class CheckUsernameSerializer(serializers.Serializer):  # noqa
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(required=True, trim_whitespace=False)
 
 
 class CheckEmailSerializer(serializers.Serializer):  # noqa
@@ -368,4 +368,4 @@ class CheckEmailSerializer(serializers.Serializer):  # noqa
 
 
 class CheckPasswordSerializer(serializers.Serializer):  # noqa
-    password = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, trim_whitespace=False)
