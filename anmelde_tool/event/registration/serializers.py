@@ -59,7 +59,6 @@ class RegistrationGetSerializer(serializers.ModelSerializer):
 
 class MyRegistrationGetSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
-    # tags = basic_serializers.TagShortSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
     event = event_serializers.EventRegistrationSerializer()
 
@@ -158,7 +157,6 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
                   'participant_count',
                   'price',
                   'registrationparticipant_set',
-                  'tags',
                   )
 
     def get_participant_count(self, registration: event_models.Registration) -> int:
@@ -168,13 +166,28 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
         return registration.registrationparticipant_set.aggregate(
             sum=Sum('booking_option__price'))['sum']
 
-    def get_tags(self, registration: event_models.Registration) -> []:
-        queryset = registration.tags.filter(in_summary=True)
-        serializer = basic_serializers.AbstractAttributeGetPolymorphicSerializer(queryset, many=True)
-        return serializer.data
-
 
 class WorkshopSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.Workshop
         fields = '__all__'
+
+
+class RegistrationReadSerializer(serializers.ModelSerializer):
+    responsible_persons = CurrentUserSerializer(many=True, read_only=True)
+    scout_organisation = UserScoutHierarchySerializer()
+    event = event_serializers.EventRegistrationSerializer()
+    registrationparticipant_set = RegistrationSummaryParticipantSerializer(many=True, read_only=True)
+    participant_count = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = event_models.Registration
+        fields = ('id','scout_organisation','responsible_persons','event','tags','price','participant_count','registrationparticipant_set',)
+        
+    def get_participant_count(self, registration: event_models.Registration) -> int:
+        return registration.registrationparticipant_set.count()
+
+    def get_price(self, registration: event_models.Registration) -> float:
+        return registration.registrationparticipant_set.aggregate(
+            sum=Sum('booking_option__price'))['sum']
