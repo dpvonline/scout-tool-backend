@@ -6,7 +6,9 @@ from authentication import models as auth_models
 import geopy.distance
 
 from anmelde_tool.attributes.serializers import AbstractAttributeGetPolymorphicSerializer
+from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
+from authentication import serializers as auth_serializers
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.choices import choices as event_choices
@@ -153,10 +155,19 @@ class EventLocationShortSerializer(serializers.ModelSerializer):
         return geopy.distance.geodesic(coords_1, coords_2).km
 
 
+class EventPlanerModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = event_models.EventPlanerModule
+        fields = '__all__'
+
+
 class EventReadSerializer(serializers.ModelSerializer):
     tags = basic_serializers.TagShortSerializer(many=True)
     location = EventLocationShortSerializer(many=False, read_only=True)
     eventmodulemapper_set = EventModuleMapperShortSerializer(many=True, read_only=True)
+    event_planer_modules = EventPlanerModuleSerializer(many=True, read_only=True)
+    keycloak_path = auth_serializers.GroupSerializer(many=False, read_only=True)
+    limited_registration_hierarchy = UserScoutHierarchySerializer(many=False, read_only=True)
 
     class Meta:
         model = event_models.Event
@@ -175,7 +186,6 @@ class AttributeEventModuleMapperPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.AttributeEventModuleMapper
         fields = '__all__'
-
 
 class EventOverviewSerializer(serializers.ModelSerializer):
     registration_options = serializers.SerializerMethodField()

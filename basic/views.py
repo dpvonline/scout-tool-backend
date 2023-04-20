@@ -106,7 +106,7 @@ class DescriptionViewSet(viewsets.ReadOnlyModelViewSet):
 class EatHabitViewSet(viewsets.ModelViewSet):
     queryset = basic_models.EatHabit.objects.all()
     serializer_class = basic_serializers.EatHabitSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsStaffOrReadOnly]
 
 
 class FrontendThemeViewSet(viewsets.ModelViewSet):
