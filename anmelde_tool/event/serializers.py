@@ -136,7 +136,7 @@ class EventCompleteSerializer(serializers.ModelSerializer):
         registration = event_models.Registration.objects.filter(event=obj.id).filter(responsible_persons=self.context['request'].user).first()
         print(registration)
         
-        if (registration):
+        if registration:
             return 'already'
         elif (obj.registration_deadline > timezone.now()):
             return 'pending'
