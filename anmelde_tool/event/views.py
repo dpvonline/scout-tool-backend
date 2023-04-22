@@ -51,9 +51,7 @@ class EventReadViewSet(viewsets.ModelViewSet):
 
 class MyInvitationsViewSet(viewsets.ModelViewSet):
     def get_queryset(self) -> QuerySet:
-        return event_models.Event.objects.filter(
-            registration_deadline__gte=timezone.now()
-        ).filter(is_public=True)
+        return event_models.Event.objects.filter(is_public=True)
     serializer_class = event_serializers.EventCompleteSerializer
 
 class MyEventViewSet(viewsets.ModelViewSet):
