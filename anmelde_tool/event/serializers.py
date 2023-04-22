@@ -4,6 +4,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from authentication import models as auth_models
 import geopy.distance
+from datetime import datetime
 
 from anmelde_tool.attributes.serializers import AbstractAttributeGetPolymorphicSerializer
 from authentication.serializers import UserScoutHierarchySerializer
@@ -76,6 +77,7 @@ class EventModuleMapperShortSerializer(serializers.ModelSerializer):
 
 class EventModuleMapperGetSerializer(serializers.ModelSerializer):
     module = EventModuleSerializer(read_only=True)
+    # attributes = AbstractAttributeGetPolymorphicSerializer(read_only=True, many=True)
 
     class Meta:
         model = event_models.EventModuleMapper
@@ -111,6 +113,7 @@ class EventModuleMapperPutSerializer(serializers.ModelSerializer):
 
 
 class EventCompleteSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
     responsible_persons = serializers.SlugRelatedField(
         many=True,
         read_only=False,
@@ -128,11 +131,24 @@ class EventCompleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.Event
         fields = '__all__'
+        
+    def get_status(self, obj: event_models.EventLocation) -> str:
+        registration = event_models.Registration.objects.filter(event=obj.id).filter(responsible_persons=self.context['request'].user).first()
+        print(registration)
+        
+        if (registration):
+            return 'already'
+        elif (obj.registration_deadline > timezone.now()):
+            return 'pending'
+        elif (obj.registration_deadline <= timezone.now()):
+            return 'expired'
+        else:
+            return 'error'
 
 
 class EventPlanerSerializer(serializers.ModelSerializer):
     tags = basic_serializers.TagShortSerializer(many=True)
-    eventmodulemapper_set = EventModuleMapperShortSerializer(many=True, read_only=True)
+    # eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
 
     class Meta:
         model = event_models.Event
@@ -164,7 +180,7 @@ class EventPlanerModuleSerializer(serializers.ModelSerializer):
 class EventReadSerializer(serializers.ModelSerializer):
     tags = basic_serializers.TagShortSerializer(many=True)
     location = EventLocationShortSerializer(many=False, read_only=True)
-    eventmodulemapper_set = EventModuleMapperShortSerializer(many=True, read_only=True)
+    # eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
     event_planer_modules = EventPlanerModuleSerializer(many=True, read_only=True)
     keycloak_path = auth_serializers.GroupSerializer(many=False, read_only=True)
     limited_registration_hierarchy = UserScoutHierarchySerializer(many=False, read_only=True)
