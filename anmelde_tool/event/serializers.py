@@ -138,7 +138,7 @@ class EventCompleteSerializer(serializers.ModelSerializer):
         
         if registration:
             return 'already'
-        elif (obj.registration_deadline > timezone.now()):
+        elif obj.registration_deadline > timezone.now():
             return 'pending'
         elif obj.registration_deadline <= timezone.now():
             return 'expired'
