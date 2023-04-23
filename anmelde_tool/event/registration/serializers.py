@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
+from django.db.models import Sum, QuerySet
 from rest_framework import serializers
 
 from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
+from django.utils import timezone
 from basic.models import EatHabit
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializers
@@ -50,21 +51,37 @@ class RegistrationPutSerializer(serializers.ModelSerializer):
 
 class RegistrationGetSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
-    # tags = basic_serializers.TagShortSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
 
     class Meta:
         model = event_models.Registration
-        fields = ('id','scout_organisation','responsible_persons',)
+        fields = ('id', 'scout_organisation', 'responsible_persons',)
+
 
 class MyRegistrationGetSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
     event = event_serializers.EventRegistrationSerializer()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Registration
-        fields = ('id','scout_organisation','responsible_persons','event',)
+        fields = (
+            'id',
+            'scout_organisation',
+            'responsible_persons',
+            'event',
+            'is_confirmed',
+            'status'
+        )
+
+    def get_status(self, obj: event_models.Registration) -> str:
+        if obj.event.registration_deadline > timezone.now():
+            return 'pending'
+        elif obj.event.registration_deadline <= timezone.now():
+            return 'expired'
+        else:
+            return 'error'
 
 
 class RegistrationSummaryBookingOptionSerializer(serializers.ModelSerializer):
@@ -183,8 +200,9 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = event_models.Registration
-        fields = ('id','scout_organisation','responsible_persons','event','tags','price','participant_count','registrationparticipant_set',)
-        
+        fields = ('id', 'scout_organisation', 'responsible_persons', 'event', 'tags', 'price', 'participant_count',
+                  'registrationparticipant_set',)
+
     def get_participant_count(self, registration: event_models.Registration) -> int:
         return registration.registrationparticipant_set.count()
 

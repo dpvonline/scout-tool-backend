@@ -5,6 +5,7 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register(r'group', views.AllGroupsViewSet, basename='group')
+router.register(r'groups-short', views.ShortGroupsViewSet, basename='short-group')
 router.register(r'members', views.AllMembersViewSet, basename='members')
 router.register(r'create-group-choice', views.CreateGroupChoicesViewSet, basename='create-group-choice')
 

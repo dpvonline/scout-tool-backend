@@ -10,6 +10,7 @@ from basic import models as basic_models
 from basic import choices as basic_choices
 from anmelde_tool.email_services import models as email_services_model
 from anmelde_tool.event.choices import choices as event_choices
+from keycloak_auth import models as keycloak_models
 
 User: CustomUser = get_user_model()
 
@@ -29,15 +30,6 @@ class EventLocation(basic_models.TimeStampMixin):
 
     def __str__(self):
         return f'{self.name}: ({self.address}, {self.zip_code})'
-
-
-class EventPlanerModule(models.Model):
-    id = models.AutoField(auto_created=True, primary_key=True)
-    name = models.CharField(max_length=100, blank=True)
-    type = models.ForeignKey(basic_models.TagType, null=True, blank=False, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return f'{self.type}: {self.name}'
 
 
 class EventModule(models.Model):
@@ -90,58 +82,50 @@ class Event(basic_models.TimeStampMixin):
     registration_deadline = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     registration_start = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
     last_possible_update = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
-    invitation_code = models.CharField(max_length=20, blank=True)
-    invitation_code_single = models.CharField(max_length=20, blank=True)
-    invitation_code_group = models.CharField(max_length=20, blank=True)
     is_public = models.BooleanField(default=False)
     responsible_persons = models.ManyToManyField(User)
-    keycloak_path = models.ForeignKey(
-        Group,
-        blank=True,
+    view_group = models.ForeignKey(
+        keycloak_models.KeycloakGroup,
         on_delete=models.SET_NULL,
-        null=True,
-        related_name='keycloak_group'
-    )
-    keycloak_admin_path = models.ForeignKey(
-        Group,
+        related_name='view_group',
         blank=True,
+        null=True
+    )
+    admin_group = models.ForeignKey(
+        keycloak_models.KeycloakGroup,
         on_delete=models.SET_NULL,
+        related_name='admin_group',
+        blank=True,
+        null=True
+    )
+    inviting_group = models.ForeignKey(
+        keycloak_models.KeycloakGroup,
+        on_delete=models.SET_NULL,
+        related_name='inviting_group',
         null=True,
-        related_name='keycloak_admin_group'
+        blank=True
     )
-    tags = models.ManyToManyField(basic_models.Tag, blank=True)
-    event_planer_modules = models.ManyToManyField(EventPlanerModule, blank=True)
-    limited_registration_hierarchy = models.ForeignKey(
-        basic_models.ScoutHierarchy,
-        default=493,
-        on_delete=models.SET_DEFAULT
+    invited_groups = models.ManyToManyField(
+        keycloak_models.KeycloakGroup,
+        related_name='invited_groups',
+        blank=True
     )
-    single_registration = models.CharField(
-        max_length=1,
-        choices=event_choices.RegistrationTypeSingle.choices,
-        default=event_choices.RegistrationTypeSingle.No)
-    single_registration_level = models.ForeignKey(
+    registration_level = models.ForeignKey(
         basic_models.ScoutOrgaLevel,
         on_delete=models.SET_DEFAULT,
-        default=5,
-        related_name='single_registration_level'
+        default=5
     )
-    group_registration = models.CharField(
-        max_length=1,
-        choices=event_choices.RegistrationTypeGroup.choices,
-        default=event_choices.RegistrationTypeGroup.No)
-    group_registration_level = models.ForeignKey(
-        basic_models.ScoutOrgaLevel,
-        on_delete=models.SET_DEFAULT,
-        default=5,
-        related_name='group_registration_level'
-    )
-    personal_data_required = models.BooleanField(default=False)
-    theme = models.ForeignKey(basic_models.FrontendTheme, on_delete=models.SET_NULL, default=1, null=True, blank=True)
+    theme = models.ForeignKey(
+        basic_models.FrontendTheme,
+        on_delete=models.SET_NULL,
+        default=1,
+        null=True,
+        blank=True)
     email_set = models.ForeignKey(
         email_services_model.StandardEmailRegistrationSet,
         on_delete=models.PROTECT,
-        null=True, blank=True
+        null=True,
+        blank=True
     )
 
     def __str__(self):
@@ -188,17 +172,12 @@ class Registration(basic_models.TimeStampMixin):
     """
     is_confirmed = the registrator confirms that the current state of the registration is complete in the last step of
         the registration
-    is_accepted = the registration is accepted automatically as long as changes are made before the
-        registration deadline after that the registration has to be accepted manually
     """
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)
     scout_organisation = models.ForeignKey(basic_models.ScoutHierarchy, null=True, on_delete=models.PROTECT)
     responsible_persons = models.ManyToManyField(User)
     is_confirmed = models.BooleanField(default=False)
-    is_accepted = models.BooleanField(default=False)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
-    tags = models.ManyToManyField(AbstractAttribute, blank=True)
-    single = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.created_at:
@@ -321,7 +300,6 @@ class StandardEventTemplate(models.Model):
         on_delete=models.SET_NULL,
         related_name='letter'
     )
-    planer_modules = models.ManyToManyField(EventPlanerModule, blank=True)
     other_required_modules = models.ManyToManyField(
         EventModuleMapper,
         blank=True,

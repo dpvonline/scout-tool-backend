@@ -34,19 +34,19 @@ class EventLocationSerializer(serializers.ModelSerializer):
 class EventRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.Event
-        fields = ('id',
-                  'name',
-                  'short_description',
-                  'long_description',
-                  'location',
-                  'start_date',
-                  'end_date',
-                  'registration_deadline',
-                  'registration_start',
-                  'last_possible_update',
-                  'tags',
-                  'cloud_link',
-                  'personal_data_required')
+        fields = (
+            'id',
+            'name',
+            'short_description',
+            'long_description',
+            'location',
+            'start_date',
+            'end_date',
+            'registration_deadline',
+            'registration_start',
+            'last_possible_update',
+            'cloud_link',
+        )
 
 
 class BookingOptionSerializer(serializers.ModelSerializer):
@@ -77,6 +77,7 @@ class EventModuleMapperShortSerializer(serializers.ModelSerializer):
 
 class EventModuleMapperGetSerializer(serializers.ModelSerializer):
     module = EventModuleSerializer(read_only=True)
+
     # attributes = AbstractAttributeGetPolymorphicSerializer(read_only=True, many=True)
 
     class Meta:
@@ -112,6 +113,25 @@ class EventModuleMapperPutSerializer(serializers.ModelSerializer):
         )
 
 
+class EventPostSerializer(serializers.ModelSerializer):
+    responsible_persons = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field='email',
+        queryset=User.objects.all()
+    )
+
+    class Meta:
+        model = event_models.Event
+        fields = '__all__'
+        extra_kwargs = {
+            'start_date': {'required': True},
+            'end_date': {'required': True},
+            'registration_deadline': {'required': True},
+            'registration_start': {'required': True},
+        }
+
+
 class EventCompleteSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
     responsible_persons = serializers.SlugRelatedField(
@@ -121,21 +141,14 @@ class EventCompleteSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
 
-    event_planer_modules = serializers.SlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field='name',
-        queryset=event_models.EventPlanerModule.objects.all()
-    )
-
     class Meta:
         model = event_models.Event
         fields = '__all__'
-        
-    def get_status(self, obj: event_models.EventLocation) -> str:
-        registration = event_models.Registration.objects.filter(event=obj.id).filter(responsible_persons=self.context['request'].user).first()
-        print(registration)
-        
+
+    def get_status(self, obj: event_models.Event) -> str:
+        registration = event_models.Registration.objects.filter(event=obj.id).filter(
+            responsible_persons=self.context['request'].user).first()
+
         if registration:
             return 'already'
         elif obj.registration_deadline > timezone.now():
@@ -148,40 +161,41 @@ class EventCompleteSerializer(serializers.ModelSerializer):
 
 class EventPlanerSerializer(serializers.ModelSerializer):
     tags = basic_serializers.TagShortSerializer(many=True)
+
     # eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
 
     class Meta:
         model = event_models.Event
         fields = '__all__'
-        
+
+
 class EventLocationShortSerializer(serializers.ModelSerializer):
     distance = serializers.SerializerMethodField()
     zip_code = basic_serializers.ZipCodeShortSerializer(many=False, read_only=True)
 
     class Meta:
         model = event_models.EventLocation
-        fields = ('name', 'zip_code', 'address', 'distance')
-        
-    def get_distance(self, obj: event_models.EventLocation) -> float:
-        person = auth_models.Person.objects.filter(user=self.context['request'].user).first()
+        fields = (
+            'name',
+            'zip_code',
+            'address',
+            'distance'
+        )
 
+    def get_distance(self, obj: event_models.EventLocation) -> float:
+        person = self.context['request'].user.person
+        if not person.zip_code:
+            return None
         coords_1 = (obj.zip_code.lat, obj.zip_code.lon)
         coords_2 = (person.zip_code.lat, person.zip_code.lon)
 
         return geopy.distance.geodesic(coords_1, coords_2).km
 
 
-class EventPlanerModuleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = event_models.EventPlanerModule
-        fields = '__all__'
-
-
 class EventReadSerializer(serializers.ModelSerializer):
     tags = basic_serializers.TagShortSerializer(many=True)
     location = EventLocationShortSerializer(many=False, read_only=True)
     # eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
-    event_planer_modules = EventPlanerModuleSerializer(many=True, read_only=True)
     keycloak_path = auth_serializers.GroupSerializer(many=False, read_only=True)
     limited_registration_hierarchy = UserScoutHierarchySerializer(many=False, read_only=True)
 
@@ -203,121 +217,59 @@ class AttributeEventModuleMapperPostSerializer(serializers.ModelSerializer):
         model = event_models.AttributeEventModuleMapper
         fields = '__all__'
 
+
 class EventOverviewSerializer(serializers.ModelSerializer):
-    registration_options = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(read_only=True, many=False)
-    allow_statistic = serializers.SerializerMethodField()
-    is_confirmed = serializers.SerializerMethodField()
-    allow_statistic_admin = serializers.SerializerMethodField()
-    allow_statistic_leader = serializers.SerializerMethodField()
-    single_registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
-    group_registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
+    can_view = serializers.SerializerMethodField()
+    can_view_leader = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
+
+    class Meta:
+        model = event_models.Event
+        fields = '__all__'
+
+    def get_can_view(self, obj: event_models.Event) -> bool:
+        return event_permissions.check_event_permission(obj, self.context['request'])
+
+    def get_can_view_leader(self, obj: event_models.Event) -> bool:
+        return event_permissions.check_leader_permission(obj, self.context['request'])
+
+    def get_can_edit(self, obj: event_models.Event) -> bool:
+        return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
+
+
+class MyInvitationsSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+    location = EventLocationShortSerializer(many=False, read_only=True)
 
     class Meta:
         model = event_models.Event
         fields = (
             'id',
+            'created_at',
+            'updated_at',
+            'status',
             'name',
             'short_description',
             'long_description',
+            'icon',
             'location',
             'start_date',
             'end_date',
             'registration_deadline',
             'registration_start',
-            'last_possible_update',
-            'tags',
-            'registration_options',
-            'allow_statistic',
-            'allow_statistic_admin',
-            'allow_statistic_leader',
-            'is_confirmed',
-            'icon',
-            'theme',
-            'single_registration_level',
-            'group_registration_level'
+            'last_possible_update'
         )
 
-    def get_allow_statistic(self, obj: event_models.Event) -> bool:
-        return event_permissions.check_event_permission(obj, self.context['request'].user)
+    def get_status(self, obj: event_models.Event) -> str:
+        registration = event_models.Registration.objects.filter(event=obj.id).filter(
+            responsible_persons=self.context['request'].user).first()
 
-    def get_allow_statistic_leader(self, obj: event_models.Event) -> bool:
-        return event_permissions.check_leader_permission(obj, self.context['request'].user)
-
-    def get_allow_statistic_admin(self, obj: event_models.Event) -> bool:
-        return event_permissions.check_event_permission_admin(obj, self.context['request'].user)
-
-    def get_can_register(self, obj: event_models.Event) -> bool:
-        return obj.registration_deadline > timezone.now() >= obj.registration_start
-
-    def get_can_edit(self, obj: event_models.Event) -> bool:
-        return obj.last_possible_update >= timezone.now()
-
-    def get_is_confirmed(self, obj: event_models.Event) -> bool:
-        user: User = self.context['request'].user
-        reg: QuerySet[event_models.Registration] = obj.registration_set. \
-            filter(responsible_persons__in=[user.id])
-        if reg.first():
-            return reg.first().is_confirmed
-        return False
-
-    @staticmethod
-    def match_registration_allowed_level(user: User, registration_level: int) -> bool:
-        # ToDo: Hagi fix it
-        # if registration_level == 6:
-        #     return user.userextended.scout_organisation.level.id in {5, 6}
-        # elif registration_level in {2, 3, 4, 5}:
-        #     return user.userextended.scout_organisation.level.id >= registration_level
-        return False
-
-    def get_registration_options(self, obj: event_models.Event) -> dict:
-        user = self.context['request'].user
-
-        group_id = None
-        single_id = None
-        allow_edit_group_reg = False
-        allow_edit_single_reg = False
-
-        # ToDo: Hagi fix it
-        # user_orga = user.userextended.scout_organisation
-        # orga_filter = Q(scout_organisation=user_orga)
-
-        # if user_orga.parent:
-        #     orga_filter |= Q(scout_organisation=user_orga.parent)
-        #     if user_orga.parent.parent:
-        #         orga_filter |= Q(scout_organisation=user_orga.parent.parent)
-
-        # existing_group: QuerySet = obj.registration_set. \
-        #     filter(orga_filter, single=False)
-        # group: QuerySet[event_models.Registration] = existing_group. \
-        #     filter(responsible_persons__in=[user.id])
-        # single: QuerySet[event_models.Registration] = obj.registration_set. \
-        #     filter(responsible_persons__in=[user.id], single=True)
-
-        # if existing_group.exists():
-        #     group_id = existing_group.first().id
-        #     allow_edit_group_reg = group.exists() and existing_group.exists() and self.get_can_edit(obj)
-
-        # if single.exists():
-        #     single_id = single.first().id
-        #     allow_edit_single_reg = self.get_can_edit(obj) and not allow_edit_group_reg
-
-        allow_new_group_reg = not group_id \
-                              and not single_id \
-                              and self.match_registration_allowed_level(user, obj.group_registration_level.id) \
-                              and self.get_can_register(obj) \
-                              and obj.group_registration != event_choices.RegistrationTypeGroup.No
-        allow_new_single_reg = not single_id \
-                               and not allow_edit_group_reg \
-                               and self.match_registration_allowed_level(user, obj.single_registration_level.id) \
-                               and self.get_can_register(obj) \
-                               and obj.single_registration != event_choices.RegistrationTypeGroup.No
-
-        return {
-            'group_id': group_id,
-            'allow_new_group_reg': allow_new_group_reg,
-            'allow_edit_group_reg': allow_edit_group_reg,
-            'single_id': single_id,
-            'allow_new_single_reg': allow_new_single_reg,
-            'allow_edit_single_reg': allow_edit_single_reg
-        }
+        if registration:
+            return 'already'
+        elif obj.registration_deadline > timezone.now():
+            return 'pending'
+        elif obj.registration_deadline <= timezone.now():
+            return 'expired'
+        else:
+            return 'error'

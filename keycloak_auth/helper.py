@@ -1,7 +1,10 @@
 import re
 
 from django.db.models import QuerySet
+from keycloak import KeycloakGetError, KeycloakAuthenticationError
 
+from backend.settings import keycloak_user
+from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.models import KeycloakGroup
 
 REGEX_GROUP = re.compile('[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}')
@@ -44,3 +47,19 @@ def check_group_admin_permission(group_id: str) -> bool:
     if REGEX_GROUP_ADMIN_PERMISSION.match(group_id):
         return True
     return False
+
+
+def get_groups_of_user(token,keycloak_id):
+    try:
+        keycloak_groups = keycloak_user.get_user_groups(
+            token,
+            keycloak_id,
+            brief_representation=True
+        )
+    except KeycloakGetError:
+        raise NotAuthorized()
+    except KeycloakAuthenticationError:
+        raise NotAuthorized()
+
+    ids = [val['id'] for val in keycloak_groups]
+    return ids

@@ -14,12 +14,13 @@ class UserAdmin(admin.ModelAdmin):
     """
     list_display = ('username', 'email')
     search_fields = ('username', 'email', 'keycloak_id')
+    ordering = ('username',)
 
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('user', 'first_name', 'last_name', 'scout_group')
-    autocomplete_fields = ('created_by', 'scout_group')
+    autocomplete_fields = ('created_by', 'scout_group', 'zip_code')
 
 
 @admin.register(RequestGroupAccess)

@@ -6,6 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework import filters
 from notifications.signals import notify
 from basic.helper import choice_to_json
 
@@ -23,7 +24,7 @@ from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.permissions import request_group_access
 from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer, UpdateGroupSerializer, \
     FullGroupSerializer, GroupParentSerializer, PartialUserSerializer, MemberUserIdSerializer, \
-    SearchResultUserSerializer
+    SearchResultUserSerializer, GroupShortSerializer
 
 User: CustomUser = get_user_model()
 
@@ -169,6 +170,14 @@ class AllGroupsViewSet(viewsets.ViewSet):
         group = get_object_or_404(KeycloakGroup, keycloak_id=group_id)
         serializer = FullGroupSerializer(group, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ShortGroupsViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    search_fields = ['name']
+    filter_backends = (filters.SearchFilter,)
+    queryset = KeycloakGroup.objects.all()
+    serializer_class = GroupShortSerializer
 
 
 class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
