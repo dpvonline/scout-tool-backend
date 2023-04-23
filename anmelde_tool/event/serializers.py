@@ -113,7 +113,7 @@ class EventModuleMapperPutSerializer(serializers.ModelSerializer):
 
 
 class EventCompleteSerializer(serializers.ModelSerializer):
-    status = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField() 
     responsible_persons = serializers.SlugRelatedField(
         many=True,
         read_only=False,
@@ -206,6 +206,7 @@ class AttributeEventModuleMapperPostSerializer(serializers.ModelSerializer):
 class EventOverviewSerializer(serializers.ModelSerializer):
     registration_options = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(read_only=True, many=False)
+    status = serializers.SerializerMethodField()
     allow_statistic = serializers.SerializerMethodField()
     is_confirmed = serializers.SerializerMethodField()
     allow_statistic_admin = serializers.SerializerMethodField()
@@ -235,7 +236,8 @@ class EventOverviewSerializer(serializers.ModelSerializer):
             'icon',
             'theme',
             'single_registration_level',
-            'group_registration_level'
+            'group_registration_level',
+            'status',
         )
 
     def get_allow_statistic(self, obj: event_models.Event) -> bool:
@@ -260,6 +262,15 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         if reg.first():
             return reg.first().is_confirmed
         return False
+    
+    def get_status(self, obj: event_models.EventLocation) -> str:
+        
+        if obj.registration_deadline > timezone.now():
+            return 'pending'
+        elif obj.registration_deadline <= timezone.now():
+            return 'expired'
+        else:
+            return 'error'
 
     @staticmethod
     def match_registration_allowed_level(user: User, registration_level: int) -> bool:

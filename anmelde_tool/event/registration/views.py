@@ -21,6 +21,7 @@ from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.event.registration import serializers as registration_serializers
 from anmelde_tool.attributes import models as attributes_model
 from anmelde_tool.attributes import serializers as attributes_serializer
+from basic.models import ZipCode
 
 User = get_user_model()
 
@@ -64,25 +65,29 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
+            
+        if request.data.get('zip_code'):
+            zip_code = get_object_or_404(ZipCode, zip_code=request.data.get('zip_code'))
+            request.data['zip_code'] = zip_code.id
 
         registration: event_models.Registration = self.participant_initialization(request)
 
         if request.data.get('age'):
             request.data['birthday'] = timezone.now() - relativedelta(years=int(request.data.get('age')))
-
         request.data['registration'] = registration.id
+
         if request.data.get('first_name') is None and request.data.get('last_name') is None:
             max_num = self.get_queryset().count()
             request.data['first_name'] = 'Teilnehmer'
             request.data['last_name'] = max_num + 1
+
         if request.data.get('booking_option') is None:
             request.data['booking_option'] = registration.event.bookingoption_set.first().id
+
         if registration.event.registration_deadline < timezone.now():
             request.data['needs_confirmation'] = event_choices.ParticipantActionConfirmation.AddCompletyNew
 
         if request.data.get('allow_permanently'):
-            print('allow_permanently')
-
             person = auth_models.Person(
                 first_name=request.data.get('first_name'),
                 scout_name=request.data.get('scout_name'),
@@ -92,8 +97,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 scout_group=request.data.get('scout_group'),
                 phone_number=request.data.get('phone_number'),
                 email=request.data.get('email'),
+                zip_code=zip_code,
                 gender=request.data.get('gender'),
-                leader=request.data.get('leader'),
                 scout_level='N'
             )
             person.save()
@@ -577,7 +582,7 @@ class SimpleRegistrationViewSet(viewsets.ModelViewSet):
     
 
 class MyRegistrationViewSet(viewsets.ModelViewSet):
-    serializer_class = registration_serializers.MyRegistrationGetSerializer
+    serializer_class = registration_serializers.RegistrationSummarySerializer
     
     def get_queryset(self) -> QuerySet:
         return event_models.Registration.objects.filter(responsible_persons=self.request.user.id)

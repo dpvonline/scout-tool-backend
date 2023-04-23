@@ -130,6 +130,12 @@ class EventViewSet(viewsets.ModelViewSet):
 
         event: event_models.Event = serializer.save()
         event.responsible_persons.add(request.user)
+        
+        event_models.BookingOption.objects.create(
+            name='Standard',
+            price=request.data['price'],
+            event=event,
+        )
         # standard_event = event_helper.custom_get_or_404(event_api_exceptions.SomethingNotFound('Standard Event 1'),
         #                                                 event_models.StandardEventTemplate,
         #                                                 pk=4)
