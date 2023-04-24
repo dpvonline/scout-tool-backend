@@ -1,9 +1,7 @@
 from copy import deepcopy
-from datetime import datetime
-from datetime import date
+from queue import Queue
 from django.db.models import Q, QuerySet
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status, mixins
 from rest_framework.exceptions import NotFound, MethodNotAllowed
@@ -17,6 +15,8 @@ from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
 from basic import models as basic_models
 from basic import serializers as basic_serializers
+from keycloak_auth.helper import get_groups_of_user
+from keycloak_auth.models import KeycloakGroup
 
 
 def add_event_module(module: event_models.EventModuleMapper,
@@ -43,66 +43,76 @@ class EventRegistrationViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSe
     queryset = event_models.Event.objects.all()
     serializer_class = event_serializers.EventRegistrationSerializer
 
+
 class EventReadViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = event_models.Event.objects.all()
     serializer_class = event_serializers.EventReadSerializer
 
 
-class MyInvitationsViewSet(viewsets.ModelViewSet):
-    def get_queryset(self) -> QuerySet:
-        return event_models.Event.objects.filter(is_public=True)
-    serializer_class = event_serializers.EventCompleteSerializer
+class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = event_serializers.MyInvitationsSerializer
+
+    def get_queryset(self):
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        child_ids = get_groups_of_user(token, self.request.user.keycloak_id)
+        child_groups = KeycloakGroup.objects.filter(keycloak_id__in=child_ids).prefetch_related('parent')
+
+        q = Queue()
+        for group in child_groups:
+            q.put(group)
+
+        parent_ids = set()
+        while not q.empty():
+            group = q.get()
+            parent_ids.add(group.id)
+            if group.parent:
+                q.put(group.parent)
+        return event_models.Event.objects.filter(is_public=True, invited_groups__in=parent_ids)
+
 
 class MyEventViewSet(viewsets.ModelViewSet):
     def get_queryset(self) -> QuerySet:
         return event_models.Event.objects.filter(
             registration_deadline__lte=timezone.now()
         )
+
     serializer_class = event_serializers.EventCompleteSerializer
+
 
 class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsEventSuperResponsiblePerson]
     queryset = event_models.Event.objects.all()
     serializer_class = event_serializers.EventCompleteSerializer
 
-    def get_formatted_date(self, date: str, request) -> datetime:
-        if request.data.get(date):
-            for fmt in ('%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S%Z'):
-                try:
-                    return datetime.strptime(request.data.get(date), fmt)
-                except ValueError:
-                    pass
-
-        return None
-
     def check_event_dates(self, request, event: event_models.Event) -> bool:
         edited = False
-        start_date = self.get_formatted_date('start_date', request)
+        start_date = request.data.get('start_date')
         if start_date is None:
             start_date = event.start_date
         else:
             edited = True
 
-        end_date = self.get_formatted_date('end_date', request)
+        end_date = request.data.get('end_date')
         if end_date is None:
             end_date = event.end_date
         else:
             edited = True
 
-        registration_deadline = self.get_formatted_date('registration_deadline', request)
+        registration_deadline = request.data.get('registration_deadline')
         if registration_deadline is None:
             registration_deadline = event.registration_deadline
         else:
             edited = True
 
-        registration_start = self.get_formatted_date('registration_start', request)
+        registration_start = request.data.get('registration_start')
         if registration_start is None:
             registration_start = event.registration_start
         else:
             edited = True
 
-        last_possible_update = self.get_formatted_date('last_possible_update', request)
+        last_possible_update = request.data.get('last_possible_update')
         if last_possible_update is None:
             last_possible_update = event.last_possible_update
         else:
@@ -124,9 +134,10 @@ class EventViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs) -> Response:
         if (request.data.get('responsible_persons') is None) | (request.data.get('responsible_persons', []) is []):
             request.data['responsible_persons'] = [request.user.email, ]
-        serializer: event_serializers.EventCompleteSerializer = self.get_serializer(data=request.data)
+        serializer: event_serializers.EventPostSerializer = event_serializers.EventPostSerializer(data=request.data)
         if not serializer.is_valid(raise_exception=True):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.check_event_dates(request, serializer.validated_data)
 
         event: event_models.Event = serializer.save()
         event.responsible_persons.add(request.user)
@@ -158,12 +169,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs) -> Response:
         event: event_models.Event = self.get_object()
-        # standard_event = get_object_or_404(event_models.StandardEventTemplate, pk=1)
-
         self.check_event_dates(request, event)
-
-        # TODO: Check personal data required changed and if so exchange data
-
         return super().update(request, *args, **kwargs)
 
 
@@ -353,22 +359,16 @@ class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = event_serializers.EventOverviewSerializer
 
     def get_queryset(self) -> QuerySet:
-        event_id = self.kwargs.get("pk", None)
-        if (event_id):
-            return event_models.Event.objects.filter(id=event_id).all()
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+        child_ids = get_groups_of_user(token, self.request.user.keycloak_id)
 
-        return event_models.Event.objects.filter(is_public=True)
-        # ToDo: Hagi fix it
-        # if self.request.user.is_superuser:
-        #     return event_models.Event.objects.filter(is_public=True, end_date__gte=timezone.now())
-        # else:
-        #     list_parent_organistations = []
-        #     iterator: basic_models.ScoutHierarchy = self.request.user.scout_organisation
-        #     while iterator is not None:
-        #         list_parent_organistations.append(iterator)
-        #         iterator = iterator.parent
-        #     return event_models.Event.objects.filter(is_public=True, end_date__gte=timezone.now(),
-        #                                              limited_registration_hierarchy__in=list_parent_organistations)
+        queryset = event_models.Event.objects.filter(
+            Q(admin_group__keycloak_id__in=child_ids)
+            | Q(view_group__keycloak_id__in=child_ids)
+            | Q(responsible_persons=self.request.user)
+        )
+
+        return queryset
 
 
 class ScoutHierarchyViewSet(mixins.CreateModelMixin,

@@ -19,7 +19,7 @@ from basic.helper import choice_to_json
 from basic.models import ScoutHierarchy, ZipCode, EatHabit
 from basic.permissions import IsStaffOrReadOnly
 from keycloak_auth.api_exceptions import NotAuthorized
-from keycloak_auth.helper import REGEX_GROUP, check_group_admin_permission
+from keycloak_auth.helper import REGEX_GROUP, check_group_admin_permission, get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import FullGroupSerializer
 from .choices import BundesPostTextChoice
@@ -380,16 +380,7 @@ class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
-        try:
-            keycloak_groups = keycloak_user.get_user_groups(
-                token,
-                self.request.user.keycloak_id,
-                brief_representation=True
-            )
-        except KeycloakGetError:
-            raise NotAuthorized()
-
-        ids = [val['id'] for val in keycloak_groups]
+        ids = get_groups_of_user(token, self.request.user.keycloak_id)
         return KeycloakGroup.objects.filter(keycloak_id__in=ids)
 
     def list(self, request, *args, **kwargs) -> Response:

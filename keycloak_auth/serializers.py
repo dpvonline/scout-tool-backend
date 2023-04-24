@@ -9,6 +9,7 @@ from basic.serializers import ScoutHierarchySerializer
 from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.choices import CreateGroupChoices
 from keycloak_auth.enums import PermissionType
+from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup, ExternalLinks
 from keycloak_auth.permissions import request_group_access
 
@@ -182,16 +183,9 @@ class FullGroupSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.META:
             token = request.META.get('HTTP_AUTHORIZATION')
-            try:
-                keycloak_groups = keycloak_user.get_user_groups(
-                    token,
-                    request.user.keycloak_id,
-                    brief_representation=True
-                )
-            except KeycloakGetError:
-                raise NotAuthorized()
+            ids = get_groups_of_user(token, request.user.keycloak_id)
 
-            if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
+            if any(obj.keycloak_id == group_id for group_id in ids):
                 return True
 
         return False
@@ -245,14 +239,19 @@ class PartialUserSerializer(serializers.ModelSerializer):
 
 class SearchResultUserSerializer(serializers.ModelSerializer):
     display_name = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'id',
-            'keycloak_id',
             'display_name'
         )
+
+    def get_id(self, obj: User):
+        if obj.keycloak_id:
+            return obj.keycloak_id
+        return ''
 
     def get_display_name(self, obj: User):
         return get_display_name(obj)
@@ -260,3 +259,13 @@ class SearchResultUserSerializer(serializers.ModelSerializer):
 
 class MemberUserIdSerializer(serializers.Serializer):
     user_id = serializers.CharField(required=True)
+
+
+class GroupShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KeycloakGroup
+        fields = (
+            'name',
+            'id',
+            'keycloak_id'
+        )

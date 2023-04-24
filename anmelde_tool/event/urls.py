@@ -5,15 +5,18 @@ from anmelde_tool.email_services import views as email_services_views
 from . import views
 
 router = routers.SimpleRouter()
+# Used
 router.register(r'event-location', views.EventLocationViewSet)
 router.register(r'event', views.EventViewSet, basename='event')
-router.register(r'my-events', views.MyEventViewSet, basename='my-events')
 router.register(r'my-invitations', views.MyInvitationsViewSet, basename='my-invitations')
-router.register(r'event-read', views.EventReadViewSet)
+router.register(r'event-overview', views.EventOverviewViewSet, basename='event-overview')
+
+# Unused, to be deleted?
 router.register(r'event-planer-overview', views.EventPlanerViewSet, basename='event-planer-overview')
+router.register(r'my-events', views.MyEventViewSet, basename='my-events')
+router.register(r'event-read', views.EventReadViewSet)
 router.register(r'event-statistics-overview', views.EventStatisticsViewSet, basename='event-statistics-overview')
 router.register(r'event-module', views.EventModulesViewSet, basename='event-module')
-router.register(r'event-overview', views.EventOverviewViewSet, basename='event-overview')
 router.register(r'event-registration', views.EventRegistrationViewSet, basename='event-registration')
 router.register(r'registration-scouthierarchy', views.ScoutHierarchyViewSet, basename='registration-scouthierarchy')
 router.register(r'email-sets', email_services_views.StandardEmailViewSet)
