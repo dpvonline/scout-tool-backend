@@ -13,6 +13,9 @@ from authentication import serializers as auth_serializers
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.choices import choices as event_choices
+from keycloak_auth import serializers as keycloak_serializers
+
+from anmelde_tool.email_services import serializers as email_services_serializers
 
 User = get_user_model()
 
@@ -78,7 +81,7 @@ class EventModuleMapperShortSerializer(serializers.ModelSerializer):
 class EventModuleMapperGetSerializer(serializers.ModelSerializer):
     module = EventModuleSerializer(read_only=True)
 
-    # attributes = AbstractAttributeGetPolymorphicSerializer(read_only=True, many=True)
+    attributes = AbstractAttributeGetPolymorphicSerializer(read_only=True, many=True)
 
     class Meta:
         model = event_models.EventModuleMapper
@@ -162,7 +165,7 @@ class EventCompleteSerializer(serializers.ModelSerializer):
 class EventPlanerSerializer(serializers.ModelSerializer):
     tags = basic_serializers.TagShortSerializer(many=True)
 
-    # eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
+    eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
 
     class Meta:
         model = event_models.Event
@@ -193,11 +196,15 @@ class EventLocationShortSerializer(serializers.ModelSerializer):
 
 
 class EventReadSerializer(serializers.ModelSerializer):
-    tags = basic_serializers.TagShortSerializer(many=True)
+    # tags = basic_serializers.TagShortSerializer(many=True)
     location = EventLocationShortSerializer(many=False, read_only=True)
-    # eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
-    keycloak_path = auth_serializers.GroupSerializer(many=False, read_only=True)
-    keycloak_admin_path = auth_serializers.GroupSerializer(many=False, read_only=True)
+    eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
+    status = serializers.SerializerMethodField()
+    admin_group = keycloak_serializers.GroupShortSerializer(many=False, read_only=True)
+    view_group = keycloak_serializers.GroupShortSerializer(many=False, read_only=True)
+    invited_groups = keycloak_serializers.GroupShortSerializer(many=True, read_only=True)
+    email_set = email_services_serializers.StandardEmailRegistrationSetSerializer(many=False, read_only=True)
+    inviting_group = keycloak_serializers.GroupShortSerializer(many=False, read_only=True)
     limited_registration_hierarchy = UserScoutHierarchySerializer(many=False, read_only=True)
     responsible_persons = serializers.SlugRelatedField(
         many=True,
@@ -205,12 +212,21 @@ class EventReadSerializer(serializers.ModelSerializer):
         slug_field='email',
         queryset=User.objects.all()
     )
-    single_registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
+    registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
     theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
 
     class Meta:
         model = event_models.Event
         fields = '__all__'
+        
+    def get_status(self, obj: event_models.EventLocation) -> str:
+        
+        if obj.registration_deadline > timezone.now():
+            return 'pending'
+        elif obj.registration_deadline <= timezone.now():
+            return 'expired'
+        else:
+            return 'error'
 
 
 class AttributeEventModuleMapperSerializer(serializers.ModelSerializer):
@@ -228,6 +244,7 @@ class AttributeEventModuleMapperPostSerializer(serializers.ModelSerializer):
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(read_only=True, many=False)
     can_view = serializers.SerializerMethodField()
     can_view_leader = serializers.SerializerMethodField()
@@ -245,6 +262,17 @@ class EventOverviewSerializer(serializers.ModelSerializer):
 
     def get_can_edit(self, obj: event_models.Event) -> bool:
         return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
+    
+    def get_status(self, obj: event_models.Event) -> str:
+
+        if obj.registration_deadline > timezone.now() and obj.is_public:
+            return 'open'
+        elif obj.registration_deadline > timezone.now() and not obj.is_public:
+            return 'wip'
+        elif obj.registration_deadline <= timezone.now():
+            return 'closed'
+        else:
+            return 'error'
 
 
 class MyInvitationsSerializer(serializers.ModelSerializer):

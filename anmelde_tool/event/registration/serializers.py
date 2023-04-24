@@ -30,14 +30,11 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
 
 class RegistrationPostSerializer(serializers.ModelSerializer):
-    event_code = serializers.CharField()
 
     class Meta:
         model = event_models.Registration
-        fields = ('single', 'event', 'event_code', 'scout_organisation')
+        fields = ('event', 'scout_organisation')
         extra_kwargs = {
-            "event_code": {"required": True},
-            "single": {"required": True},
             "event": {"required": True},
             "scout_organisation": {"required": True}
         }
@@ -66,8 +63,22 @@ class RegistrationGetSerializer(serializers.ModelSerializer):
         fields = ('id', 'scout_organisation', 'responsible_persons',)
 
 
+class RegistrationParticipantSerializer(serializers.ModelSerializer):
+    eat_habit = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field='name',
+        queryset=EatHabit.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = event_models.RegistrationParticipant
+        fields = '__all__'
+
+
 class MyRegistrationGetSerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationSummaryParticipantSerializer(
+    registrationparticipant_set = RegistrationParticipantSerializer(
         many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
@@ -104,8 +115,6 @@ class MyRegistrationGetSerializer(serializers.ModelSerializer):
             sum=Sum('booking_option__price'))['sum']
 
     def get_status(self, obj: event_models.Registration) -> str:
-        print(obj.event)
-
         if obj.event.registration_deadline > timezone.now():
             return 'pending'
         elif obj.event.registration_deadline <= timezone.now():
@@ -130,20 +139,6 @@ class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
         model = event_models.RegistrationParticipant
         fields = ('id', 'scout_name', 'first_name', 'last_name',
                   'scout_level', 'eat_habit', 'age', 'booking_option')
-
-
-class RegistrationParticipantSerializer(serializers.ModelSerializer):
-    eat_habit = serializers.SlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field='name',
-        queryset=EatHabit.objects.all(),
-        required=False
-    )
-
-    class Meta:
-        model = event_models.RegistrationParticipant
-        fields = '__all__'
 
 
 class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
@@ -176,7 +171,7 @@ class RegistrationParticipantGroupSerializer(serializers.Serializer):
 
 
 class RegistrationSummarySerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationSummaryParticipantSerializer(
+    registrationparticipant_set = RegistrationParticipantSerializer(
         many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
@@ -193,7 +188,6 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             'is_confirmed',
             'event',
             'scout_organisation',
-            'is_accepted',
             'responsible_persons',
             'participant_count',
             'price',
@@ -229,14 +223,14 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
     event = event_serializers.EventRegistrationSerializer()
-    registrationparticipant_set = RegistrationSummaryParticipantSerializer(
+    registrationparticipant_set = RegistrationParticipantSerializer(
         many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Registration
-        fields = ('id', 'scout_organisation', 'responsible_persons', 'event', 'tags', 'price', 'participant_count',
+        fields = ('id', 'scout_organisation', 'responsible_persons', 'event', 'price', 'participant_count',
                   'registrationparticipant_set',)
 
     def get_participant_count(self, registration: event_models.Registration) -> int:

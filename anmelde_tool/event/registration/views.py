@@ -479,10 +479,10 @@ class RegistrationViewSet(
         #  Check registration type permissions
         # if event.group_registration == event_choices.RegistrationTypeGroup.No and not serializer.data['single']:
         #     raise event_api_exceptions.WrongRegistrationFormatGroup
-        if event.single_registration == event_choices.RegistrationTypeSingle.No and serializer.data['single']:
-            raise event_api_exceptions.WrongRegistrationFormatSingle
-        if event.single_registration == event_choices.RegistrationTypeSingle.Attached:
-            raise event_api_exceptions.RegistrationNotSupported
+        # if event.single_registration == event_choices.RegistrationTypeSingle.No and serializer.data['single']:
+        #     raise event_api_exceptions.WrongRegistrationFormatSingle
+        # if event.single_registration == event_choices.RegistrationTypeSingle.Attached:
+        #     raise event_api_exceptions.RegistrationNotSupported
 
         # # Check registration type permissions based on existing registrations
         # existing_registration = event_models.Registration.objects.filter(event=event.id)

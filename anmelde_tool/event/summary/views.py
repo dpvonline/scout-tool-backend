@@ -48,7 +48,7 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
     serializer_class = summary_serializers.RegistrationEventSummarySerializer
     ordering_fields = ('scout_organisation__name',
-                       'is_confirmed', 'single', 'created_at', 'updated_at')
+                       'is_confirmed', 'created_at', 'updated_at')
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self) -> QuerySet:

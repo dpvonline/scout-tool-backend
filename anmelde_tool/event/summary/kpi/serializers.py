@@ -13,7 +13,6 @@ class RegistrationEventKPISerializer(serializers.ModelSerializer):
         fields = (
             'is_confirmed',
             'is_accepted',
-            'single',
             'scout_organisation',
             'created_at',
             'updated_at',
