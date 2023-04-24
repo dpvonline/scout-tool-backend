@@ -3,7 +3,7 @@ from rest_framework.request import Request
 from rest_framework.generics import get_object_or_404
 from anmelde_tool.event.models import Registration
 from anmelde_tool.event.cash.models import CashIncome
-from anmelde_tool.event.permissions import check_event_super_permission
+from anmelde_tool.event.permissions import check_event_permission
 
 
 class IsCashResponsiblePerson(permissions.BasePermission):
@@ -24,4 +24,4 @@ class IsCashResponsiblePerson(permissions.BasePermission):
             cash_income: CashIncome = get_object_or_404(CashIncome, id=pk)
             event = cash_income.registration.event
 
-        return check_event_super_permission(event, request.user)
+        return check_event_permission(event, request.user, admin_only=True)

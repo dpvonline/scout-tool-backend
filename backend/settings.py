@@ -4,6 +4,7 @@ from pathlib import Path
 import environ
 from celery.schedules import crontab
 from keycloak import KeycloakAdmin
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 
 from authentication.KeycloakOpenIDExtended import KeycloakOpenIDExtended
 from authentication.choices import EmailNotificationType
@@ -196,6 +197,10 @@ SECURE_HSTS_PRELOAD = True
 
 SITE_ID = 1
 
+DATETIME_INPUT_FORMATS += [
+    '%Y-%m-%dT%H:%M:%S%z',
+    '%Y-%m-%dT%H:%M:%S%Z'
+]
 SEND_MAIL = env.bool('USE_SES', False)
 
 if SEND_MAIL:

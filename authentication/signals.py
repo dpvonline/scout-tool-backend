@@ -162,7 +162,7 @@ def move_user_into_group(instance_pk):
     notify.send(
         sender=instance.checked_by,
         recipient=instance.user,
-        verb=f'Deine Gruppenanfrage wurde {decision}',
+        verb=f'Deine Gruppenanfrage wurde {decision}.',
         target=instance,
     )
 

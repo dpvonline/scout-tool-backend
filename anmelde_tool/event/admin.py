@@ -3,7 +3,7 @@ from django.contrib.admin import display
 
 from anmelde_tool.attributes.models import AbstractAttribute
 from anmelde_tool.event.models import EventLocation, Event, BookingOption, EventModule, EventModuleMapper, \
-    AttributeEventModuleMapper, StandardEventTemplate, Registration, RegistrationParticipant, EventPlanerModule, \
+    AttributeEventModuleMapper, StandardEventTemplate, Registration, RegistrationParticipant, \
     Workshop, WorkshopParticipant
 
 admin.site.register(Workshop)
@@ -17,19 +17,11 @@ class EventLocationAdmin(admin.ModelAdmin):
     autocomplete_fields = ('zip_code',)
 
 
-@admin.register(EventPlanerModule)
-class EventPlanerModuleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type')
-    search_fields = ('name',)
-    autocomplete_fields = ('type',)
-    list_filter = ('type',)
-
-
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'location', 'is_public')
-    search_fields = ('name',)
-    autocomplete_fields = ('responsible_persons', 'tags', 'event_planer_modules')
+    search_fields = ('name', 'location__name', 'id')
+    autocomplete_fields = ('responsible_persons', 'invited_groups')
 
 
 @admin.register(BookingOption)
@@ -80,7 +72,7 @@ class StandardEventTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('scout_organisation', 'get_event_name', 'single', 'is_confirmed')
+    list_display = ('scout_organisation', 'get_event_name', 'is_confirmed')
     search_fields = ('scout_organisation__name',)
     autocomplete_fields = ('event', 'scout_organisation')
     list_filter = ('event__name',)
