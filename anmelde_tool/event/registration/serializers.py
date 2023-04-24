@@ -87,7 +87,7 @@ class MyRegistrationGetSerializer(serializers.ModelSerializer):
     event = event_serializers.EventRegistrationSerializer()
     # tags = serializers.SerializerMethodField()
 
-    class Meta:  # here age
+    class Meta:
         model = event_models.Registration
         fields = (
             'id',
@@ -192,7 +192,7 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
     event = event_serializers.EventRegistrationSerializer()
     # tags = serializers.SerializerMethodField()
 
-    class Meta:  # here age
+    class Meta:
         model = event_models.Registration
         fields = (
             'id',

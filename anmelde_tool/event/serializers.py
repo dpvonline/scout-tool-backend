@@ -183,7 +183,16 @@ class EventReadSerializer(serializers.ModelSerializer):
     # eventmodulemapper_set = EventModuleMapperGetSerializer(many=True, read_only=True)
     event_planer_modules = EventPlanerModuleSerializer(many=True, read_only=True)
     keycloak_path = auth_serializers.GroupSerializer(many=False, read_only=True)
+    keycloak_admin_path = auth_serializers.GroupSerializer(many=False, read_only=True)
     limited_registration_hierarchy = UserScoutHierarchySerializer(many=False, read_only=True)
+    responsible_persons = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field='email',
+        queryset=User.objects.all()
+    )
+    single_registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
+    theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
 
     class Meta:
         model = event_models.Event
