@@ -81,7 +81,8 @@ class EventModuleMapperShortSerializer(serializers.ModelSerializer):
 class EventModuleMapperGetSerializer(serializers.ModelSerializer):
     module = EventModuleSerializer(read_only=True)
 
-    attributes = AbstractAttributeGetPolymorphicSerializer(read_only=True, many=True)
+    # Todo: Hagi can you please fixt it
+    # attributes = AbstractAttributeGetPolymorphicSerializer(read_only=True, many=True)
 
     class Meta:
         model = event_models.EventModuleMapper
