@@ -118,6 +118,7 @@ class EventModuleMapperPutSerializer(serializers.ModelSerializer):
 
 
 class EventPostSerializer(serializers.ModelSerializer):
+    price = serializers.FloatField(required=True)
     responsible_persons = serializers.SlugRelatedField(
         many=True,
         read_only=False,
@@ -219,9 +220,9 @@ class EventReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.Event
         fields = '__all__'
-        
+
     def get_status(self, obj: event_models.EventLocation) -> str:
-        
+
         if obj.registration_deadline > timezone.now():
             return 'pending'
         elif obj.registration_deadline <= timezone.now():
@@ -263,7 +264,7 @@ class EventOverviewSerializer(serializers.ModelSerializer):
 
     def get_can_edit(self, obj: event_models.Event) -> bool:
         return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
-    
+
     def get_status(self, obj: event_models.Event) -> str:
 
         if obj.registration_deadline > timezone.now() and obj.is_public:

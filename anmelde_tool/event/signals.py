@@ -1,10 +1,10 @@
 from anmelde_tool.event import models as event_models
 from anmelde_tool.email_services import services
 
-
-def pre_delete_registration(sender, instance: event_models.Registration, **kwargs):
-    for tag in instance.tags.all():
-        tag.delete()
+#
+# def pre_delete_registration(sender, instance: event_models.Registration, **kwargs):
+#     for tag in instance.tags.all():
+#         tag.delete()
 
 
 def post_save_registation(sender: event_models.Registration,

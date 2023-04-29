@@ -40,12 +40,12 @@ class EventModuleAdmin(admin.ModelAdmin):
 
 @admin.register(EventModuleMapper)
 class EventModuleMapperAdmin(admin.ModelAdmin):
-    list_display = ('id', 'standard', 'module', 'get_event_name', 'ordering')
+    list_display = ('id', 'standard', 'module', 'ordering')
     search_fields = ('module',)
 
-    @display(ordering='event__name', description='Event name')
-    def get_event_name(self, obj):
-        return obj.event.name
+    # @display(ordering='event__name', description='Event name')
+    # def get_event_name(self, obj):
+    #     return obj.event.name
 
 
 @admin.register(AttributeEventModuleMapper)
@@ -62,8 +62,7 @@ class StandardEventTemplateAdmin(admin.ModelAdmin):
         form = super(StandardEventTemplateAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields['introduction'].queryset = EventModuleMapper.objects.exclude(standard=False)
         form.base_fields['summary'].queryset = EventModuleMapper.objects.exclude(standard=False)
-        form.base_fields['registration'].queryset = EventModuleMapper.objects.exclude(standard=False)
-        form.base_fields['personal_registration'].queryset = EventModuleMapper.objects.exclude(standard=False)
+        form.base_fields['participants'].queryset = EventModuleMapper.objects.exclude(standard=False)
         form.base_fields['letter'].queryset = EventModuleMapper.objects.exclude(standard=False)
         form.base_fields['other_required_modules'].queryset = EventModuleMapper.objects.exclude(standard=False)
         form.base_fields['other_optional_modules'].queryset = EventModuleMapper.objects.exclude(standard=False)
@@ -95,8 +94,6 @@ class RegistrationParticipantAdmin(admin.ModelAdmin):
         'last_name',
         'scout_name',
         'generated',
-        'deactivated',
-        'needs_confirmation',
         'allow_permanently'
     )
     list_filter = ('registration__event__name', 'registration__scout_organisation__name')

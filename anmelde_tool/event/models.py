@@ -142,7 +142,7 @@ class EventModuleMapper(models.Model):
     ordering = models.IntegerField(default=999, auto_created=True)
     module = models.ForeignKey(EventModule, on_delete=models.PROTECT)
     attributes = models.ManyToManyField(AttributeEventModuleMapper, blank=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
     required = models.BooleanField(default=False)
     overwrite_description = models.CharField(max_length=10000, null=True, blank=True)
     standard = models.BooleanField(default=False)
@@ -215,13 +215,7 @@ class RegistrationParticipant(basic_models.TimeStampMixin):
     registration = models.ForeignKey(Registration, on_delete=models.CASCADE, null=True, blank=True)
     booking_option = models.ForeignKey(BookingOption, on_delete=models.SET_NULL, blank=True, null=True)
     gender = models.CharField(max_length=1, choices=basic_choices.Gender.choices, default=basic_choices.Gender.Nothing)
-    deactivated = models.BooleanField(default=False)
     generated = models.BooleanField(default=False)
-    needs_confirmation = models.CharField(
-        max_length=2,
-        choices=event_choices.ParticipantActionConfirmation.choices,
-        default=event_choices.ParticipantActionConfirmation.Nothing
-    )
     eat_habit = models.ManyToManyField(basic_models.EatHabit, blank=True)
     leader = models.CharField(
         max_length=6,
@@ -270,7 +264,6 @@ class WorkshopParticipant(basic_models.TimeStampMixin):
 class StandardEventTemplate(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    event = models.ForeignKey(Event, null=True, on_delete=models.SET_NULL, related_name='event')
     introduction = models.ForeignKey(
         EventModuleMapper,
         null=True, on_delete=models.SET_NULL,
@@ -282,17 +275,11 @@ class StandardEventTemplate(models.Model):
         on_delete=models.SET_NULL,
         related_name='confirmation'
     )
-    registration = models.ForeignKey(
+    participants = models.ForeignKey(
         EventModuleMapper,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='group_registration'
-    )
-    personal_registration = models.ForeignKey(
-        EventModuleMapper,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name='personal_registration'
+        related_name='participants'
     )
     letter = models.ForeignKey(
         EventModuleMapper,

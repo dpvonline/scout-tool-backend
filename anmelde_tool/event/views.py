@@ -13,6 +13,7 @@ from anmelde_tool.event import helper as event_helper
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
+from anmelde_tool.event.models import StandardEventTemplate
 from basic import models as basic_models
 from basic import serializers as basic_serializers
 from keycloak_auth.helper import get_groups_of_user
@@ -137,28 +138,31 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer: event_serializers.EventPostSerializer = event_serializers.EventPostSerializer(data=request.data)
         if not serializer.is_valid(raise_exception=True):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        self.check_event_dates(request, serializer.validated_data)
 
+        self.check_event_dates(request, serializer.validated_data)
+        price = serializer.data.get('price', 15.00)
+        del serializer.validated_data['price']
         event: event_models.Event = serializer.save()
         event.responsible_persons.add(request.user)
-        
+
         event_models.BookingOption.objects.create(
             name='Standard',
-            price=request.data['price'],
+            price=price,
             event=event,
         )
-        # standard_event = event_helper.custom_get_or_404(event_api_exceptions.SomethingNotFound('Standard Event 1'),
-        #                                                 event_models.StandardEventTemplate,
-        #                                                 pk=4)
 
-        # add_event_module(standard_event.introduction, event)
+        standard_event: StandardEventTemplate = event_helper.custom_get_or_404(
+            event_api_exceptions.SomethingNotFound('Standard Event 1'),
+            event_models.StandardEventTemplate,
+            pk=1)
 
-        # add_event_module(standard_event.personal_registration, event)
+        add_event_module(standard_event.introduction, event)
+        add_event_module(standard_event.participants, event)
+        add_event_module(standard_event.letter, event)
+        add_event_module(standard_event.summary, event)
 
-        # add_event_module(standard_event.summary, event)
-
-        # for mapper in standard_event.other_required_modules.all():
-        #     add_event_module(mapper, event)
+        for mapper in standard_event.other_required_modules.all():
+            add_event_module(mapper, event)
 
         # # TODO: When event_planer_modules does not contain all necessary modules, they wont be added
         # if request.data.get('event_planer_modules', None) is None:

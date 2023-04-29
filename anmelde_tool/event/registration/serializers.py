@@ -30,13 +30,16 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
 
 class RegistrationPostSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = event_models.Registration
         fields = ('event', 'scout_organisation')
         extra_kwargs = {
-            "event": {"required": True},
-            "scout_organisation": {"required": True}
+            "event": {
+                "required": True
+            },
+            "scout_organisation": {
+                "required": True
+            }
         }
 
 
@@ -44,8 +47,12 @@ class RegistrationPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.Registration
         fields = ('responsible_persons', 'is_confirmed', 'tags')
-        extra_kwargs = {"responsible_persons": {
-            "required": False, "allow_null": True}}
+        extra_kwargs = {
+            "responsible_persons": {
+                "required": False,
+                "allow_null": True
+            }
+        }
 
 
 class RegistrationSummaryBookingOptionSerializer(serializers.ModelSerializer):
@@ -78,15 +85,13 @@ class RegistrationParticipantSerializer(serializers.ModelSerializer):
 
 
 class MyRegistrationGetSerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationParticipantSerializer(
-        many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantSerializer(many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
     scout_organisation = UserScoutHierarchySerializer()
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     event = event_serializers.EventRegistrationSerializer()
-    status = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Registration
@@ -114,18 +119,9 @@ class MyRegistrationGetSerializer(serializers.ModelSerializer):
         return registration.registrationparticipant_set.aggregate(
             sum=Sum('booking_option__price'))['sum']
 
-    def get_status(self, obj: event_models.Registration) -> str:
-        if obj.event.registration_deadline > timezone.now():
-            return 'pending'
-        elif obj.event.registration_deadline <= timezone.now():
-            return 'expired'
-        else:
-            return 'error'
-
 
 class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
-    booking_option = RegistrationSummaryBookingOptionSerializer(
-        many=False, read_only=True)
+    booking_option = RegistrationSummaryBookingOptionSerializer(many=False, read_only=True)
     scout_level = serializers.CharField(source='get_scout_level_display')
     eat_habit = serializers.SlugRelatedField(
         many=True,
@@ -137,8 +133,16 @@ class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = event_models.RegistrationParticipant
-        fields = ('id', 'scout_name', 'first_name', 'last_name',
-                  'scout_level', 'eat_habit', 'age', 'booking_option')
+        fields = (
+            'id',
+            'scout_name',
+            'first_name',
+            'last_name',
+            'scout_level',
+            'eat_habit',
+            'age',
+            'booking_option'
+        )
 
 
 class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
@@ -166,20 +170,17 @@ class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
 
 class RegistrationParticipantGroupSerializer(serializers.Serializer):
     number = serializers.CharField(required=True)
-    avoid_manual_check = serializers.BooleanField(
-        required=False, default=False)
+    avoid_manual_check = serializers.BooleanField(required=False, default=False)
 
 
 class RegistrationSummarySerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationParticipantSerializer(
-        many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantSerializer(many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
     scout_organisation = UserScoutHierarchySerializer()
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     event = event_serializers.EventRegistrationSerializer()
-    # tags = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Registration
@@ -203,8 +204,6 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             sum=Sum('booking_option__price'))['sum']
 
     def get_status(self, obj: event_models.Registration) -> str:
-        print(obj.event)
-
         if obj.event.registration_deadline > timezone.now():
             return 'pending'
         elif obj.event.registration_deadline <= timezone.now():
@@ -223,15 +222,21 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
     event = event_serializers.EventRegistrationSerializer()
-    registrationparticipant_set = RegistrationParticipantSerializer(
-        many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantSerializer(many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Registration
-        fields = ('id', 'scout_organisation', 'responsible_persons', 'event', 'price', 'participant_count',
-                  'registrationparticipant_set',)
+        fields = (
+            'id',
+            'scout_organisation',
+            'responsible_persons',
+            'event',
+            'price',
+            'participant_count',
+            'registrationparticipant_set'
+        )
 
     def get_participant_count(self, registration: event_models.Registration) -> int:
         return registration.registrationparticipant_set.count()

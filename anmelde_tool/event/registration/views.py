@@ -65,7 +65,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
-            
+
         if request.data.get('zip_code'):
             zip_code = get_object_or_404(ZipCode, zip_code=request.data.get('zip_code'))
             request.data['zip_code'] = zip_code.id
@@ -112,32 +112,13 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
 
-        registration: event_models.Registration = self.participant_initialization(request)
-        participant: event_models.RegistrationParticipant = self.get_object()
-
-        if participant.deactivated:
-            if request.data.get('activate') and registration.event.registration_deadline >= timezone.now():
-                request.data['deactivated'] = False
-                request.data['needs_confirmation'] = event_choices.ParticipantActionConfirmation.Nothing
-            elif registration.event.last_possible_update >= timezone.now():
-                request.data['deactivated'] = False
-                request.data['needs_confirmation'] = event_choices.ParticipantActionConfirmation.AddFromExisting
-
         request.data['generated'] = False
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs) -> Response:
         registration: event_models.Registration = self.participant_initialization(request)
 
-        if registration.event.last_possible_update < timezone.now():
-            request.data['deactivated'] = True
-            request.data['needs_confirmation'] = event_choices.ParticipantActionConfirmation.Nothing
-            return super().update(request, *args, **kwargs)
-        elif registration.event.registration_deadline < timezone.now():
-            request.data['deactivated'] = True
-            if not request.data.get('avoid_manual_check'):
-                request.data['needs_confirmation'] = event_choices.ParticipantActionConfirmation.Delete
-            return super().update(request, *args, **kwargs)
+
 
         return super().destroy(request, *args, **kwargs)
 
@@ -199,7 +180,7 @@ class RegistrationAddGroupParticipantViewSet(viewsets.ViewSet):
             print(birthday)
 
         booking: event_models.BookingOption = registration.event.bookingoption_set.first()
-        if (eat_habit_id):
+        if eat_habit_id:
             eat_habit: basic_models.EatHabit = get_object_or_404(basic_models.EatHabit, id=eat_habit_id)
         for i in range(total_participant_count + 1, total_participant_count + int(number) + 1):
             participant = event_models.RegistrationParticipant(
@@ -215,7 +196,7 @@ class RegistrationAddGroupParticipantViewSet(viewsets.ViewSet):
                 booking_option=booking
             )
             participant.save()
-            if (eat_habit_id):
+            if eat_habit_id:
                 participant.eat_habit.add(eat_habit)
             new_participants.append(participant)
 
@@ -454,64 +435,8 @@ class RegistrationViewSet(
     def create(self, request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        print(serializer.data)
+
         event: event_models.Event = get_object_or_404(event_models.Event, pk=serializer.data['event'])
-
-        # general_code_check = False
-        # single_code_check = False
-        # group_code_check = False
-        # if serializer.data['event_code'] == event.invitation_code | event_permissions.IsEventSuperResponsiblePerson:
-        #     general_code_check = True
-        # elif event.invitation_code_single and serializer.data['event_code'] == event.invitation_code_single:
-        #     single_code_check = True
-        # elif event.invitation_code_group and serializer.data['event_code'] == event.invitation_code_group:
-        #     group_code_check = True
-
-        # if not general_code_check and not single_code_check and not group_code_check:
-        #     raise event_api_exceptions.WrongEventCode()
-
-        # if not general_code_check and single_code_check and not serializer.data['single']:
-        #     raise event_api_exceptions.WrongEventCodeForGroup()
-
-        # if not general_code_check and group_code_check and serializer.data['single']:
-        #     raise event_api_exceptions.WrongEventCodeForSingle()
-
-        #  Check registration type permissions
-        # if event.group_registration == event_choices.RegistrationTypeGroup.No and not serializer.data['single']:
-        #     raise event_api_exceptions.WrongRegistrationFormatGroup
-        # if event.single_registration == event_choices.RegistrationTypeSingle.No and serializer.data['single']:
-        #     raise event_api_exceptions.WrongRegistrationFormatSingle
-        # if event.single_registration == event_choices.RegistrationTypeSingle.Attached:
-        #     raise event_api_exceptions.RegistrationNotSupported
-
-        # # Check registration type permissions based on existing registrations
-        # existing_registration = event_models.Registration.objects.filter(event=event.id)
-        
-        # Check registration type permissions based on existing registrations
-        # existing_registration = event_models.Registration.objects.filter(event=event.id)
-
-        # if existing_registration.exists():
-        #     single_registration = existing_registration.filter(responsible_persons__in=[request.user.id], single=True)
-        #     existing_group_registration = existing_registration. \
-        #         filter(scout_organisation=request.user.userextended.scout_organisation, single=False)
-        #     group_registration = existing_group_registration.filter(responsible_persons__in=[request.user.id])
-
-        #     if single_registration.exists() and serializer.data['single'] \
-        #             and not event_permissions.IsEventSuperResponsiblePerson:
-        #         raise event_api_exceptions.SingleAlreadyRegistered()
-        #     elif existing_group_registration.exists() and not group_registration.exists() \
-        #             and not serializer.data['single']:
-        #         raise event_api_exceptions.NotResponsible()
-        #     elif existing_group_registration.exists() and not serializer.data['single']:
-        #         raise event_api_exceptions.GroupAlreadyRegistered
-        #     elif (group_registration.exists() and serializer.data['single']) \
-        #             and not event_permissions.IsEventSuperResponsiblePerson:
-        #         raise event_api_exceptions.SingleGroupNotAllowed
-        #     elif event.group_registration == event_choices.RegistrationTypeGroup.Required \
-        #             and not group_registration.exists() and serializer.data['single']:
-        #         raise event_api_exceptions.WrongRegistrationFormat
-
-        # single = serializer.data['single'] if general_code_check else single_code_check
 
         scout_organisation_id = serializer.data['scout_organisation']
         err_msg = f'Element (Bund, Ring, Stamm) mit der Id {scout_organisation_id}'
@@ -576,19 +501,20 @@ class RegistrationViewSet(
 
 class SimpleRegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = registration_serializers.RegistrationGetSerializer
-    
+
     def get_queryset(self) -> QuerySet:
         return event_models.Registration.objects.all()
-    
+
 
 class MyRegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = registration_serializers.RegistrationSummarySerializer
-    
+
     def get_queryset(self) -> QuerySet:
         return event_models.Registration.objects.filter(responsible_persons=self.request.user.id)
 
+
 class RegistrationReadViewSet(viewsets.ModelViewSet):
     serializer_class = registration_serializers.RegistrationReadSerializer
-    
+
     def get_queryset(self) -> QuerySet:
         return event_models.Registration.objects.filter(responsible_persons=self.request.user.id)

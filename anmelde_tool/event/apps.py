@@ -9,7 +9,7 @@ class EventConfig(AppConfig):
     def ready(self):
         from anmelde_tool.event import signals as event_signals
         from anmelde_tool.event import models as event_models
-        pre_delete.connect(event_signals.pre_delete_registration, sender=event_models.Registration,
-                           dispatch_uid="pre_delete_registration")
+        # pre_delete.connect(event_signals.pre_delete_registration, sender=event_models.Registration,
+        #                    dispatch_uid="pre_delete_registration")
         post_save.connect(event_signals.post_save_registation, sender=event_models.Registration,
                           dispatch_uid="post_save_registration")
