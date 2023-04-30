@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.contrib.admin import display
 
-from anmelde_tool.attributes.models import AbstractAttribute
-from anmelde_tool.event.models import EventLocation, Event, BookingOption, EventModule, EventModuleMapper, \
-    AttributeEventModuleMapper, StandardEventTemplate, Registration, RegistrationParticipant, \
+from anmelde_tool.event.models import EventLocation, Event, BookingOption, EventModule, AttributeEventModuleMapper, \
+    StandardEventTemplate, Registration, RegistrationParticipant, \
     Workshop, WorkshopParticipant
 
 admin.site.register(Workshop)
@@ -25,7 +24,7 @@ class EventAdmin(admin.ModelAdmin):
 
 
 @admin.register(BookingOption)
-class EventAdmin(admin.ModelAdmin):
+class BookingOptionAdmin(admin.ModelAdmin):
     list_display = ('name', 'event')
     search_fields = ('name',)
     autocomplete_fields = ('event',)
@@ -33,24 +32,9 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(EventModule)
 class EventModuleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'type')
-    autocomplete_fields = ('type',)
-    search_fields = ('name',)
-
-
-@admin.register(EventModuleMapper)
-class EventModuleMapperAdmin(admin.ModelAdmin):
-    list_display = ('id', 'standard', 'module', 'ordering')
-    search_fields = ('module',)
-
-    # @display(ordering='event__name', description='Event name')
-    # def get_event_name(self, obj):
-    #     return obj.event.name
-
-
-@admin.register(AttributeEventModuleMapper)
-class AttributeEventModuleMapperAdmin(admin.ModelAdmin):
-    list_display = ('attribute',)
+    list_display = ('name', 'standard')
+    search_fields = ('name', 'id')
+    list_filter = ('standard', 'event')
 
 
 @admin.register(StandardEventTemplate)
@@ -60,12 +44,12 @@ class StandardEventTemplateAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(StandardEventTemplateAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['introduction'].queryset = EventModuleMapper.objects.exclude(standard=False)
-        form.base_fields['summary'].queryset = EventModuleMapper.objects.exclude(standard=False)
-        form.base_fields['participants'].queryset = EventModuleMapper.objects.exclude(standard=False)
-        form.base_fields['letter'].queryset = EventModuleMapper.objects.exclude(standard=False)
-        form.base_fields['other_required_modules'].queryset = EventModuleMapper.objects.exclude(standard=False)
-        form.base_fields['other_optional_modules'].queryset = EventModuleMapper.objects.exclude(standard=False)
+        form.base_fields['introduction'].queryset = EventModule.objects.exclude(standard=False)
+        form.base_fields['summary'].queryset = EventModule.objects.exclude(standard=False)
+        form.base_fields['participants'].queryset = EventModule.objects.exclude(standard=False)
+        form.base_fields['letter'].queryset = EventModule.objects.exclude(standard=False)
+        form.base_fields['other_required_modules'].queryset = EventModule.objects.exclude(standard=False)
+        form.base_fields['other_optional_modules'].queryset = EventModule.objects.exclude(standard=False)
         return form
 
 
@@ -75,11 +59,6 @@ class RegistrationAdmin(admin.ModelAdmin):
     search_fields = ('scout_organisation__name',)
     autocomplete_fields = ('event', 'scout_organisation')
     list_filter = ('event__name',)
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(RegistrationAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['tags'].queryset = AbstractAttribute.objects.exclude(template=True)
-        return form
 
     @display(ordering='event__name', description='Event name')
     def get_event_name(self, obj):
@@ -94,7 +73,6 @@ class RegistrationParticipantAdmin(admin.ModelAdmin):
         'last_name',
         'scout_name',
         'generated',
-        'allow_permanently'
     )
     list_filter = ('registration__event__name', 'registration__scout_organisation__name')
     search_fields = ('scout_name', 'first_name', 'last_name', 'email')

@@ -108,142 +108,9 @@
     }
   },
   {
-    "model": "event.eventmodule",
-    "pk": 1,
-    "fields": {
-      "name": "Introduction",
-      "type": 7,
-      "header": "Einverständnis",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 3,
-    "fields": {
-      "name": "Participants",
-      "type": 7,
-      "header": "Teilnehmende",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 4,
-    "fields": {
-      "name": "OfferWorkshop",
-      "type": 5,
-      "header": "AGs",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 5,
-    "fields": {
-      "name": "SubscribeWorkshop",
-      "type": 5,
-      "header": "Erlebnisangebote",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 6,
-    "fields": {
-      "name": "Food",
-      "type": 5,
-      "header": "Essgewohnheiten",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 7,
-    "fields": {
-      "name": "Summary",
-      "type": 7,
-      "header": "Zusammenfassung und Bestätigung",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 8,
-    "fields": {
-      "name": "Letter",
-      "type": 5,
-      "header": "Zusätzliche Anmerkungen",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 9,
-    "fields": {
-      "name": "Travel",
-      "type": 5,
-      "header": "Anreise",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 10,
-    "fields": {
-      "name": "TravelBack",
-      "type": 5,
-      "header": "Rückreise",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 11,
-    "fields": {
-      "name": "Tent",
-      "type": 5,
-      "header": "Zelte",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 12,
-    "fields": {
-      "name": "Tshirts",
-      "type": 5,
-      "header": "T-Shirts",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
-    "model": "event.eventmodule",
-    "pk": 13,
-    "fields": {
-      "name": "LunchMeals",
-      "type": 5,
-      "header": "Lunch Paket",
-      "internal": false,
-      "custom": false
-    }
-  },
-  {
     "model": "event.attributeeventmodulemapper",
     "pk": 4,
     "fields": {
-      "attribute": 17,
       "title": "Anzahl Kothen",
       "text": "Wie viele Kothen bringt ihr mit?",
       "is_required": false,
@@ -260,7 +127,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 5,
     "fields": {
-      "attribute": 18,
       "title": "Anzahl Kothenstangen",
       "text": "Wie viele Stangen für Kothen benötigt ihr?",
       "is_required": false,
@@ -277,7 +143,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 6,
     "fields": {
-      "attribute": 19,
       "title": "Anzahl Jurten",
       "text": "Wie viele Jurten bringt ihr mit?",
       "is_required": false,
@@ -294,7 +159,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 7,
     "fields": {
-      "attribute": 20,
       "title": "Anzahl Jurtenstangen",
       "text": "Wie viele Stangen für eure Jurten benötigt ihr?",
       "is_required": false,
@@ -311,7 +175,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 8,
     "fields": {
-      "attribute": 21,
       "title": "Anreise",
       "text": "Womit werdet ihr anreisen?",
       "is_required": false,
@@ -328,7 +191,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 9,
     "fields": {
-      "attribute": 22,
       "title": "Abreise",
       "text": "Wann und womit werdet ihr abreisen?",
       "is_required": false,
@@ -345,7 +207,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 10,
     "fields": {
-      "attribute": 23,
       "title": "Zusätzliche Anmerkungen",
       "text": "Hier ist Platz für eine Nachricht an die Lagerleitung.",
       "is_required": false,
@@ -362,7 +223,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 11,
     "fields": {
-      "attribute": 26,
       "title": "Bestätigung",
       "text": "Ich habe meine Daten überprüft und melde meinen Stamm verbindlich zur Fahrt an.",
       "is_required": false,
@@ -379,7 +239,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 12,
     "fields": {
-      "attribute": 27,
       "title": "T-Shirt XS",
       "text": "Wie viele T-Shirts braucht ihr in der Größe XS?",
       "is_required": false,
@@ -396,7 +255,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 13,
     "fields": {
-      "attribute": 28,
       "title": "T-Shirt S",
       "text": "Wie viele T-Shirts braucht ihr in der Größe S?",
       "is_required": false,
@@ -413,7 +271,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 14,
     "fields": {
-      "attribute": 29,
       "title": "T-Shirt M",
       "text": "Wie viele T-Shirts braucht ihr in der Größe M?",
       "is_required": false,
@@ -430,7 +287,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 15,
     "fields": {
-      "attribute": 30,
       "title": "T-Shirt L",
       "text": "Wie viele T-Shirts braucht ihr in der Größe L?",
       "is_required": false,
@@ -447,7 +303,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 16,
     "fields": {
-      "attribute": 31,
       "title": "T-Shirt XL",
       "text": "Wie viele T-Shirts braucht ihr in der Größe XL?",
       "is_required": false,
@@ -464,7 +319,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 17,
     "fields": {
-      "attribute": 32,
       "title": "T-Shirts XXL",
       "text": "Wie viele T-Shirts braucht ihr in der Größe XL?",
       "is_required": false,
@@ -481,7 +335,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 18,
     "fields": {
-      "attribute": 33,
       "title": "Lunch Pakete",
       "text": "Wie viele Lunch Pakete braucht ihr?",
       "is_required": false,
@@ -498,7 +351,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 19,
     "fields": {
-      "attribute": 34,
       "title": "Fahrzeuge",
       "text": "Mit wie vielen Autos reist ihr an?",
       "is_required": false,
@@ -515,7 +367,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 20,
     "fields": {
-      "attribute": 35,
       "title": "Tailliertes T-Shirt XS",
       "text": "Wie viele taillierte T-Shirts braucht ihr in der Größe XS?",
       "is_required": false,
@@ -532,7 +383,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 21,
     "fields": {
-      "attribute": 36,
       "title": "Tailliertes T-Shirts S",
       "text": "Wie viele taillierte T-Shirts braucht ihr in der Größe S?",
       "is_required": false,
@@ -549,7 +399,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 22,
     "fields": {
-      "attribute": 37,
       "title": "Tailliertes T-Shirts M",
       "text": "Wie viele taillierte T-Shirts braucht ihr in der Größe M?",
       "is_required": false,
@@ -566,7 +415,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 23,
     "fields": {
-      "attribute": 38,
       "title": "Tailliertes T-Shirt L",
       "text": "Wie viele taillierte T-Shirts braucht ihr in der Größe L?",
       "is_required": false,
@@ -583,7 +431,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 24,
     "fields": {
-      "attribute": 39,
       "title": "Tailliertes T-Shirt XL",
       "text": "Wie viele taillierte T-Shirts braucht ihr in der Größe XL?",
       "is_required": false,
@@ -600,7 +447,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 25,
     "fields": {
-      "attribute": 32,
       "title": "Tailiiertes T-Shirt XXL",
       "text": "Wie viele taillierte T-Shirts braucht ihr in der Größe XXL?",
       "is_required": false,
@@ -617,7 +463,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 26,
     "fields": {
-      "attribute": 92,
       "title": "Corona Hinweis",
       "text": "Ich trage Sorge, dass alle von mir angemeldeten TeilnehmerInnen über die dann geltenden Coronaregeln informiert sind und ich achte auf die Einhaltung",
       "is_required": true,
@@ -634,7 +479,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 27,
     "fields": {
-      "attribute": 15,
       "title": "Datenschutzhinweis",
       "text": "Hiermit bestätige ich, dass alle Teilnehmer_innen, die ich auf diesem Wege anmelde, die Datenschutzhinweise und Bildrechte zur Kenntnis genommen und diesen zugestimmt haben.",
       "is_required": true,
@@ -651,7 +495,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 28,
     "fields": {
-      "attribute": 14,
       "title": "Veranstaltungsbedingungen",
       "text": "Ich stimme den Bedingungen zu und möchte mit der Anmeldung beginnen.",
       "is_required": false,
@@ -668,7 +511,6 @@
     "model": "event.attributeeventmodulemapper",
     "pk": 29,
     "fields": {
-      "attribute": 14,
       "title": "Bedinungen",
       "text": "Hallo",
       "is_required": false,
@@ -683,64 +525,32 @@
   },
   {
     "model": "event.event",
-    "pk": "15301605-5e8b-45ab-9276-e23955ead470",
+    "pk": "d5dc2041-9007-4940-bed0-ae2023cbce67",
     "fields": {
-      "created_at": "2023-04-25T20:50:47.753Z",
-      "updated_at": "2023-04-25T20:50:47.753Z",
+      "created_at": "2023-04-30T16:16:24.059Z",
+      "updated_at": "2023-04-30T16:16:24.059Z",
       "name": "Hagis Lager",
-      "technical_name": "hagis-lager",
-      "short_description": "Das beste Lager überhaupt",
-      "long_description": "<p>Das beste Lager überhaupt!!!1!11!</p>",
+      "technical_name": "hagis_lager",
+      "short_description": "Super cooles Lager",
+      "long_description": "<p>Das beste Lager überhaupt!</p>",
       "cloud_link": null,
       "event_url": null,
-      "icon": "party-popper",
+      "icon": null,
       "location": 6,
-      "start_date": "2023-04-28T16:00:00Z",
-      "end_date": "2023-04-30T11:00:00Z",
-      "registration_deadline": "2023-04-27T23:00:00Z",
-      "registration_start": "2023-04-20T23:00:00Z",
-      "last_possible_update": "2023-04-28T15:00:00Z",
+      "start_date": "2023-06-30T16:00:00Z",
+      "end_date": "2023-07-02T11:00:00Z",
+      "registration_deadline": "2023-06-23T21:59:59Z",
+      "registration_start": "2023-03-29T22:00:00Z",
+      "last_possible_update": "2023-06-29T16:00:00Z",
       "is_public": true,
-      "view_group": "7afe257a-42a0-40f2-8540-ea9613b669db",
-      "admin_group": "49beaead-17a9-421b-9fea-ad486d26ef13",
-      "inviting_group": "49beaead-17a9-421b-9fea-ad486d26ef13",
-      "registration_level": 5,
-      "theme": 3,
-      "email_set": 1,
-      "responsible_persons": [
-        282
-      ],
-      "invited_groups": []
-    }
-  },
-  {
-    "model": "event.event",
-    "pk": "6887dca7-cb65-4d42-9036-f681be9d38db",
-    "fields": {
-      "created_at": "2023-04-23T15:45:29.484Z",
-      "updated_at": "2023-04-23T18:03:08.749Z",
-      "name": "Hagis Lager",
-      "technical_name": "hagis-lager",
-      "short_description": "Das beste Lager überhaupt",
-      "long_description": "<p>Das beste Lager überhaupt!!!1!11!</p>",
-      "cloud_link": null,
-      "event_url": null,
-      "icon": "party-popper",
-      "location": 6,
-      "start_date": "2023-04-28T16:00:00Z",
-      "end_date": "2023-04-30T11:00:00Z",
-      "registration_deadline": "2023-04-27T23:00:00Z",
-      "registration_start": "2023-04-20T23:00:00Z",
-      "last_possible_update": "2023-04-28T15:00:00Z",
-      "is_public": true,
-      "view_group": "7afe257a-42a0-40f2-8540-ea9613b669db",
+      "view_group": "db907e7f-077c-4e0a-ac48-a8dc1db57abb",
       "admin_group": "db907e7f-077c-4e0a-ac48-a8dc1db57abb",
       "inviting_group": "db907e7f-077c-4e0a-ac48-a8dc1db57abb",
       "registration_level": 5,
-      "theme": 3,
+      "theme": 1,
       "email_set": 1,
       "responsible_persons": [
-        282
+        1
       ],
       "invited_groups": [
         "2fb07c05-a61f-42e8-958d-326474289267"
@@ -748,73 +558,119 @@
     }
   },
   {
-    "model": "event.eventmodulemapper",
-    "pk": 145,
+    "model": "event.eventmodule",
+    "pk": 14,
     "fields": {
       "ordering": 0,
-      "module": 1,
+      "name": "Introduction",
+      "header": "Einverständnis",
+      "internal": false,
       "event": null,
       "required": true,
-      "overwrite_description": null,
-      "standard": true,
-      "attributes": [
-        27,
-        28,
-        29
-      ]
+      "standard": true
     }
   },
   {
-    "model": "event.eventmodulemapper",
-    "pk": 146,
+    "model": "event.eventmodule",
+    "pk": 15,
     "fields": {
-      "ordering": 3,
-      "module": 7,
+      "ordering": 4,
+      "name": "Summary",
+      "header": "Zusammenfassung und Bestätigung",
+      "internal": false,
       "event": null,
       "required": true,
-      "overwrite_description": null,
-      "standard": true,
-      "attributes": [
-        11
-      ]
+      "standard": true
     }
   },
   {
-    "model": "event.eventmodulemapper",
-    "pk": 147,
-    "fields": {
-      "ordering": 1,
-      "module": 3,
-      "event": null,
-      "required": false,
-      "overwrite_description": null,
-      "standard": true,
-      "attributes": []
-    }
-  },
-  {
-    "model": "event.eventmodulemapper",
-    "pk": 148,
+    "model": "event.eventmodule",
+    "pk": 16,
     "fields": {
       "ordering": 2,
-      "module": 8,
+      "name": "Participants",
+      "header": "Teilnehmende",
+      "internal": false,
       "event": null,
-      "required": false,
-      "overwrite_description": null,
-      "standard": true,
-      "attributes": []
+      "required": true,
+      "standard": true
+    }
+  },
+  {
+    "model": "event.eventmodule",
+    "pk": 17,
+    "fields": {
+      "ordering": 3,
+      "name": "Letter",
+      "header": "Zusätzliche Anmerkungen",
+      "internal": false,
+      "event": null,
+      "required": true,
+      "standard": true
+    }
+  },
+  {
+    "model": "event.eventmodule",
+    "pk": 22,
+    "fields": {
+      "ordering": 0,
+      "name": "Introduction",
+      "header": "Einverständnis",
+      "internal": false,
+      "event": "d5dc2041-9007-4940-bed0-ae2023cbce67",
+      "required": true,
+      "standard": false
+    }
+  },
+  {
+    "model": "event.eventmodule",
+    "pk": 23,
+    "fields": {
+      "ordering": 2,
+      "name": "Participants",
+      "header": "Teilnehmende",
+      "internal": false,
+      "event": "d5dc2041-9007-4940-bed0-ae2023cbce67",
+      "required": true,
+      "standard": false
+    }
+  },
+  {
+    "model": "event.eventmodule",
+    "pk": 24,
+    "fields": {
+      "ordering": 3,
+      "name": "Letter",
+      "header": "Zusätzliche Anmerkungen",
+      "internal": false,
+      "event": "d5dc2041-9007-4940-bed0-ae2023cbce67",
+      "required": true,
+      "standard": false
+    }
+  },
+  {
+    "model": "event.eventmodule",
+    "pk": 25,
+    "fields": {
+      "ordering": 4,
+      "name": "Summary",
+      "header": "Zusammenfassung und Bestätigung",
+      "internal": false,
+      "event": "d5dc2041-9007-4940-bed0-ae2023cbce67",
+      "required": true,
+      "standard": false
     }
   },
   {
     "model": "event.bookingoption",
-    "pk": 21,
+    "pk": 23,
     "fields": {
       "name": "Standard",
       "description": "",
-      "price": "15.00",
+      "price": "18.00",
       "bookable_from": null,
       "bookable_till": null,
-      "event": "6887dca7-cb65-4d42-9036-f681be9d38db",
+      "event": "d5dc2041-9007-4940-bed0-ae2023cbce67",
       "max_participants": 0,
       "start_date": null,
       "end_date": null,
@@ -823,24 +679,24 @@
   },
   {
     "model": "event.registration",
-    "pk": "e13ff856-9bbd-47c8-b2d1-689c9b1edc33",
+    "pk": "79d401b1-04c4-47c0-af13-4f9d94799fa8",
     "fields": {
-      "created_at": "2023-04-25T19:26:41.832Z",
-      "updated_at": "2023-04-25T19:26:41.832Z",
+      "created_at": "2023-04-30T16:18:26.069Z",
+      "updated_at": "2023-04-30T16:18:26.069Z",
       "scout_organisation": 369,
       "is_confirmed": false,
-      "event": "6887dca7-cb65-4d42-9036-f681be9d38db",
+      "event": "d5dc2041-9007-4940-bed0-ae2023cbce67",
       "responsible_persons": [
-        282
+        1
       ]
     }
   },
   {
     "model": "event.registrationparticipant",
-    "pk": 1390,
+    "pk": 1392,
     "fields": {
-      "created_at": "2023-04-25T19:26:41.935Z",
-      "updated_at": "2023-04-25T19:26:41.935Z",
+      "created_at": "2023-04-30T16:18:26.179Z",
+      "updated_at": "2023-04-30T16:18:26.179Z",
       "scout_name": "nvhj",
       "first_name": "nvhj",
       "last_name": "jvnv",
@@ -851,13 +707,12 @@
       "phone_number": "",
       "email": null,
       "birthday": null,
-      "registration": "e13ff856-9bbd-47c8-b2d1-689c9b1edc33",
-      "booking_option": 21,
+      "registration": "79d401b1-04c4-47c0-af13-4f9d94799fa8",
+      "booking_option": 23,
       "gender": "N",
       "generated": false,
       "leader": "N",
       "scout_level": "N",
-      "allow_permanently": false,
       "eat_habit": [
         1
       ]
@@ -868,10 +723,10 @@
     "pk": 1,
     "fields": {
       "name": "Standard",
-      "introduction": 145,
-      "summary": 146,
-      "participants": 147,
-      "letter": 148,
+      "introduction": 14,
+      "summary": 15,
+      "participants": 16,
+      "letter": 17,
       "other_required_modules": [],
       "other_optional_modules": []
     }

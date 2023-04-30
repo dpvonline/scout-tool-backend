@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django_filters',
     'mozilla_django_oidc',
     'colorfield',
-    'polymorphic',
     'drf_api_logger',
     'basic',
     'anmelde_tool.email_services',

@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Sum, Count, F
 from rest_framework import serializers
 
-from anmelde_tool.attributes.serializers import AbstractAttributeGetPolymorphicSerializer
 from basic import serializers as basic_serializers
 from basic.models import EatHabit
 from anmelde_tool.event import models as event_models
@@ -157,46 +156,46 @@ class RegistrationAttributeGetSerializer(serializers.ModelSerializer):
         )
 
 
-class EventAttributeSummarySerializer(serializers.ModelSerializer):
-    attribute = AbstractAttributeGetPolymorphicSerializer(many=False, read_only=False)
-    attributes = serializers.SerializerMethodField()
-
-    class Meta:
-        model = event_models.AttributeEventModuleMapper
-        fields = '__all__'
-
-    def get_attributes(self, mapper: event_models.AttributeEventModuleMapper) -> dict:
-        event_id = self.context['view'].kwargs.get("event_pk", None)
-        registrations: QuerySet[event_models.Registration] = event_models.Registration.objects.filter(event=event_id)
-
-        registration_tags = []
-        attribute_sum = 0
-        for registration in registrations.all():
-            tags = registration.tags.filter(
-                template=False, template_id=mapper.attribute.id)
-
-            if mapper.attribute.polymorphic_ctype.app_labeled_name == 'basic | integer attribute':
-                attribute_sum += tags.aggregate(
-                    sum=Sum('integerattribute__integer_field'))['sum'] or 0
-            elif mapper.attribute.polymorphic_ctype.app_labeled_name == 'basic | float attribute':
-                attribute_sum += tags.aggregate(
-                    sum=Sum('floatattribute__integer_field'))['sum'] or 0
-
-            serialized_registration = RegistrationAttributeGetSerializer(
-                registration, many=False).data
-            for tag in tags.all():
-                serialized_tag = AbstractAttributeGetPolymorphicSerializer(
-                    tag, many=False).data
-                result = {
-                    'registration': serialized_registration,
-                    'tag': serialized_tag,
-                }
-                registration_tags.append(result)
-
-        return {
-            'data': registration_tags,
-            'sum': attribute_sum
-        }
+# class EventAttributeSummarySerializer(serializers.ModelSerializer):
+#     attribute = AbstractAttributeGetPolymorphicSerializer(many=False, read_only=False)
+#     attributes = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = event_models.AttributeEventModuleMapper
+#         fields = '__all__'
+#
+#     def get_attributes(self, mapper: event_models.AttributeEventModuleMapper) -> dict:
+#         event_id = self.context['view'].kwargs.get("event_pk", None)
+#         registrations: QuerySet[event_models.Registration] = event_models.Registration.objects.filter(event=event_id)
+#
+#         registration_tags = []
+#         attribute_sum = 0
+#         for registration in registrations.all():
+#             tags = registration.tags.filter(
+#                 template=False, template_id=mapper.attribute.id)
+#
+#             if mapper.attribute.polymorphic_ctype.app_labeled_name == 'basic | integer attribute':
+#                 attribute_sum += tags.aggregate(
+#                     sum=Sum('integerattribute__integer_field'))['sum'] or 0
+#             elif mapper.attribute.polymorphic_ctype.app_labeled_name == 'basic | float attribute':
+#                 attribute_sum += tags.aggregate(
+#                     sum=Sum('floatattribute__integer_field'))['sum'] or 0
+#
+#             serialized_registration = RegistrationAttributeGetSerializer(
+#                 registration, many=False).data
+#             for tag in tags.all():
+#                 serialized_tag = AbstractAttributeGetPolymorphicSerializer(
+#                     tag, many=False).data
+#                 result = {
+#                     'registration': serialized_registration,
+#                     'tag': serialized_tag,
+#                 }
+#                 registration_tags.append(result)
+#
+#         return {
+#             'data': registration_tags,
+#             'sum': attribute_sum
+#         }
 
 
 class RegistrationCashSummarySerializer(serializers.ModelSerializer):

@@ -1,44 +1,99 @@
 [
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "002ebf74-95c0-4a62-b374-2be23f6a1daf",
+    "pk": "2fb07c05-a61f-42e8-958d-326474289267",
     "fields": {
-      "keycloak_id": "19c4c8c2-c2af-4e88-902b-d1b11d8d8661",
-      "name": "Schatzamt",
-      "parent": "92da773a-7203-454a-bc73-7b7b32970299",
+      "keycloak_id": "721c8225-aa62-4cf7-96c1-7d3393368e98",
+      "name": "DPV",
+      "parent": null,
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "0070c182-d81e-4886-8e04-fb47207208e3",
+    "pk": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
     "fields": {
-      "keycloak_id": "f90bf07e-f7bb-41f8-b24c-841387604d57",
-      "name": "Schatzamt",
-      "parent": "113dbd8a-4776-4efa-a0a2-f6938fd2c841",
+      "keycloak_id": "b611e6e2-1f37-4d39-8125-006cf62124ae",
+      "name": "Anwendungen",
+      "parent": null,
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "01e495c6-c3ce-474e-b1ef-649c13edcd00",
+    "pk": "31c7f457-c7e5-4dc4-9b95-3de0622b6aa6",
     "fields": {
-      "keycloak_id": "e2531c86-cffe-49e2-943f-0e3772d7e5a0",
-      "name": "Schatzamt",
-      "parent": "e1cb9af7-1bcf-4ae2-b7cb-6b71f00f1f51",
+      "keycloak_id": "fe679a36-a852-4c26-aa3e-47ccdf4e5f97",
+      "name": "Aktionen",
+      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "058a85e1-6aca-40e8-8d40-91d7a44bbeb4",
+    "pk": "398d37a7-49cd-455b-a7ba-6f6f6f552942",
     "fields": {
-      "keycloak_id": "19fd993f-1ef4-4d4e-84b1-6ecc7ab0d370",
-      "name": "löschen2",
-      "parent": "742dde40-db02-493c-9222-0d76191c0800",
+      "keycloak_id": "17ca2b21-3017-4fa8-9cc0-88025349ebc3",
+      "name": "Bünde",
+      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "4de10821-4bb8-4230-90dc-eace3ebd120b",
+    "fields": {
+      "keycloak_id": "4c7ba379-a21a-4e9a-bda1-03c4762d31b6",
+      "name": "Arbeitskreise",
+      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "c0286cd0-ead0-4971-9ba8-169519b346bd",
+    "fields": {
+      "keycloak_id": "d68c6b74-5ae6-41c9-bca6-9a65fd4b5516",
+      "name": "Sonstige",
+      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "3a9a9151-8433-4d1c-9719-eb9c92884596",
+    "fields": {
+      "keycloak_id": "cff0a41e-5a5c-431c-905f-9ea7dddd68e5",
+      "name": "Nextcloud",
+      "parent": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "4554e0f8-6150-41d8-ba71-77acb1d00711",
+    "fields": {
+      "keycloak_id": "007e5f1b-fd8a-491f-82ad-e5ac046a2e36",
+      "name": "Keycloak",
+      "parent": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "8f451834-66cc-40c9-a004-3ebb2ebb3f1e",
+    "fields": {
+      "keycloak_id": "e5ba3c6f-2426-41ef-a998-e0c6f7183174",
+      "name": "Confluence",
+      "parent": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
       "membership_allowed": true,
       "description": ""
     }
@@ -56,66 +111,44 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "06b24cbd-78d8-4285-a3b5-2f2fa24592ff",
+    "pk": "2136271a-e83e-48c8-b90d-5f7e18ebbc81",
     "fields": {
-      "keycloak_id": "f8a3c20d-9221-430d-8e4a-bfddea9046c8",
-      "name": "Ringführung",
-      "parent": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
+      "keycloak_id": "00db543d-93b4-4531-b8f1-77634a4478e1",
+      "name": "DPBM",
+      "parent": "398d37a7-49cd-455b-a7ba-6f6f6f552942",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "08950d7e-9a75-42f9-bab2-2312e8accac4",
+    "pk": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
     "fields": {
-      "keycloak_id": "e79a664e-d0ad-4992-be58-3b2d4bd91596",
-      "name": "Deutschritter",
-      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "keycloak_id": "ccfc0d33-dfe6-4232-b744-6e1f79205809",
+      "name": "Ringe",
+      "parent": "2136271a-e83e-48c8-b90d-5f7e18ebbc81",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "094a85c8-6bfc-4b41-912e-ef659a5c9e94",
+    "pk": "77b6d8cb-1ca2-4494-992e-02eb20b2b67f",
     "fields": {
-      "keycloak_id": "3d916602-862e-4304-a170-86969c022c27",
-      "name": "Stammesführung",
-      "parent": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
+      "keycloak_id": "1b77f932-b009-44e2-86ab-d33c91d93604",
+      "name": "Ring Rhein Lippe",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "0995eee2-fd56-48aa-a0d3-546638410056",
+    "pk": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
     "fields": {
-      "keycloak_id": "bd682f03-ab1b-403a-827c-c7d432595a88",
-      "name": "Schatzamt",
-      "parent": "a569fbbb-b72a-411e-be33-10f354023e6f",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "09d79ace-af18-4888-bd86-64699691c91a",
-    "fields": {
-      "keycloak_id": "23e02d13-99a0-4513-bdd1-c4c06a69af10",
-      "name": "Stammesführung",
-      "parent": "b9f23f0a-1f56-4e50-925b-8cc02b682786",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "0acad031-a792-4959-899e-4dacaa6074b3",
-    "fields": {
-      "keycloak_id": "4afc8750-be2c-4021-94b9-7d6ada85f338",
-      "name": "Schatzamt",
-      "parent": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
+      "keycloak_id": "64f53549-d4e8-47c0-9b4d-c148b784de65",
+      "name": "Stämme",
+      "parent": "77b6d8cb-1ca2-4494-992e-02eb20b2b67f",
       "membership_allowed": true,
       "description": ""
     }
@@ -133,39 +166,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "0c56e837-7316-4d4d-b70d-32881f9e6a26",
-    "fields": {
-      "keycloak_id": "7e3c2ad3-818f-49ce-8113-df762d83b5b8",
-      "name": "Schatzamt",
-      "parent": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "0d3ef5ce-1e65-46df-b632-0948758e674e",
-    "fields": {
-      "keycloak_id": "6286b3ae-42d5-4a56-b69b-60b74e4239d3",
-      "name": "Möhrenköppe",
-      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "0dc662fa-d851-4faf-8723-6060c6bbeac2",
-    "fields": {
-      "keycloak_id": "c9fa1431-c668-4b59-b21d-364784b41ebb",
-      "name": "St. Willigis",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "0e826ba2-4e1a-4280-9706-5f7aa32c3f38",
     "fields": {
       "keycloak_id": "1dcc3e17-858e-477d-8b8e-cdb30c35278d",
@@ -177,11 +177,22 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "0fe14ed3-0451-4def-83ce-1007dd7a4c7d",
+    "pk": "7d3dcbe9-8ed4-4b45-9c35-d72bf3b6ebbd",
     "fields": {
-      "keycloak_id": "ab3e4a04-1925-4c93-9e9d-9371b79ef85b",
-      "name": "Stellv. Stammesführung",
-      "parent": "742dde40-db02-493c-9222-0d76191c0800",
+      "keycloak_id": "8bb3955a-0851-4ab5-9540-4b60105456aa",
+      "name": "Aufbauring Waterkant",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "20cd35a9-7c7e-49af-9335-3d3a292ec15a",
+    "fields": {
+      "keycloak_id": "565ba7e3-b443-4554-8a2a-5f3e689f0ad5",
+      "name": "Stämme",
+      "parent": "7d3dcbe9-8ed4-4b45-9c35-d72bf3b6ebbd",
       "membership_allowed": true,
       "description": ""
     }
@@ -210,6 +221,28 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "0070c182-d81e-4886-8e04-fb47207208e3",
+    "fields": {
+      "keycloak_id": "f90bf07e-f7bb-41f8-b24c-841387604d57",
+      "name": "Schatzamt",
+      "parent": "113dbd8a-4776-4efa-a0a2-f6938fd2c841",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "730a8291-5870-4941-8d4f-3d3e1119d350",
+    "fields": {
+      "keycloak_id": "420e7d90-f8b5-4ae3-9e17-a411f9a46b7c",
+      "name": "Ring Köln",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "133d76db-4d97-4abf-bbf3-55d28dc46293",
     "fields": {
       "keycloak_id": "10c2bb1b-aafb-43b5-8d3e-ec2569dbc3fb",
@@ -232,11 +265,110 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "d5dcb5ee-ccba-4fcc-8649-9a9e637d9a8e",
+    "fields": {
+      "keycloak_id": "7548988f-2abf-419f-a6ee-f4ce2c2f7e53",
+      "name": "Ring Bayern",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "59039907-ac82-437b-b4d3-31e0f35273e7",
+    "fields": {
+      "keycloak_id": "e4fcb67f-45f2-49ab-8b2e-baf731004ca7",
+      "name": "Stämme",
+      "parent": "d5dcb5ee-ccba-4fcc-8649-9a9e637d9a8e",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "b314f247-f2ee-4d80-828c-23f0b4b3c24a",
+    "fields": {
+      "keycloak_id": "b5b92d0f-6fab-4089-a7db-59204b9bed7e",
+      "name": "Raubvögel",
+      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "15028fac-7da6-47ff-bd3b-481715c91bba",
     "fields": {
       "keycloak_id": "6caef97f-2619-44b8-8580-5ed66d327f01",
       "name": "Stammesführung",
       "parent": "b314f247-f2ee-4d80-828c-23f0b4b3c24a",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "742dde40-db02-493c-9222-0d76191c0800",
+    "fields": {
+      "keycloak_id": "f7ef8d30-1a1c-47a6-9305-5fef71be4e8c",
+      "name": "Hratuga",
+      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "26470543-aa3e-47e7-af2a-37e0972a2eaf",
+    "fields": {
+      "keycloak_id": "c6dcde57-6c67-45f5-aba0-675c02cc1aae",
+      "name": "Stammesführung",
+      "parent": "742dde40-db02-493c-9222-0d76191c0800",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "058a85e1-6aca-40e8-8d40-91d7a44bbeb4",
+    "fields": {
+      "keycloak_id": "19fd993f-1ef4-4d4e-84b1-6ecc7ab0d370",
+      "name": "löschen2",
+      "parent": "742dde40-db02-493c-9222-0d76191c0800",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "0fe14ed3-0451-4def-83ce-1007dd7a4c7d",
+    "fields": {
+      "keycloak_id": "ab3e4a04-1925-4c93-9e9d-9371b79ef85b",
+      "name": "Stellv. Stammesführung",
+      "parent": "742dde40-db02-493c-9222-0d76191c0800",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "5c7a1caf-9b5e-4f1f-bce5-a538ff3ee126",
+    "fields": {
+      "keycloak_id": "45c622ed-f256-4345-9eae-b44aab5f2663",
+      "name": "kkkk",
+      "parent": "742dde40-db02-493c-9222-0d76191c0800",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "7508b980-98bb-46f9-b094-0d5af7fb2d02",
+    "fields": {
+      "keycloak_id": "5130793d-27bc-4725-b9ff-f81cbca037e3",
+      "name": "nkjnkjnjk",
+      "parent": "26470543-aa3e-47e7-af2a-37e0972a2eaf",
       "membership_allowed": true,
       "description": ""
     }
@@ -265,6 +397,17 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "49beaead-17a9-421b-9fea-ad486d26ef13",
+    "fields": {
+      "keycloak_id": "50c465b4-85b1-4ed8-bbb1-e72daea1886e",
+      "name": "DPV Verbandslager 2023",
+      "parent": "31c7f457-c7e5-4dc4-9b95-3de0622b6aa6",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "17807acf-04bc-49bf-ab24-4885192d01bf",
     "fields": {
       "keycloak_id": "6311f5c2-8670-46e9-b033-015ce1986dc6",
@@ -276,11 +419,176 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "283392a6-cfa6-495e-99b0-8504cfe3e74b",
+    "fields": {
+      "keycloak_id": "009733fe-d465-42c9-91ac-1f3a1589607f",
+      "name": "Ring Kölner Bucht",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+    "fields": {
+      "keycloak_id": "244faeca-85bf-4745-bf4a-351349183e23",
+      "name": "Stämme",
+      "parent": "283392a6-cfa6-495e-99b0-8504cfe3e74b",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "40788fe4-cf09-4ddd-b1d3-9cc0510326c3",
+    "fields": {
+      "keycloak_id": "252b296a-7985-4123-a380-16c2062b62e1",
+      "name": "Landesritter",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "35ead3a7-20cc-4b28-b99c-47af5a0116f5",
+    "fields": {
+      "keycloak_id": "5e465940-531d-4682-a8b9-dbe3fc9689d3",
+      "name": "Sperber",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "0dc662fa-d851-4faf-8723-6060c6bbeac2",
+    "fields": {
+      "keycloak_id": "c9fa1431-c668-4b59-b21d-364784b41ebb",
+      "name": "St. Willigis",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
+    "fields": {
+      "keycloak_id": "01dd3798-f3da-445f-b746-6a41c78328d8",
+      "name": "Wikinger",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "b9f23f0a-1f56-4e50-925b-8cc02b682786",
+    "fields": {
+      "keycloak_id": "f33d0476-163c-4cdd-a2c9-4662f9cc37ca",
+      "name": "Steppenwölfe",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "ffde12f1-25e7-498f-8243-08ff36527e69",
+    "fields": {
+      "keycloak_id": "b55d961b-c4dc-4344-9319-8d5a494c249f",
+      "name": "Wildkatzen",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "e481340b-487b-444d-b824-b8495f85c108",
+    "fields": {
+      "keycloak_id": "5cf476de-76f4-4cea-a839-25ce68bc3a36",
+      "name": "Galaxias",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "70cfe709-6b67-4558-8e1d-e319eb6f0174",
+    "fields": {
+      "keycloak_id": "8dc627d7-57ee-4248-86f0-81c8f77d151b",
+      "name": "Condor",
+      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "1813cea9-3d8a-4c96-ad18-e1d2b03ab792",
     "fields": {
       "keycloak_id": "6f66b787-cf3b-4fa2-a026-acf3a682bd10",
       "name": "Stellv. Stammesführung",
       "parent": "70cfe709-6b67-4558-8e1d-e319eb6f0174",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
+    "fields": {
+      "keycloak_id": "06066614-38c6-4d13-974c-6cc9274abe07",
+      "name": "Ring Bergisches Land",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "06b24cbd-78d8-4285-a3b5-2f2fa24592ff",
+    "fields": {
+      "keycloak_id": "f8a3c20d-9221-430d-8e4a-bfddea9046c8",
+      "name": "Ringführung",
+      "parent": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "816f1f9e-ed99-4e20-a570-1a379c1fdb8b",
+    "fields": {
+      "keycloak_id": "bc40c188-1631-42b8-9bcc-10273ffd76a0",
+      "name": "Stellv. Ringführung",
+      "parent": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
+    "fields": {
+      "keycloak_id": "88f2bf6f-26c8-4204-9cca-2286677a414d",
+      "name": "Stämme",
+      "parent": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "556c8fc5-a122-4901-9683-027991c42cac",
+    "fields": {
+      "keycloak_id": "d2329d9b-ada4-460f-bc0e-1e7798143d48",
+      "name": "Monte Verita",
+      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
       "membership_allowed": true,
       "description": ""
     }
@@ -309,6 +617,39 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "5adef5cf-d81b-4b41-8b6d-e3ce7bc0f7db",
+    "fields": {
+      "keycloak_id": "69f5c6c3-10ef-42f2-8aed-2d12b598379d",
+      "name": "Ring Nord",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "1ce980f8-d523-4879-896d-6ff7ea82873a",
+    "fields": {
+      "keycloak_id": "b963001a-b7b6-4c2c-8693-4b3c2285247f",
+      "name": "Stämme",
+      "parent": "5adef5cf-d81b-4b41-8b6d-e3ce7bc0f7db",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "dd5461ec-b732-44c7-8fee-25d4cb6a0a43",
+    "fields": {
+      "keycloak_id": "ab7e0613-3c62-4471-9b1f-1b0723dfdc56",
+      "name": "SALZIG",
+      "parent": "1ce980f8-d523-4879-896d-6ff7ea82873a",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "19cc2f9c-96ed-46ed-bcf9-e49bc8ea5b93",
     "fields": {
       "keycloak_id": "f8e2d0cc-63d1-4609-8e79-cf4f65ce4ac9",
@@ -331,11 +672,66 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "1ce980f8-d523-4879-896d-6ff7ea82873a",
+    "pk": "bb2bc89c-cfd9-40f0-bfd9-3a2d5c9432e9",
     "fields": {
-      "keycloak_id": "b963001a-b7b6-4c2c-8693-4b3c2285247f",
+      "keycloak_id": "1e97a3ab-8195-4646-bb5c-eb59be95775c",
+      "name": "Ring Nord-Ost",
+      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "56941f00-0894-49cf-bf16-48d2e9942c24",
+    "fields": {
+      "keycloak_id": "b49900d9-eacf-4e54-be67-36a837027127",
       "name": "Stämme",
-      "parent": "5adef5cf-d81b-4b41-8b6d-e3ce7bc0f7db",
+      "parent": "bb2bc89c-cfd9-40f0-bfd9-3a2d5c9432e9",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
+    "fields": {
+      "keycloak_id": "122deb6e-d8cb-4314-9d0c-c9d5803978a7",
+      "name": "Iltis",
+      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "0d3ef5ce-1e65-46df-b632-0948758e674e",
+    "fields": {
+      "keycloak_id": "6286b3ae-42d5-4a56-b69b-60b74e4239d3",
+      "name": "Möhrenköppe",
+      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "e3df1461-e448-47c7-9535-89ef4c67e5f8",
+    "fields": {
+      "keycloak_id": "200c6843-eb93-4125-b527-33cf3569ab58",
+      "name": "Seeadler",
+      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "83af9b52-4a47-4e09-887c-2fbb6d0260f1",
+    "fields": {
+      "keycloak_id": "02540b37-78f9-40e2-a4ff-c8f71d8fac2f",
+      "name": "Pegasus",
+      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
       "membership_allowed": true,
       "description": ""
     }
@@ -386,22 +782,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "20cd35a9-7c7e-49af-9335-3d3a292ec15a",
+    "pk": "2269cd7c-366c-46c2-9470-e39257566647",
     "fields": {
-      "keycloak_id": "565ba7e3-b443-4554-8a2a-5f3e689f0ad5",
-      "name": "Stämme",
-      "parent": "7d3dcbe9-8ed4-4b45-9c35-d72bf3b6ebbd",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "2136271a-e83e-48c8-b90d-5f7e18ebbc81",
-    "fields": {
-      "keycloak_id": "00db543d-93b4-4531-b8f1-77634a4478e1",
-      "name": "DPBM",
-      "parent": "398d37a7-49cd-455b-a7ba-6f6f6f552942",
+      "keycloak_id": "e778a437-933c-49e6-b983-45fde4d3f982",
+      "name": "Roter Milan",
+      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
       "membership_allowed": true,
       "description": ""
     }
@@ -419,11 +804,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "2269cd7c-366c-46c2-9470-e39257566647",
+    "pk": "dd52b19b-296a-4051-94c2-140a62e58d2b",
     "fields": {
-      "keycloak_id": "e778a437-933c-49e6-b983-45fde4d3f982",
-      "name": "Roter Milan",
-      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
+      "keycloak_id": "8d5f3cda-0695-4bb7-b064-6488af404d84",
+      "name": "Bundesamt",
+      "parent": "26470543-aa3e-47e7-af2a-37e0972a2eaf",
       "membership_allowed": true,
       "description": ""
     }
@@ -463,11 +848,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "26470543-aa3e-47e7-af2a-37e0972a2eaf",
+    "pk": "bdd37bc4-a662-4a17-a861-1b237a3e16a7",
     "fields": {
-      "keycloak_id": "c6dcde57-6c67-45f5-aba0-675c02cc1aae",
-      "name": "Stammesführung",
-      "parent": "742dde40-db02-493c-9222-0d76191c0800",
+      "keycloak_id": "63eef243-94d8-41bd-b9fd-2a420017ff54",
+      "name": "Waldläufer",
+      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
       "membership_allowed": true,
       "description": ""
     }
@@ -485,22 +870,33 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "283392a6-cfa6-495e-99b0-8504cfe3e74b",
+    "pk": "0acad031-a792-4959-899e-4dacaa6074b3",
     "fields": {
-      "keycloak_id": "009733fe-d465-42c9-91ac-1f3a1589607f",
-      "name": "Ring Kölner Bucht",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
+      "keycloak_id": "4afc8750-be2c-4021-94b9-7d6ada85f338",
+      "name": "Schatzamt",
+      "parent": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
+    "pk": "be8c8e3c-0f2c-41db-a254-0e029f7d2f79",
     "fields": {
-      "keycloak_id": "122deb6e-d8cb-4314-9d0c-c9d5803978a7",
-      "name": "Iltis",
-      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
+      "keycloak_id": "301ce2ca-2dfc-4a69-8bd1-0edace3943d9",
+      "name": "Stellv. Stammesführung",
+      "parent": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "57634615-5256-4b16-b334-f03b559535ab",
+    "fields": {
+      "keycloak_id": "352808dc-049a-40ad-94e3-5c9ce6982232",
+      "name": "Stammesführung",
+      "parent": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
       "membership_allowed": true,
       "description": ""
     }
@@ -512,6 +908,17 @@
       "keycloak_id": "2557182b-1339-4354-8349-2a78ea922660",
       "name": "Schatzamt",
       "parent": "7d3dcbe9-8ed4-4b45-9c35-d72bf3b6ebbd",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "c0450dca-7b97-4579-8eb9-86f2a876e31b",
+    "fields": {
+      "keycloak_id": "a14dc94b-233a-4665-8a3c-69fa94bece1d",
+      "name": "Dumeklemmer",
+      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
       "membership_allowed": true,
       "description": ""
     }
@@ -540,6 +947,83 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+    "fields": {
+      "keycloak_id": "57d6969a-c3b0-4c5a-b112-e6a0bb3a02f3",
+      "name": "Stämme",
+      "parent": "730a8291-5870-4941-8d4f-3d3e1119d350",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "08950d7e-9a75-42f9-bab2-2312e8accac4",
+    "fields": {
+      "keycloak_id": "e79a664e-d0ad-4992-be58-3b2d4bd91596",
+      "name": "Deutschritter",
+      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "9550de7f-6cd6-4f97-bf7f-f6e9d0074e3d",
+    "fields": {
+      "keycloak_id": "06c29518-cfc4-408b-bd0e-7efd4a27b87b",
+      "name": "Troja Toscana",
+      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "9181b1af-3dc0-4acc-b340-84c73adc52c0",
+    "fields": {
+      "keycloak_id": "cfcd2a5f-06d8-4a5d-8ee8-52c9e6e4575e",
+      "name": "Hellas",
+      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
+    "fields": {
+      "keycloak_id": "c525ce11-7cb5-446d-815f-87cc5e50d63e",
+      "name": "Karthago-Persepolis",
+      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "a771832a-6f1d-461b-ae87-ac3aae70dc01",
+    "fields": {
+      "keycloak_id": "2568b058-0132-4780-9da6-6874680929c9",
+      "name": "Argonauten",
+      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "ed0ea231-08ce-46bf-94a8-802661822304",
+    "fields": {
+      "keycloak_id": "7973ba6c-4c75-4fad-9a56-fc565579145e",
+      "name": "Zugvögel",
+      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "2d7e7f03-8cd4-442f-88a0-3b8533ee7519",
     "fields": {
       "keycloak_id": "0593fcbd-3e1e-4b2b-8feb-40dc8a365acb",
@@ -562,17 +1046,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "2fb07c05-a61f-42e8-958d-326474289267",
-    "fields": {
-      "keycloak_id": "721c8225-aa62-4cf7-96c1-7d3393368e98",
-      "name": "DPV",
-      "parent": null,
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "2fd7b547-af75-40c4-89c7-059d2ad28584",
     "fields": {
       "keycloak_id": "47b0948a-d3e9-4554-a376-22fd662fa973",
@@ -584,11 +1057,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "31c7f457-c7e5-4dc4-9b95-3de0622b6aa6",
+    "pk": "d7e84c3a-e98b-4b1c-832b-04483223dfc7",
     "fields": {
-      "keycloak_id": "fe679a36-a852-4c26-aa3e-47ccdf4e5f97",
-      "name": "Aktionen",
-      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
+      "keycloak_id": "cd4ec4b2-c54f-4d1a-acc4-a0dc28e79503",
+      "name": "Mittelerde",
+      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
       "membership_allowed": true,
       "description": ""
     }
@@ -628,33 +1101,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "35ead3a7-20cc-4b28-b99c-47af5a0116f5",
-    "fields": {
-      "keycloak_id": "5e465940-531d-4682-a8b9-dbe3fc9689d3",
-      "name": "﻿Sperber",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "378bf61c-1c87-4a1e-b5a5-18aa5558ff82",
     "fields": {
       "keycloak_id": "092cc0e0-2aae-4c2b-ac07-561a5102fe7b",
       "name": "Ansprechperson",
       "parent": "0b2d78ec-db06-4cf2-bd35-779b6354062c",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "398d37a7-49cd-455b-a7ba-6f6f6f552942",
-    "fields": {
-      "keycloak_id": "17ca2b21-3017-4fa8-9cc0-88025349ebc3",
-      "name": "Bünde",
-      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
       "membership_allowed": true,
       "description": ""
     }
@@ -677,17 +1128,6 @@
       "keycloak_id": "5a8d9dab-2989-4f87-9a9c-4b7f2fd912a3",
       "name": "Stellv. Stammesführung",
       "parent": "9550de7f-6cd6-4f97-bf7f-f6e9d0074e3d",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "3a9a9151-8433-4d1c-9719-eb9c92884596",
-    "fields": {
-      "keycloak_id": "cff0a41e-5a5c-431c-905f-9ea7dddd68e5",
-      "name": "Nextcloud",
-      "parent": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
       "membership_allowed": true,
       "description": ""
     }
@@ -738,17 +1178,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "40788fe4-cf09-4ddd-b1d3-9cc0510326c3",
-    "fields": {
-      "keycloak_id": "252b296a-7985-4123-a380-16c2062b62e1",
-      "name": "Landesritter",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "41929370-3f4d-4322-9436-7a87285e554f",
     "fields": {
       "keycloak_id": "3503faca-14df-4879-b677-af3b627ba2fb",
@@ -765,6 +1194,17 @@
       "keycloak_id": "af4d49d7-00f3-459f-b32a-048880467ea2",
       "name": "Schatzamt",
       "parent": "dd5461ec-b732-44c7-8fee-25d4cb6a0a43",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "b1f6254c-777e-4cfb-8674-eca3e983a619",
+    "fields": {
+      "keycloak_id": "4fc30d82-7d54-47f9-a519-10cf290930ff",
+      "name": "Landgräfin Caroline",
+      "parent": "20cd35a9-7c7e-49af-9335-3d3a292ec15a",
       "membership_allowed": true,
       "description": ""
     }
@@ -804,28 +1244,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "4554e0f8-6150-41d8-ba71-77acb1d00711",
-    "fields": {
-      "keycloak_id": "007e5f1b-fd8a-491f-82ad-e5ac046a2e36",
-      "name": "Keycloak",
-      "parent": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "45ebe314-2738-495c-ba17-ef1c586baa9e",
-    "fields": {
-      "keycloak_id": "257822b3-4339-4a21-b602-ef6d47158eb1",
-      "name": "Stammesführung",
-      "parent": "a569fbbb-b72a-411e-be33-10f354023e6f",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "4740e67c-dc13-4ebd-b84f-d3dd1bc56550",
     "fields": {
       "keycloak_id": "005b95e3-2ce3-42b1-9de2-48cabb04c3fb",
@@ -837,22 +1255,22 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "48d41ac3-7bfb-4bd7-90bd-7692594d72e0",
+    "pk": "b8be193b-e524-4141-8818-9764eae30f79",
     "fields": {
-      "keycloak_id": "9bc79480-8279-4275-86e0-d2f399d8a8cf",
-      "name": "Schatzamt",
-      "parent": "b8be193b-e524-4141-8818-9764eae30f79",
+      "keycloak_id": "72e221a8-af70-4458-9291-4af5fce810a4",
+      "name": "Schwarze Löwen",
+      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "49beaead-17a9-421b-9fea-ad486d26ef13",
+    "pk": "48d41ac3-7bfb-4bd7-90bd-7692594d72e0",
     "fields": {
-      "keycloak_id": "50c465b4-85b1-4ed8-bbb1-e72daea1886e",
-      "name": "DPV Verbandslager 2023",
-      "parent": "31c7f457-c7e5-4dc4-9b95-3de0622b6aa6",
+      "keycloak_id": "9bc79480-8279-4275-86e0-d2f399d8a8cf",
+      "name": "Schatzamt",
+      "parent": "b8be193b-e524-4141-8818-9764eae30f79",
       "membership_allowed": true,
       "description": ""
     }
@@ -875,28 +1293,6 @@
       "keycloak_id": "36cb4a06-1a47-41b3-a6c9-723a0d01d854",
       "name": "Stellv. Ringführung",
       "parent": "5adef5cf-d81b-4b41-8b6d-e3ce7bc0f7db",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "4d01cca7-5a94-41bc-a944-6bc9c5627d1b",
-    "fields": {
-      "keycloak_id": "0d609477-3301-4976-afcc-1b168452cc66",
-      "name": "Schatzamt",
-      "parent": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "4de10821-4bb8-4230-90dc-eace3ebd120b",
-    "fields": {
-      "keycloak_id": "4c7ba379-a21a-4e9a-bda1-03c4762d31b6",
-      "name": "Arbeitskreise",
-      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
       "membership_allowed": true,
       "description": ""
     }
@@ -941,6 +1337,17 @@
       "keycloak_id": "2559b589-1322-4c0f-bf5e-5aa3c3f44d4c",
       "name": "Stellv. Stammesführung",
       "parent": "e481340b-487b-444d-b824-b8495f85c108",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "92da773a-7203-454a-bc73-7b7b32970299",
+    "fields": {
+      "keycloak_id": "d3db38f2-4644-4fa1-b59c-17ffb62868d7",
+      "name": "Draconis",
+      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
       "membership_allowed": true,
       "description": ""
     }
@@ -1035,55 +1442,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "556c8fc5-a122-4901-9683-027991c42cac",
-    "fields": {
-      "keycloak_id": "d2329d9b-ada4-460f-bc0e-1e7798143d48",
-      "name": "Monte Verita",
-      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "56941f00-0894-49cf-bf16-48d2e9942c24",
-    "fields": {
-      "keycloak_id": "b49900d9-eacf-4e54-be67-36a837027127",
-      "name": "Stämme",
-      "parent": "bb2bc89c-cfd9-40f0-bfd9-3a2d5c9432e9",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "57634615-5256-4b16-b334-f03b559535ab",
-    "fields": {
-      "keycloak_id": "352808dc-049a-40ad-94e3-5c9ce6982232",
-      "name": "Stammesführung",
-      "parent": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "57734402-797d-4052-a2cc-9996f3762a03",
     "fields": {
       "keycloak_id": "bd179d9a-a1ae-4397-8f0a-d0496a70bee1",
       "name": "Stammesführung",
       "parent": "c0450dca-7b97-4579-8eb9-86f2a876e31b",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "59039907-ac82-437b-b4d3-31e0f35273e7",
-    "fields": {
-      "keycloak_id": "e4fcb67f-45f2-49ab-8b2e-baf731004ca7",
-      "name": "Stämme",
-      "parent": "d5dcb5ee-ccba-4fcc-8649-9a9e637d9a8e",
       "membership_allowed": true,
       "description": ""
     }
@@ -1101,55 +1464,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "5adef5cf-d81b-4b41-8b6d-e3ce7bc0f7db",
-    "fields": {
-      "keycloak_id": "69f5c6c3-10ef-42f2-8aed-2d12b598379d",
-      "name": "Ring Nord",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "5aeab296-fcc3-42f2-8e9a-832804617a4c",
     "fields": {
       "keycloak_id": "cee0dced-4fdd-4081-aef7-7863f13c1b76",
       "name": "Bundesführung",
       "parent": "39aa4015-9ce0-4843-b81e-ecfdc4057306",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
-    "fields": {
-      "keycloak_id": "244faeca-85bf-4745-bf4a-351349183e23",
-      "name": "Stämme",
-      "parent": "283392a6-cfa6-495e-99b0-8504cfe3e74b",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "5c7a1caf-9b5e-4f1f-bce5-a538ff3ee126",
-    "fields": {
-      "keycloak_id": "45c622ed-f256-4345-9eae-b44aab5f2663",
-      "name": "kkkk",
-      "parent": "742dde40-db02-493c-9222-0d76191c0800",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
-    "fields": {
-      "keycloak_id": "06066614-38c6-4d13-974c-6cc9274abe07",
-      "name": "Ring Bergisches Land",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
       "membership_allowed": true,
       "description": ""
     }
@@ -1266,17 +1585,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
-    "fields": {
-      "keycloak_id": "b611e6e2-1f37-4d39-8125-006cf62124ae",
-      "name": "Anwendungen",
-      "parent": null,
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "6b37c448-be2f-467e-add8-002ae311b9f9",
     "fields": {
       "keycloak_id": "f05d578b-1fbe-42b7-85eb-67a9d126f3d4",
@@ -1288,11 +1596,44 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+    "pk": "4d01cca7-5a94-41bc-a944-6bc9c5627d1b",
     "fields": {
-      "keycloak_id": "57d6969a-c3b0-4c5a-b112-e6a0bb3a02f3",
-      "name": "Stämme",
-      "parent": "730a8291-5870-4941-8d4f-3d3e1119d350",
+      "keycloak_id": "0d609477-3301-4976-afcc-1b168452cc66",
+      "name": "Schatzamt",
+      "parent": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "094a85c8-6bfc-4b41-912e-ef659a5c9e94",
+    "fields": {
+      "keycloak_id": "3d916602-862e-4304-a170-86969c022c27",
+      "name": "Stammesführung",
+      "parent": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "fbe4a418-a7e1-42d4-99df-28b60ff3ec66",
+    "fields": {
+      "keycloak_id": "ab35eb2e-9467-4d31-a7f0-39c9a0bfa04c",
+      "name": "Stellv. Stammesführung",
+      "parent": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "d80af5fd-a9e8-4434-afac-452eab0c9f30",
+    "fields": {
+      "keycloak_id": "9dfe20dd-97ef-4a0c-b9bc-3356a534da4b",
+      "name": "Silberfüchse",
+      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
       "membership_allowed": true,
       "description": ""
     }
@@ -1332,6 +1673,17 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "b7b9ce32-187b-45fe-a708-75fe5f76270e",
+    "fields": {
+      "keycloak_id": "2d0bdb21-29c2-4420-b6df-148109f9d5f2",
+      "name": "Welfen",
+      "parent": "1ce980f8-d523-4879-896d-6ff7ea82873a",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "70a1a11e-bdb4-419a-b5e5-11a52b4c6a0c",
     "fields": {
       "keycloak_id": "25fcc1c5-8cd8-4c29-9b34-2bc46eba536a",
@@ -1354,88 +1706,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "70cfe709-6b67-4558-8e1d-e319eb6f0174",
-    "fields": {
-      "keycloak_id": "8dc627d7-57ee-4248-86f0-81c8f77d151b",
-      "name": "Condor",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "730a8291-5870-4941-8d4f-3d3e1119d350",
-    "fields": {
-      "keycloak_id": "420e7d90-f8b5-4ae3-9e17-a411f9a46b7c",
-      "name": "Ring Köln",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "742dde40-db02-493c-9222-0d76191c0800",
-    "fields": {
-      "keycloak_id": "f7ef8d30-1a1c-47a6-9305-5fef71be4e8c",
-      "name": "Hratuga",
-      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "7451f4fb-f7c9-4b98-8af4-caef877b80ba",
-    "fields": {
-      "keycloak_id": "12713d5f-32ed-4cb3-bac3-d4dee5627a53",
-      "name": "Stellv. Stammesführung",
-      "parent": "b9f23f0a-1f56-4e50-925b-8cc02b682786",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "7508b980-98bb-46f9-b094-0d5af7fb2d02",
-    "fields": {
-      "keycloak_id": "5130793d-27bc-4725-b9ff-f81cbca037e3",
-      "name": "nkjnkjnjk",
-      "parent": "26470543-aa3e-47e7-af2a-37e0972a2eaf",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "7602354a-4160-45c0-a73e-2493ae0bc367",
     "fields": {
       "keycloak_id": "04038657-4081-4cc0-807e-66f877778a66",
       "name": "Schatzamt",
       "parent": "d80af5fd-a9e8-4434-afac-452eab0c9f30",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "76245fc0-959a-49bf-913d-1459be648887",
-    "fields": {
-      "keycloak_id": "86b1edcc-c133-40aa-a853-21e70fbb45af",
-      "name": "Stellv. Stammesführung",
-      "parent": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "77b6d8cb-1ca2-4494-992e-02eb20b2b67f",
-    "fields": {
-      "keycloak_id": "1b77f932-b009-44e2-86ab-d33c91d93604",
-      "name": "Ring Rhein Lippe",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
       "membership_allowed": true,
       "description": ""
     }
@@ -1497,33 +1772,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "7d3dcbe9-8ed4-4b45-9c35-d72bf3b6ebbd",
-    "fields": {
-      "keycloak_id": "8bb3955a-0851-4ab5-9540-4b60105456aa",
-      "name": "Aufbauring Waterkant",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "7fd1a9f2-80ca-403a-9c49-627c7a02e820",
     "fields": {
       "keycloak_id": "24bc40f7-f839-4fec-9f7b-d53f84329888",
       "name": "DPV AK Doku 8",
       "parent": "4de10821-4bb8-4230-90dc-eace3ebd120b",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "816f1f9e-ed99-4e20-a570-1a379c1fdb8b",
-    "fields": {
-      "keycloak_id": "bc40c188-1631-42b8-9bcc-10273ffd76a0",
-      "name": "Stellv. Ringführung",
-      "parent": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
       "membership_allowed": true,
       "description": ""
     }
@@ -1541,11 +1794,33 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "fafb5f8f-544b-46ca-b00e-9a33efbefdd8",
+    "fields": {
+      "keycloak_id": "7e1b6f9c-0a60-430c-af83-be42c5b80a10",
+      "name": "Wildgänse",
+      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "83125bf4-8273-4149-bf64-5f945d18ce62",
     "fields": {
       "keycloak_id": "d0d340f3-77c6-44ed-ac44-b6a3a44ae434",
       "name": "Schatzamt",
       "parent": "fafb5f8f-544b-46ca-b00e-9a33efbefdd8",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "c0e4675c-6eab-4725-b7ed-fbad70f772fb",
+    "fields": {
+      "keycloak_id": "d7045371-20bf-4484-9f1a-4f80f489f420",
+      "name": "Rote Corsaren",
+      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
       "membership_allowed": true,
       "description": ""
     }
@@ -1574,22 +1849,22 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "83af9b52-4a47-4e09-887c-2fbb6d0260f1",
+    "pk": "84c11cd9-1f25-4362-9551-f37e4fcd52a0",
     "fields": {
-      "keycloak_id": "02540b37-78f9-40e2-a4ff-c8f71d8fac2f",
-      "name": "Pegasus",
-      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
+      "keycloak_id": "afa3a4c0-b92a-4fe9-9dca-e842c424ceeb",
+      "name": "Schatzamt",
+      "parent": "e481340b-487b-444d-b824-b8495f85c108",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "84c11cd9-1f25-4362-9551-f37e4fcd52a0",
+    "pk": "baaf1a6f-b794-40c4-9c12-ba81c0eec6d4",
     "fields": {
-      "keycloak_id": "afa3a4c0-b92a-4fe9-9dca-e842c424ceeb",
-      "name": "Schatzamt",
-      "parent": "e481340b-487b-444d-b824-b8495f85c108",
+      "keycloak_id": "7f876fc9-b376-4e2f-b3fb-3aff30613c37",
+      "name": "Crismeke",
+      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
       "membership_allowed": true,
       "description": ""
     }
@@ -1695,28 +1970,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "8f451834-66cc-40c9-a004-3ebb2ebb3f1e",
-    "fields": {
-      "keycloak_id": "e5ba3c6f-2426-41ef-a998-e0c6f7183174",
-      "name": "Confluence",
-      "parent": "6a871429-f7c7-4f37-8150-5e3b0fb495ac",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "9181b1af-3dc0-4acc-b340-84c73adc52c0",
-    "fields": {
-      "keycloak_id": "cfcd2a5f-06d8-4a5d-8ee8-52c9e6e4575e",
-      "name": "Hellas",
-      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "919ab493-d541-4861-999e-b9504b310527",
     "fields": {
       "keycloak_id": "4871388c-9d1a-4aa6-b428-23f4b8e144fe",
@@ -1728,11 +1981,22 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "92da773a-7203-454a-bc73-7b7b32970299",
+    "pk": "7451f4fb-f7c9-4b98-8af4-caef877b80ba",
     "fields": {
-      "keycloak_id": "d3db38f2-4644-4fa1-b59c-17ffb62868d7",
-      "name": "Draconis",
-      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
+      "keycloak_id": "12713d5f-32ed-4cb3-bac3-d4dee5627a53",
+      "name": "Stellv. Stammesführung",
+      "parent": "b9f23f0a-1f56-4e50-925b-8cc02b682786",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "09d79ace-af18-4888-bd86-64699691c91a",
+    "fields": {
+      "keycloak_id": "23e02d13-99a0-4513-bdd1-c4c06a69af10",
+      "name": "Stammesführung",
+      "parent": "b9f23f0a-1f56-4e50-925b-8cc02b682786",
       "membership_allowed": true,
       "description": ""
     }
@@ -1744,17 +2008,6 @@
       "keycloak_id": "d303d079-edbc-442c-a771-b35f3b181e7b",
       "name": "Schatzamt",
       "parent": "0e826ba2-4e1a-4280-9706-5f7aa32c3f38",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "9550de7f-6cd6-4f97-bf7f-f6e9d0074e3d",
-    "fields": {
-      "keycloak_id": "06c29518-cfc4-408b-bd0e-7efd4a27b87b",
-      "name": "Troja Toscana",
-      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
       "membership_allowed": true,
       "description": ""
     }
@@ -1860,6 +2113,17 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
+    "pk": "d8d1de83-3d99-4318-9e24-c0cecffe0f77",
+    "fields": {
+      "keycloak_id": "512ab83b-2127-4d9b-82c0-aa435081beb4",
+      "name": "Graf Luckner",
+      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
     "pk": "a0364921-77ed-4ded-aab8-ecc5e66d6416",
     "fields": {
       "keycloak_id": "6957f289-c83c-4fdc-90f1-22a5667b9fe6",
@@ -1876,17 +2140,6 @@
       "keycloak_id": "09ae01ec-16cc-4625-a096-8150c11aa624",
       "name": "Schatzamt",
       "parent": "77b6d8cb-1ca2-4494-992e-02eb20b2b67f",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
-    "fields": {
-      "keycloak_id": "88f2bf6f-26c8-4204-9cca-2286677a414d",
-      "name": "Stämme",
-      "parent": "5c8cc5e8-ab15-46f8-b233-c7fba4833636",
       "membership_allowed": true,
       "description": ""
     }
@@ -1915,22 +2168,44 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "a6895e79-071e-437d-94a3-66edb2ec6727",
+    "pk": "45ebe314-2738-495c-ba17-ef1c586baa9e",
     "fields": {
-      "keycloak_id": "e2a597be-d9a0-4661-9afa-901977596b32",
+      "keycloak_id": "257822b3-4339-4a21-b602-ef6d47158eb1",
       "name": "Stammesführung",
-      "parent": "bdd37bc4-a662-4a17-a861-1b237a3e16a7",
+      "parent": "a569fbbb-b72a-411e-be33-10f354023e6f",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "a771832a-6f1d-461b-ae87-ac3aae70dc01",
+    "pk": "0995eee2-fd56-48aa-a0d3-546638410056",
     "fields": {
-      "keycloak_id": "2568b058-0132-4780-9da6-6874680929c9",
-      "name": "Argonauten",
-      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "keycloak_id": "bd682f03-ab1b-403a-827c-c7d432595a88",
+      "name": "Schatzamt",
+      "parent": "a569fbbb-b72a-411e-be33-10f354023e6f",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "c9ad725d-fa5e-4062-98ba-9605e777b229",
+    "fields": {
+      "keycloak_id": "9792acb0-2b56-4b7b-9cae-f5812336a3b5",
+      "name": "Stellv. Stammesführung",
+      "parent": "a569fbbb-b72a-411e-be33-10f354023e6f",
+      "membership_allowed": true,
+      "description": ""
+    }
+  },
+  {
+    "model": "keycloak_auth.keycloakgroup",
+    "pk": "a6895e79-071e-437d-94a3-66edb2ec6727",
+    "fields": {
+      "keycloak_id": "e2a597be-d9a0-4661-9afa-901977596b32",
+      "name": "Stammesführung",
+      "parent": "bdd37bc4-a662-4a17-a861-1b237a3e16a7",
       "membership_allowed": true,
       "description": ""
     }
@@ -1992,17 +2267,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "b1f6254c-777e-4cfb-8674-eca3e983a619",
-    "fields": {
-      "keycloak_id": "4fc30d82-7d54-47f9-a519-10cf290930ff",
-      "name": "Landgräfin Caroline",
-      "parent": "20cd35a9-7c7e-49af-9335-3d3a292ec15a",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "b249d030-d3df-4134-81db-830d60bf8450",
     "fields": {
       "keycloak_id": "ca5f25c6-12bf-40fd-a8bf-012b6023ab89",
@@ -2019,28 +2283,6 @@
       "keycloak_id": "2d6cf1b5-03f1-4795-9143-85399294856c",
       "name": "Schatzamt",
       "parent": "2269cd7c-366c-46c2-9470-e39257566647",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
-    "fields": {
-      "keycloak_id": "64f53549-d4e8-47c0-9b4d-c148b784de65",
-      "name": "Stämme",
-      "parent": "77b6d8cb-1ca2-4494-992e-02eb20b2b67f",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "b314f247-f2ee-4d80-828c-23f0b4b3c24a",
-    "fields": {
-      "keycloak_id": "b5b92d0f-6fab-4089-a7db-59204b9bed7e",
-      "name": "Raubvögel",
-      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
       "membership_allowed": true,
       "description": ""
     }
@@ -2069,28 +2311,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "b7b9ce32-187b-45fe-a708-75fe5f76270e",
-    "fields": {
-      "keycloak_id": "2d0bdb21-29c2-4420-b6df-148109f9d5f2",
-      "name": "Welfen",
-      "parent": "1ce980f8-d523-4879-896d-6ff7ea82873a",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "b8be193b-e524-4141-8818-9764eae30f79",
-    "fields": {
-      "keycloak_id": "72e221a8-af70-4458-9291-4af5fce810a4",
-      "name": "Schwarze Löwen",
-      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "b8cb3c89-a497-45c5-8da5-c6e3d7dc1c69",
     "fields": {
       "keycloak_id": "4934ffb9-bbb7-4074-af30-26feeb8671e6",
@@ -2113,17 +2333,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "b918d6c9-51e9-464a-8a64-d71c9c2e2052",
-    "fields": {
-      "keycloak_id": "e19fa028-9040-4ec6-9bf8-3f06f0b4aa1e",
-      "name": "Stellv. Stammesführung",
-      "parent": "e1cb9af7-1bcf-4ae2-b7cb-6b71f00f1f51",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "b9ed6c18-5d2b-44a4-99b3-e58932ecd75f",
     "fields": {
       "keycloak_id": "06748d4e-4127-42e4-b695-5cd50ff08315",
@@ -2135,44 +2344,33 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "b9f23f0a-1f56-4e50-925b-8cc02b682786",
+    "pk": "76245fc0-959a-49bf-913d-1459be648887",
     "fields": {
-      "keycloak_id": "f33d0476-163c-4cdd-a2c9-4662f9cc37ca",
-      "name": "Steppenwölfe",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "keycloak_id": "86b1edcc-c133-40aa-a853-21e70fbb45af",
+      "name": "Stellv. Stammesführung",
+      "parent": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "baaf1a6f-b794-40c4-9c12-ba81c0eec6d4",
+    "pk": "0c56e837-7316-4d4d-b70d-32881f9e6a26",
     "fields": {
-      "keycloak_id": "7f876fc9-b376-4e2f-b3fb-3aff30613c37",
-      "name": "Crismeke",
-      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
+      "keycloak_id": "7e3c2ad3-818f-49ce-8113-df762d83b5b8",
+      "name": "Schatzamt",
+      "parent": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "bb2bc89c-cfd9-40f0-bfd9-3a2d5c9432e9",
+    "pk": "d7ab13c7-e578-4136-96e2-d7a220fd4ac8",
     "fields": {
-      "keycloak_id": "1e97a3ab-8195-4646-bb5c-eb59be95775c",
-      "name": "Ring Nord-Ost",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
-    "fields": {
-      "keycloak_id": "01dd3798-f3da-445f-b746-6a41c78328d8",
-      "name": "Wikinger",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "keycloak_id": "969383b1-bf49-4d71-be1d-a5f56178fa6e",
+      "name": "Stammesführung",
+      "parent": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
       "membership_allowed": true,
       "description": ""
     }
@@ -2184,28 +2382,6 @@
       "keycloak_id": "cb639aba-e1d9-4a07-9e1b-ac37ed20ef66",
       "name": "Schatzamt",
       "parent": "6f3cfae5-885a-4b71-9f9c-26066adbcad3",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "bdd37bc4-a662-4a17-a861-1b237a3e16a7",
-    "fields": {
-      "keycloak_id": "63eef243-94d8-41bd-b9fd-2a420017ff54",
-      "name": "Waldläufer",
-      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "be8c8e3c-0f2c-41db-a254-0e029f7d2f79",
-    "fields": {
-      "keycloak_id": "301ce2ca-2dfc-4a69-8bd1-0edace3943d9",
-      "name": "Stellv. Stammesführung",
-      "parent": "28c7af54-6ea3-453e-9f5a-6115a5b7db4e",
       "membership_allowed": true,
       "description": ""
     }
@@ -2239,39 +2415,6 @@
       "keycloak_id": "fb257be5-3989-4574-9393-e86dbf5a036d",
       "name": "Stammesführung",
       "parent": "d8d1de83-3d99-4318-9e24-c0cecffe0f77",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "c0286cd0-ead0-4971-9ba8-169519b346bd",
-    "fields": {
-      "keycloak_id": "d68c6b74-5ae6-41c9-bca6-9a65fd4b5516",
-      "name": "Sonstige",
-      "parent": "2fb07c05-a61f-42e8-958d-326474289267",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "c0450dca-7b97-4579-8eb9-86f2a876e31b",
-    "fields": {
-      "keycloak_id": "a14dc94b-233a-4665-8a3c-69fa94bece1d",
-      "name": "Dumeklemmer",
-      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "c0e4675c-6eab-4725-b7ed-fbad70f772fb",
-    "fields": {
-      "keycloak_id": "d7045371-20bf-4484-9f1a-4f80f489f420",
-      "name": "Rote Corsaren",
-      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
       "membership_allowed": true,
       "description": ""
     }
@@ -2366,33 +2509,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "c9ad725d-fa5e-4062-98ba-9605e777b229",
-    "fields": {
-      "keycloak_id": "9792acb0-2b56-4b7b-9cae-f5812336a3b5",
-      "name": "Stellv. Stammesführung",
-      "parent": "a569fbbb-b72a-411e-be33-10f354023e6f",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "cb05caf7-951a-44fb-bcf3-d3b647a718e9",
     "fields": {
       "keycloak_id": "11b5c92a-b61c-4a8d-8ad3-f93d8c3a1584",
       "name": "fsdfsf",
       "parent": "26470543-aa3e-47e7-af2a-37e0972a2eaf",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
-    "fields": {
-      "keycloak_id": "ccfc0d33-dfe6-4232-b744-6e1f79205809",
-      "name": "Ringe",
-      "parent": "2136271a-e83e-48c8-b90d-5f7e18ebbc81",
       "membership_allowed": true,
       "description": ""
     }
@@ -2509,17 +2630,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "d5dcb5ee-ccba-4fcc-8649-9a9e637d9a8e",
-    "fields": {
-      "keycloak_id": "7548988f-2abf-419f-a6ee-f4ce2c2f7e53",
-      "name": "Ring Bayern",
-      "parent": "cba058b7-1c4e-4d45-a7d0-c23bcc698bdd",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "d5f85d32-4185-4231-bb96-dc54321d54bf",
     "fields": {
       "keycloak_id": "27c7d5db-d306-49e3-93f0-8dc5d69a394e",
@@ -2553,50 +2663,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "d7ab13c7-e578-4136-96e2-d7a220fd4ac8",
-    "fields": {
-      "keycloak_id": "969383b1-bf49-4d71-be1d-a5f56178fa6e",
-      "name": "Stammesführung",
-      "parent": "bc1ba93d-1471-4edc-bfd1-398b9b084f66",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "d7e84c3a-e98b-4b1c-832b-04483223dfc7",
-    "fields": {
-      "keycloak_id": "cd4ec4b2-c54f-4d1a-acc4-a0dc28e79503",
-      "name": "Mittelerde",
-      "parent": "b2f8aa1a-0d9d-4f25-8267-20a01e0aea61",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "d80af5fd-a9e8-4434-afac-452eab0c9f30",
-    "fields": {
-      "keycloak_id": "9dfe20dd-97ef-4a0c-b9bc-3356a534da4b",
-      "name": "Silberfüchse",
-      "parent": "59039907-ac82-437b-b4d3-31e0f35273e7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "d8d1de83-3d99-4318-9e24-c0cecffe0f77",
-    "fields": {
-      "keycloak_id": "512ab83b-2127-4d9b-82c0-aa435081beb4",
-      "name": "Graf Luckner",
-      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "db72c90a-d1a4-45a9-8819-ba939fb73da6",
     "fields": {
       "keycloak_id": "8c88c4c2-a655-4871-b5a6-02d2ffcc169a",
@@ -2613,28 +2679,6 @@
       "keycloak_id": "b2b4d092-c663-42a6-85c9-1ba3c91ed875",
       "name": "DPV Vorstand",
       "parent": "c0286cd0-ead0-4971-9ba8-169519b346bd",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "dd52b19b-296a-4051-94c2-140a62e58d2b",
-    "fields": {
-      "keycloak_id": "8d5f3cda-0695-4bb7-b064-6488af404d84",
-      "name": "Bundesamt",
-      "parent": "26470543-aa3e-47e7-af2a-37e0972a2eaf",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "dd5461ec-b732-44c7-8fee-25d4cb6a0a43",
-    "fields": {
-      "keycloak_id": "ab7e0613-3c62-4471-9b1f-1b0723dfdc56",
-      "name": "SALZIG",
-      "parent": "1ce980f8-d523-4879-896d-6ff7ea82873a",
       "membership_allowed": true,
       "description": ""
     }
@@ -2685,33 +2729,22 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
+    "pk": "01e495c6-c3ce-474e-b1ef-649c13edcd00",
     "fields": {
-      "keycloak_id": "c525ce11-7cb5-446d-815f-87cc5e50d63e",
-      "name": "Karthago-Persepolis",
-      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "keycloak_id": "e2531c86-cffe-49e2-943f-0e3772d7e5a0",
+      "name": "Schatzamt",
+      "parent": "e1cb9af7-1bcf-4ae2-b7cb-6b71f00f1f51",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "e3df1461-e448-47c7-9535-89ef4c67e5f8",
+    "pk": "b918d6c9-51e9-464a-8a64-d71c9c2e2052",
     "fields": {
-      "keycloak_id": "200c6843-eb93-4125-b527-33cf3569ab58",
-      "name": "Seeadler",
-      "parent": "56941f00-0894-49cf-bf16-48d2e9942c24",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "e481340b-487b-444d-b824-b8495f85c108",
-    "fields": {
-      "keycloak_id": "5cf476de-76f4-4cea-a839-25ce68bc3a36",
-      "name": "Galaxias",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "keycloak_id": "e19fa028-9040-4ec6-9bf8-3f06f0b4aa1e",
+      "name": "Stellv. Stammesführung",
+      "parent": "e1cb9af7-1bcf-4ae2-b7cb-6b71f00f1f51",
       "membership_allowed": true,
       "description": ""
     }
@@ -2740,22 +2773,22 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "ed0ea231-08ce-46bf-94a8-802661822304",
+    "pk": "eda1e47e-def8-4931-903b-4583236c5f6e",
     "fields": {
-      "keycloak_id": "7973ba6c-4c75-4fad-9a56-fc565579145e",
-      "name": "Zugvögel",
-      "parent": "6e60f93a-ae52-4e38-ae39-675f1f2036d2",
+      "keycloak_id": "21a3a12c-07db-47c5-866d-da6c6c52958d",
+      "name": "Nextcloud 2GB Quota",
+      "parent": "3a9a9151-8433-4d1c-9719-eb9c92884596",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "eda1e47e-def8-4931-903b-4583236c5f6e",
+    "pk": "fdd1acf7-9a13-4e5c-a812-e097def3f21e",
     "fields": {
-      "keycloak_id": "21a3a12c-07db-47c5-866d-da6c6c52958d",
-      "name": "Nextcloud 2GB Quota",
-      "parent": "3a9a9151-8433-4d1c-9719-eb9c92884596",
+      "keycloak_id": "95c81958-6eb1-4603-beac-a616db396ba5",
+      "name": "Cool",
+      "parent": "db907e7f-077c-4e0a-ac48-a8dc1db57abb",
       "membership_allowed": true,
       "description": ""
     }
@@ -2949,44 +2982,11 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "fafb5f8f-544b-46ca-b00e-9a33efbefdd8",
-    "fields": {
-      "keycloak_id": "7e1b6f9c-0a60-430c-af83-be42c5b80a10",
-      "name": "Wildgänse",
-      "parent": "a28fa226-483b-4a02-a096-bbf5b96c6b7a",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "fbe4a418-a7e1-42d4-99df-28b60ff3ec66",
-    "fields": {
-      "keycloak_id": "ab35eb2e-9467-4d31-a7f0-39c9a0bfa04c",
-      "name": "Stellv. Stammesführung",
-      "parent": "e34e0326-6b00-4a20-833e-363d9f1dfb57",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "fdb9f205-b18e-49ab-8992-78897fae7668",
     "fields": {
       "keycloak_id": "9184a290-39d9-4f69-8ba6-49cf6546f420",
       "name": "Stammesführung",
       "parent": "0d3ef5ce-1e65-46df-b632-0948758e674e",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "fdd1acf7-9a13-4e5c-a812-e097def3f21e",
-    "fields": {
-      "keycloak_id": "95c81958-6eb1-4603-beac-a616db396ba5",
-      "name": "Cool",
-      "parent": "db907e7f-077c-4e0a-ac48-a8dc1db57abb",
       "membership_allowed": true,
       "description": ""
     }
@@ -3015,22 +3015,22 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "ffde12f1-25e7-498f-8243-08ff36527e69",
+    "pk": "fffe5913-8522-47d7-9b6c-50c2af5e159e",
     "fields": {
-      "keycloak_id": "b55d961b-c4dc-4344-9319-8d5a494c249f",
-      "name": "Wildkatzen",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
+      "keycloak_id": "937e0cc3-b057-4ae9-8ee4-b8dcf4536e45",
+      "name": "DPV Präventionsnetzwerk",
+      "parent": "c0286cd0-ead0-4971-9ba8-169519b346bd",
       "membership_allowed": true,
       "description": ""
     }
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "fffe5913-8522-47d7-9b6c-50c2af5e159e",
+    "pk": "002ebf74-95c0-4a62-b374-2be23f6a1daf",
     "fields": {
-      "keycloak_id": "937e0cc3-b057-4ae9-8ee4-b8dcf4536e45",
-      "name": "DPV Präventionsnetzwerk",
-      "parent": "c0286cd0-ead0-4971-9ba8-169519b346bd",
+      "keycloak_id": "19c4c8c2-c2af-4e88-902b-d1b11d8d8661",
+      "name": "Schatzamt",
+      "parent": "92da773a-7203-454a-bc73-7b7b32970299",
       "membership_allowed": true,
       "description": ""
     }

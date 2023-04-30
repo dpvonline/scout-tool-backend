@@ -41,14 +41,14 @@ def create_missing_eat_habits(request) -> [str]:
     return result
 
 
-def add_event_attribute(attribute: attributes_model.AbstractAttribute) -> attributes_model.AbstractAttribute:
-    new_attribute: attributes_model.AbstractAttribute = deepcopy(attribute)
-    new_attribute.pk = None
-    new_attribute.id = None
-    new_attribute.template = False
-    new_attribute.template_id = attribute.id
-    new_attribute.save()
-    return new_attribute
+# def add_event_attribute(attribute: attributes_model.AbstractAttribute) -> attributes_model.AbstractAttribute:
+#     new_attribute: attributes_model.AbstractAttribute = deepcopy(attribute)
+#     new_attribute.pk = None
+#     new_attribute.id = None
+#     new_attribute.template = False
+#     new_attribute.template_id = attribute.id
+#     new_attribute.save()
+#     return new_attribute
 
 
 class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
@@ -453,7 +453,7 @@ class RegistrationViewSet(
         registration.save()
         registration.responsible_persons.add(request.user)
 
-        event_module: QuerySet = event_models.EventModuleMapper.objects.filter(event=event.id, required=True)
+        event_module: QuerySet = event_models.EventModule.objects.filter(event=event.id, required=True)
         # for mapper in event_module:
         #     for attribute_mapper in mapper.attributes.all():
         #         attribute = attribute_mapper.attribute

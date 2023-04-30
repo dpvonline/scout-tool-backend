@@ -146,9 +146,6 @@ class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
 
 
 class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
-    avoid_manual_check = serializers.BooleanField(
-        required=False, default=False)
-    activate = serializers.BooleanField(required=False, default=False)
     eat_habit = serializers.SlugRelatedField(
         many=True,
         read_only=False,
@@ -160,11 +157,8 @@ class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.RegistrationParticipant
         exclude = (
-            'deactivated',
             'generated',
-            'registration',
-            'needs_confirmation',
-            'allow_permanently'
+            'registration'
         )
 
 

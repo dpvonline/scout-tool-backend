@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import models
 
-from anmelde_tool.attributes.models import AbstractAttribute
 from authentication.models import CustomUser
 from basic import models as basic_models
 from basic import choices as basic_choices
@@ -32,18 +31,6 @@ class EventLocation(basic_models.TimeStampMixin):
         return f'{self.name}: ({self.address}, {self.zip_code})'
 
 
-class EventModule(models.Model):
-    id = models.AutoField(auto_created=True, primary_key=True)
-    name = models.CharField(max_length=100, default='', blank=True)
-    type = models.ForeignKey(basic_models.TagType, on_delete=models.PROTECT)
-    header = models.CharField(max_length=100, default='Default Header')
-    internal = models.BooleanField(default=False)
-    custom = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'{self.type}: {self.name}'
-
-
 class AttributeEventModuleMapper(models.Model):
     """
     if the is_required is set to True the user has explicit do a choice or has to confirm smth.
@@ -51,7 +38,7 @@ class AttributeEventModuleMapper(models.Model):
     tooltip = extra description which appears when hovering above the element
     """
     id = models.AutoField(primary_key=True)
-    attribute = models.ForeignKey(AbstractAttribute, on_delete=models.PROTECT, null=True)
+    # attribute = models.ForeignKey(AbstractAttribute, on_delete=models.PROTECT, null=True)
     title = models.CharField(max_length=1000, null=True)
     text = models.CharField(max_length=10000, null=True)
     is_required = models.BooleanField(default=False)
@@ -120,7 +107,8 @@ class Event(basic_models.TimeStampMixin):
         on_delete=models.SET_NULL,
         default=1,
         null=True,
-        blank=True)
+        blank=True
+    )
     email_set = models.ForeignKey(
         email_services_model.StandardEmailRegistrationSet,
         on_delete=models.PROTECT,
@@ -129,26 +117,21 @@ class Event(basic_models.TimeStampMixin):
     )
 
     def __str__(self):
-        return f"{self.name}: {self.start_date} - {self.end_date}, {self.location}"
+        return f"{self.name}"
 
 
-class EventModuleMapper(models.Model):
-    """
-    - a standard module is a prefinded module which will be used
-     for creating new events containing a predefined set of modules
-    - when the required flag is set, this module cannot be deleted/changed by user by hand i.e. in the modules overview
-    """
-    id = models.AutoField(primary_key=True)
+class EventModule(models.Model):
+    id = models.AutoField(auto_created=True, primary_key=True)
+    name = models.CharField(max_length=100, default='', blank=True)
+    header = models.CharField(max_length=100, default='Default Header')
+    internal = models.BooleanField(default=False)
     ordering = models.IntegerField(default=999, auto_created=True)
-    module = models.ForeignKey(EventModule, on_delete=models.PROTECT)
-    attributes = models.ManyToManyField(AttributeEventModuleMapper, blank=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
     required = models.BooleanField(default=False)
-    overwrite_description = models.CharField(max_length=10000, null=True, blank=True)
     standard = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.ordering}: {self.module.name}, {self.standard=}'
+        return f'{self.name}'
 
 
 class BookingOption(models.Model):
@@ -178,24 +161,6 @@ class Registration(basic_models.TimeStampMixin):
     responsible_persons = models.ManyToManyField(User)
     is_confirmed = models.BooleanField(default=False)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        if self.created_at:
-            # If self.created_atis not None then it's an update.
-            cls = self.__class__
-            old = cls.objects.get(pk=self.pk)
-            # This will get the current model state since super().save() isn't called yet.
-            new = self  # This gets the newly instantiated Mode object with the new values.
-            changed_fields = []
-            for field in cls._meta.get_fields():
-                field_name = field.name
-                try:
-                    if getattr(old, field_name) != getattr(new, field_name):
-                        changed_fields.append(field_name)
-                except:  # Catch field does not exist exception
-                    pass
-            kwargs['update_fields'] = changed_fields
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.event.name}: {self.scout_organisation.name}"
@@ -227,7 +192,6 @@ class RegistrationParticipant(basic_models.TimeStampMixin):
         choices=event_choices.ScoutLevelTypes.choices,
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
-    allow_permanently = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.registration}: {self.last_name}, {self.first_name}"
@@ -265,35 +229,35 @@ class StandardEventTemplate(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     introduction = models.ForeignKey(
-        EventModuleMapper,
-        null=True, on_delete=models.SET_NULL,
+        EventModule,
+        null=True, on_delete=models.PROTECT,
         related_name='introduction'
     )
     summary = models.ForeignKey(
-        EventModuleMapper,
+        EventModule,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name='confirmation'
     )
     participants = models.ForeignKey(
-        EventModuleMapper,
+        EventModule,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name='participants'
     )
     letter = models.ForeignKey(
-        EventModuleMapper,
+        EventModule,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name='letter'
     )
     other_required_modules = models.ManyToManyField(
-        EventModuleMapper,
+        EventModule,
         blank=True,
         related_name='other_required_modules'
     )
     other_optional_modules = models.ManyToManyField(
-        EventModuleMapper,
+        EventModule,
         blank=True,
         related_name='other_optional_modules'
     )
