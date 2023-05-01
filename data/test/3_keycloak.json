@@ -2355,17 +2355,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "bfe196a4-6951-41f1-a350-191faa52cda2",
-    "fields": {
-      "keycloak_id": "434906ba-9137-491b-9870-9ba566dcc002",
-      "name": "Stammesführung",
-      "parent": "9550de7f-6cd6-4f97-bf7f-f6e9d0074e3d",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "bfe92aa1-04c8-4f93-9809-966ce5e8a0f9",
     "fields": {
       "keycloak_id": "fb257be5-3989-4574-9393-e86dbf5a036d",
