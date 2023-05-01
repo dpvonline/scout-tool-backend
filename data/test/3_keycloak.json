@@ -452,17 +452,6 @@
   },
   {
     "model": "keycloak_auth.keycloakgroup",
-    "pk": "35ead3a7-20cc-4b28-b99c-47af5a0116f5",
-    "fields": {
-      "keycloak_id": "5e465940-531d-4682-a8b9-dbe3fc9689d3",
-      "name": "Sperber",
-      "parent": "5be51bb0-356a-4327-b0fb-8a25104e01a7",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
     "pk": "0dc662fa-d851-4faf-8723-6060c6bbeac2",
     "fields": {
       "keycloak_id": "c9fa1431-c668-4b59-b21d-364784b41ebb",
@@ -600,17 +589,6 @@
       "keycloak_id": "b427c742-dccd-4b61-9401-40f2a6599b37",
       "name": "Stellv. Stammesführung",
       "parent": "556c8fc5-a122-4901-9683-027991c42cac",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "192beddd-b8cb-45d3-88e6-7c4805987fa5",
-    "fields": {
-      "keycloak_id": "ab2d6714-b73b-46ba-a63d-d147b753f5b5",
-      "name": "Stellv. Stammesführung",
-      "parent": "35ead3a7-20cc-4b28-b99c-47af5a0116f5",
       "membership_allowed": true,
       "description": ""
     }
@@ -1128,17 +1106,6 @@
       "keycloak_id": "5a8d9dab-2989-4f87-9a9c-4b7f2fd912a3",
       "name": "Stellv. Stammesführung",
       "parent": "9550de7f-6cd6-4f97-bf7f-f6e9d0074e3d",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "3c6817d8-c8d6-4760-a632-c1d3a01090c5",
-    "fields": {
-      "keycloak_id": "9cf494b8-abc9-4f2f-b5a3-eb4b88edfc5f",
-      "name": "Stammesführung",
-      "parent": "35ead3a7-20cc-4b28-b99c-47af5a0116f5",
       "membership_allowed": true,
       "description": ""
     }
@@ -1953,17 +1920,6 @@
       "keycloak_id": "61e1cff2-66eb-45fd-aa14-6ab8feb4ab64",
       "name": "Schatzamt",
       "parent": "1f81295b-e460-4f02-8d82-1f20d6b475be",
-      "membership_allowed": true,
-      "description": ""
-    }
-  },
-  {
-    "model": "keycloak_auth.keycloakgroup",
-    "pk": "8c73f8ba-4886-4eaa-ab23-319d185b5ad1",
-    "fields": {
-      "keycloak_id": "85bf5948-e155-4dd2-9572-72e971d02de8",
-      "name": "Schatzamt",
-      "parent": "35ead3a7-20cc-4b28-b99c-47af5a0116f5",
       "membership_allowed": true,
       "description": ""
     }
