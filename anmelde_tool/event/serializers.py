@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from anmelde_tool.email_services import serializers as email_services_serializers
 from anmelde_tool.event import models as event_models
+from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event import permissions as event_permissions
 from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
@@ -156,6 +157,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     )
     registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
     theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
+    booking_options = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -169,6 +171,11 @@ class EventReadSerializer(serializers.ModelSerializer):
             return 'expired'
         else:
             return 'error'
+        
+        
+    def get_booking_options(self, obj: event_models.Event) -> list:
+        booking_options = event_models.BookingOption.objects.filter(event=obj.id);
+        return BookingOptionSerializer(booking_options, many=True).data
 
 
 class AttributeEventModuleMapperPostSerializer(serializers.ModelSerializer):
@@ -211,6 +218,7 @@ class EventOverviewSerializer(serializers.ModelSerializer):
 
 class MyInvitationsSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
+    booking_options = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(many=False, read_only=True)
 
     class Meta:
@@ -229,7 +237,8 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             'end_date',
             'registration_deadline',
             'registration_start',
-            'last_possible_update'
+            'last_possible_update',
+            'booking_options',
         )
 
     def get_status(self, obj: event_models.Event) -> str:
@@ -245,3 +254,7 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             return 'expired'
         else:
             return 'error'
+        
+    def get_booking_options(self, obj: event_models.Event) -> list:
+        booking_options = event_models.BookingOption.objects.filter(event=obj.id);
+        return BookingOptionSerializer(booking_options, many=True).data
