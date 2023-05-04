@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
+from anmelde_tool.registration.models import Registration
 from basic import serializers as basic_serializers
-from anmelde_tool.event import models as event_models
 
 
 class RegistrationEventKPISerializer(serializers.ModelSerializer):
@@ -9,7 +9,7 @@ class RegistrationEventKPISerializer(serializers.ModelSerializer):
     count = serializers.IntegerField()
 
     class Meta:
-        model = event_models.Registration
+        model = Registration
         fields = (
             'is_confirmed',
             'is_accepted',

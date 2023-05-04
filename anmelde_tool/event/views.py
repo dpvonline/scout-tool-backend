@@ -153,11 +153,6 @@ class EventViewSet(viewsets.ModelViewSet):
         for mapper in standard_event.other_required_modules.all():
             add_event_module(mapper, event)
 
-        # # TODO: When event_planer_modules does not contain all necessary modules, they wont be added
-        # if request.data.get('event_planer_modules', None) is None:
-        #     for planer_module in standard_event.planer_modules.all():
-        #         event.event_planer_modules.add(planer_module)
-
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs) -> Response:

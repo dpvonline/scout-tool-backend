@@ -1,14 +1,13 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Sum, QuerySet
+from django.db.models import Sum
+from django.utils import timezone
 from rest_framework import serializers
-from django.utils import timezone
 
-from authentication.serializers import UserScoutHierarchySerializer
-from basic import serializers as basic_serializers
-from django.utils import timezone
-from basic.models import EatHabit
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializers
+from anmelde_tool.registration.models import Registration, RegistrationParticipant
+from authentication.serializers import UserScoutHierarchySerializer
+from basic.models import EatHabit
 
 User = get_user_model()
 
@@ -31,7 +30,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
 class RegistrationPostSerializer(serializers.ModelSerializer):
     class Meta:
-        model = event_models.Registration
+        model = Registration
         fields = ('event', 'scout_organisation')
         extra_kwargs = {
             "event": {
@@ -45,7 +44,7 @@ class RegistrationPostSerializer(serializers.ModelSerializer):
 
 class RegistrationPutSerializer(serializers.ModelSerializer):
     class Meta:
-        model = event_models.Registration
+        model = Registration
         fields = ('responsible_persons', 'is_confirmed', 'tags')
         extra_kwargs = {
             "responsible_persons": {
@@ -66,7 +65,7 @@ class RegistrationGetSerializer(serializers.ModelSerializer):
     scout_organisation = UserScoutHierarchySerializer()
 
     class Meta:
-        model = event_models.Registration
+        model = Registration
         fields = ('id', 'scout_organisation', 'responsible_persons',)
 
 
@@ -80,7 +79,7 @@ class RegistrationParticipantSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = event_models.RegistrationParticipant
+        model = RegistrationParticipant
         fields = '__all__'
 
 
@@ -94,7 +93,7 @@ class MyRegistrationGetSerializer(serializers.ModelSerializer):
     event = event_serializers.EventRegistrationSerializer()
 
     class Meta:
-        model = event_models.Registration
+        model = Registration
         fields = (
             'id',
             'scout_organisation',
@@ -104,7 +103,7 @@ class MyRegistrationGetSerializer(serializers.ModelSerializer):
             'status'
         )
 
-    def get_status(self, obj: event_models.Registration) -> str:
+    def get_status(self, obj: Registration) -> str:
         if obj.event.registration_deadline > timezone.now():
             return 'pending'
         elif obj.event.registration_deadline <= timezone.now():
@@ -112,10 +111,10 @@ class MyRegistrationGetSerializer(serializers.ModelSerializer):
         else:
             return 'error'
 
-    def get_participant_count(self, registration: event_models.Registration) -> int:
+    def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()
 
-    def get_price(self, registration: event_models.Registration) -> float:
+    def get_price(self, registration: Registration) -> float:
         return registration.registrationparticipant_set.aggregate(
             sum=Sum('booking_option__price'))['sum']
 
@@ -132,7 +131,7 @@ class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = event_models.RegistrationParticipant
+        model = RegistrationParticipant
         fields = (
             'id',
             'scout_name',
@@ -155,7 +154,7 @@ class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = event_models.RegistrationParticipant
+        model = RegistrationParticipant
         exclude = (
             'generated',
             'registration'
@@ -177,7 +176,7 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
     event = event_serializers.EventRegistrationSerializer()
 
     class Meta:
-        model = event_models.Registration
+        model = Registration
         fields = (
             'id',
             'is_confirmed',
@@ -190,14 +189,14 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             'status',
         )
 
-    def get_participant_count(self, registration: event_models.Registration) -> int:
+    def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()
 
-    def get_price(self, registration: event_models.Registration) -> float:
+    def get_price(self, registration: Registration) -> float:
         return registration.registrationparticipant_set.aggregate(
             sum=Sum('booking_option__price'))['sum']
 
-    def get_status(self, obj: event_models.Registration) -> str:
+    def get_status(self, obj: Registration) -> str:
         if obj.event.registration_deadline > timezone.now():
             return 'pending'
         elif obj.event.registration_deadline <= timezone.now():
@@ -206,10 +205,7 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             return 'error'
 
 
-class WorkshopSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = event_models.Workshop
-        fields = '__all__'
+
 
 
 class RegistrationReadSerializer(serializers.ModelSerializer):
@@ -221,7 +217,7 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
 
     class Meta:
-        model = event_models.Registration
+        model = Registration
         fields = (
             'id',
             'scout_organisation',
@@ -232,9 +228,9 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
             'registrationparticipant_set'
         )
 
-    def get_participant_count(self, registration: event_models.Registration) -> int:
+    def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()
 
-    def get_price(self, registration: event_models.Registration) -> float:
+    def get_price(self, registration: Registration) -> float:
         return registration.registrationparticipant_set.aggregate(
             sum=Sum('booking_option__price'))['sum']

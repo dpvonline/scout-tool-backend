@@ -6,6 +6,7 @@ import pytz
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Q
 
+from anmelde_tool.registration.models import Registration
 from basic import models as basic_models
 from anmelde_tool.event import api_exceptions as event_exceptions
 from anmelde_tool.event import models as event_models
@@ -24,8 +25,8 @@ def get_bund(obj: basic_models.ScoutHierarchy) -> [basic_models.ScoutHierarchy |
     return None
 
 
-def filter_registration_by_leadership(user: User, event_id: str, registrations: QuerySet[event_models.Registration]) \
-        -> QuerySet[event_models.Registration]:
+def filter_registration_by_leadership(user: User, event_id: str, registrations: QuerySet[Registration]) \
+        -> QuerySet[Registration]:
     event: event_models.Event = get_event(event_id)
     if not event_permissions.check_event_permission(event, user) \
             and event_permissions.check_leader_permission(event, user):
@@ -48,11 +49,11 @@ def get_event(event_id: [str, event_models.Event], ex=None) -> event_models.Even
         return event_id
 
 
-def get_registration(registration_id: [str, event_models.Registration], ex=None) -> event_models.Registration:
+def get_registration(registration_id: [str, Registration], ex=None) -> Registration:
     if isinstance(registration_id, str):
         if not ex:
             ex = event_exceptions.RegistrationNotFound(registration_id)
-        return custom_get_or_404(ex, event_models.Registration, id=registration_id)
+        return custom_get_or_404(ex, Registration, id=registration_id)
     else:
         return registration_id
 
@@ -76,7 +77,7 @@ def to_snake_case(ordering, order_desc, ordering_fields, default_case: str = 'cr
     return camel_case
 
 
-def age_range(min_age, max_age, participants: QuerySet[event_models.RegistrationParticipant],
+def age_range(min_age, max_age, participants: QuerySet[RegistrationParticipant],
               event: event_models.Event) -> int:
     time = event.start_date
     max_date = datetime(time.year - min_age, time.month, time.day,
@@ -87,7 +88,7 @@ def age_range(min_age, max_age, participants: QuerySet[event_models.Registration
     return participants.filter(birthday__date__range=[min_date, max_date]).count()
 
 
-def get_count_by_age_gender_leader(min_age, max_age, gender, leader, participants: QuerySet[event_models.RegistrationParticipant],
+def get_count_by_age_gender_leader(min_age, max_age, gender, leader, participants: QuerySet[RegistrationParticipant],
               event: event_models.Event) -> int:
     time = event.start_date
     max_date = datetime(time.year - min_age, time.month, time.day,
@@ -107,8 +108,8 @@ def get_count_by_age_gender_leader(min_age, max_age, gender, leader, participant
 
 def filter_registrations_by_query_params(request,
                                          event_id: str,
-                                         registrations: QuerySet[event_models.Registration]) \
-        -> QuerySet[event_models.Registration]:
+                                         registrations: QuerySet[Registration]) \
+        -> QuerySet[Registration]:
     confirmed: bool = request.query_params.get('confirmed', 'true') == 'true'
     if confirmed:
         registrations = registrations.filter(is_confirmed=confirmed)

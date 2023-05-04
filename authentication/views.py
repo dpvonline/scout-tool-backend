@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from anmelde_tool.event.registration.views import create_missing_eat_habits
+from anmelde_tool.registration.views import create_missing_eat_habits
 from backend.settings import env, keycloak_admin, keycloak_user
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.helper import choice_to_json

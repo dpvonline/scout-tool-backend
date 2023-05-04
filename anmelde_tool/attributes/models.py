@@ -1,8 +1,9 @@
 from django.db import models
 
+import anmelde_tool.event.models
 from anmelde_tool.attributes.choices import TravelType
+from anmelde_tool.registration.models import Registration
 from basic.models import TagType
-from anmelde_tool.event.models import Registration
 
 
 class AbstractAttribute(models.Model):
@@ -43,3 +44,31 @@ class TravelAttribute(AbstractAttribute):
     type_field = models.CharField(max_length=1, choices=TravelType.choices, null=True, blank=True)
     date_time_field = models.DateTimeField(blank=True, null=True)
     description = models.CharField(max_length=100, blank=True)
+
+
+class AttributeEventModuleMapper(models.Model):
+    """
+    if the is_required is set to True the user has explicit do a choice or has to confirm smth.
+    min_length, max_length are only relevant for attributes with texts
+    tooltip = extra description which appears when hovering above the element
+    """
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=1000, null=True)
+    text = models.CharField(max_length=10000, null=True)
+    is_required = models.BooleanField(default=False)
+    min_length = models.IntegerField(default=0)
+    max_length = models.IntegerField(default=0)
+    tooltip = models.CharField(max_length=1000, null=True, blank=True)
+    default_value = models.CharField(max_length=1000, null=True, blank=True)
+    field_type = models.CharField(max_length=25, null=True, blank=True)
+    icon = models.CharField(max_length=25, null=True, blank=True)
+    max_entries = models.IntegerField(default=1)
+    event_module = models.ForeignKey(
+        anmelde_tool.event.models.EventModule,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+        )
+
+    def __str__(self):
+        return f'{self.title}'

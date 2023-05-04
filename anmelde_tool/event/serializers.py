@@ -7,6 +7,7 @@ from anmelde_tool.email_services import serializers as email_services_serializer
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event import permissions as event_permissions
+from anmelde_tool.registration.models import Registration
 from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
 from keycloak_auth import serializers as keycloak_serializers
@@ -178,12 +179,6 @@ class EventReadSerializer(serializers.ModelSerializer):
         return BookingOptionSerializer(booking_options, many=True).data
 
 
-class AttributeEventModuleMapperPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = event_models.AttributeEventModuleMapper
-        fields = '__all__'
-
-
 class EventOverviewSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(read_only=True, many=False)
@@ -242,7 +237,7 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
         )
 
     def get_status(self, obj: event_models.Event) -> str:
-        registration = event_models.Registration.objects.filter(event=obj.id).filter(
+        registration = Registration.objects.filter(event=obj.id).filter(
             responsible_persons=self.context['request'].user
         ).first()
 
