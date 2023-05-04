@@ -7,3 +7,11 @@ class TravelType(models.TextChoices):
     Bus = 'B', _('Reisebus')
     Car = 'C', _('PKW')
     Other = 'O', _('Sonstiges')
+
+class AttributeType(models.TextChoices):
+    BooleanAttribute = 'BoA', _('BooleanAttribute')
+    TimeAttribute = 'TiA', _('TimeAttribute')
+    IntegerAttribute = 'InA', _('IntegerAttribute')
+    FloatAttribute = 'FlA', _('FloatAttribute')
+    StringAttribute = 'StA', _('StringAttribute')
+    TravelAttribute = 'TrA', _('TravelAttribute')

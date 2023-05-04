@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from basic.serializers import TagTypeShortSerializer
 from anmelde_tool.attributes import models as attribute_models
 
 """
@@ -8,10 +7,19 @@ from anmelde_tool.attributes import models as attribute_models
 """
 
 
-class AttributeEventModuleMapperSerializer(serializers.ModelSerializer):
+class AttributeModuleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = attribute_models.AttributeEventModuleMapper
+        model = attribute_models.AttributeModule
         fields = '__all__'
+
+
+class AttributeModuleEventReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = attribute_models.AttributeModule
+        exclude = (
+            'event_module',
+            'standard'
+        )
 
 
 class BooleanAttributeSerializer(serializers.ModelSerializer):

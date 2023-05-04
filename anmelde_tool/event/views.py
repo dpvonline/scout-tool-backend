@@ -1,32 +1,42 @@
 from copy import deepcopy
 from queue import Queue
+
 from django.db.models import Q, QuerySet
-from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status, mixins
+from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from anmelde_tool.attributes.models import AttributeModule
 from anmelde_tool.event import api_exceptions as event_api_exceptions
 from anmelde_tool.event import helper as event_helper
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
-from anmelde_tool.event.models import StandardEventTemplate
-from basic import models as basic_models
-from basic import serializers as basic_serializers
+from anmelde_tool.event.models import StandardEventTemplate, Event, EventModule, EventLocation
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
 
 
-def add_event_module(module: event_models.EventModule, event: event_models.Event) -> event_models.EventModule:
-    new_module: event_models.EventModule = deepcopy(module)
+def add_event_attribute(attribute_module: AttributeModule, event_module: EventModule) -> AttributeModule:
+    new_attribute_module: AttributeModule = deepcopy(attribute_module)
+    new_attribute_module.pk = None
+    new_attribute_module.id = None
+    new_attribute_module.standard = False
+    new_attribute_module.event_module = event_module
+    new_attribute_module.save()
+    return new_attribute_module
+
+
+def add_event_module(module: EventModule, event: Event) -> EventModule:
+    new_module: EventModule = deepcopy(module)
     new_module.pk = None
     new_module.standard = False
     new_module.event = event
     new_module.save()
-    # new_module.attributes.add(*module.attributes.all())
+    for attribute_module in module.attributemodule_set.all():
+        add_event_attribute(attribute_module, new_module)
     return new_module
 
 
@@ -34,13 +44,13 @@ class EventLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name',)
-    queryset = event_models.EventLocation.objects.all()
+    queryset = EventLocation.objects.all()
     serializer_class = event_serializers.EventLocationSerializer
 
 
 class EventReadViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = event_models.Event.objects.all()
+    queryset = Event.objects.all()
     serializer_class = event_serializers.EventReadSerializer
 
 
@@ -63,15 +73,15 @@ class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
             parent_ids.add(group.id)
             if group.parent:
                 q.put(group.parent)
-        return event_models.Event.objects.filter(is_public=True, invited_groups__in=parent_ids)
+        return Event.objects.filter(is_public=True, invited_groups__in=parent_ids)
 
 
 class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsEventSuperResponsiblePerson]
-    queryset = event_models.Event.objects.all()
+    queryset = Event.objects.all()
     serializer_class = event_serializers.EventCompleteSerializer
 
-    def check_event_dates(self, request, event: event_models.Event) -> bool:
+    def check_event_dates(self, request, event: Event) -> bool:
         edited = False
         start_date = request.data.get('start_date')
         if start_date is None:
@@ -130,7 +140,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
         self.check_event_dates(request, serializer.validated_data)
 
-        event: event_models.Event = serializer.save()
+        event: Event = serializer.save()
         event.responsible_persons.add(request.user)
 
         event_models.BookingOption.objects.create(
@@ -156,7 +166,7 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs) -> Response:
-        event: event_models.Event = self.get_object()
+        event: Event = self.get_object()
         self.check_event_dates(request, event)
         return super().update(request, *args, **kwargs)
 
@@ -208,8 +218,8 @@ class AvailableEventModulesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
-        mapper = event_models.EventModule.objects.filter(event=event_id).values_list('module_id', flat=True)
-        return event_models.EventModule.objects.exclude(id__in=mapper).exclude(custom=True)
+        mapper = EventModule.objects.filter(event=event_id).values_list('module_id', flat=True)
+        return EventModule.objects.exclude(id__in=mapper).exclude(custom=True)
 
 
 class AssignedEventModulesViewSet(viewsets.ModelViewSet):
@@ -218,7 +228,7 @@ class AssignedEventModulesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
-        return event_models.EventModule.objects.filter(event=event_id).order_by('ordering')
+        return EventModule.objects.filter(event=event_id).order_by('ordering')
 
 
 class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
@@ -229,7 +239,7 @@ class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         child_ids = get_groups_of_user(token, self.request.user.keycloak_id)
 
-        queryset = event_models.Event.objects.filter(
+        queryset = Event.objects.filter(
             Q(admin_group__keycloak_id__in=child_ids)
             | Q(view_group__keycloak_id__in=child_ids)
             | Q(responsible_persons=self.request.user)

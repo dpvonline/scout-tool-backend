@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, \
-    TravelAttribute, StringAttribute, AttributeEventModuleMapper
+    TravelAttribute, StringAttribute, AttributeModule
 
 
 class BaseAdmin(admin.ModelAdmin):
@@ -39,7 +39,7 @@ class StringAttributeAdmin(BaseAdmin):
     pass
 
 
-@admin.register(AttributeEventModuleMapper)
+@admin.register(AttributeModule)
 class AttributeEventModuleMapperAdmin(admin.ModelAdmin):
-    list_display = ('id', 'text')
+    list_display = ('id', 'text', 'standard', 'event_module', 'field_type')
     search_fields = ('event_module',)

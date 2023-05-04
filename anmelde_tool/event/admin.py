@@ -43,5 +43,4 @@ class StandardEventTemplateAdmin(admin.ModelAdmin):
         form.base_fields['participants'].queryset = EventModule.objects.exclude(standard=False)
         form.base_fields['letter'].queryset = EventModule.objects.exclude(standard=False)
         form.base_fields['other_required_modules'].queryset = EventModule.objects.exclude(standard=False)
-        form.base_fields['other_optional_modules'].queryset = EventModule.objects.exclude(standard=False)
         return form

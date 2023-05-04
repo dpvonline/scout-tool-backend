@@ -106,8 +106,10 @@ class EventModule(models.Model):
     standard = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.name}'
-
+        if self.event:
+            return f'{self.name} ({self.event.name})'
+        else:
+            return f'{self.name}'
 
 class BookingOption(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True)

@@ -41,16 +41,6 @@ def create_missing_eat_habits(request) -> [str]:
     return result
 
 
-# def add_event_attribute(attribute: attributes_model.AbstractAttribute) -> attributes_model.AbstractAttribute:
-#     new_attribute: attributes_model.AbstractAttribute = deepcopy(attribute)
-#     new_attribute.pk = None
-#     new_attribute.id = None
-#     new_attribute.template = False
-#     new_attribute.template_id = attribute.id
-#     new_attribute.save()
-#     return new_attribute
-
-
 class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
@@ -235,7 +225,6 @@ class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
         confirm_needed: bool = registration.event.registration_deadline < timezone.now()
 
         if activate > 0:
-
             RegistrationParticipant.objects \
                 .filter(pk__in=inactive_participants.order_by('created_at').values_list('pk', flat=True)[:activate]) \
                 .update(deactivated=False)

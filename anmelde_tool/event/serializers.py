@@ -3,10 +3,11 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework import serializers
 
+from anmelde_tool.attributes.serializers import AttributeModuleSerializer, AttributeModuleEventReadSerializer
 from anmelde_tool.email_services import serializers as email_services_serializers
 from anmelde_tool.event import models as event_models
-from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event import permissions as event_permissions
+from anmelde_tool.event.models import EventModule
 from anmelde_tool.registration.models import Registration
 from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
@@ -116,7 +117,7 @@ class EventCompleteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_status(self, obj: event_models.Event) -> str:
-        registration = event_models.Registration.objects.filter(event=obj.id).filter(
+        registration = Registration.objects.filter(event=obj.id).filter(
             responsible_persons=self.context['request'].user
         ).first()
 
@@ -131,13 +132,22 @@ class EventCompleteSerializer(serializers.ModelSerializer):
 
 
 class EventReadModuleSerializer(serializers.ModelSerializer):
+    attribute_modules = serializers.SerializerMethodField()
+
     class Meta:
-        model = event_models.EventModule
-        exclude = (
-            'event',
-            'internal',
-            'standard'
+        model = EventModule
+        fields = (
+            'name',
+            'header',
+            'ordering',
+            'required',
+            'attribute_modules'
         )
+
+    def get_attribute_modules(self, instance: EventModule):
+        queryset = instance.attributemodule_set.all()
+        serializer = AttributeModuleEventReadSerializer(queryset, many=True, read_only=True)
+        return serializer.data
 
 
 class EventReadSerializer(serializers.ModelSerializer):
@@ -172,8 +182,7 @@ class EventReadSerializer(serializers.ModelSerializer):
             return 'expired'
         else:
             return 'error'
-        
-        
+
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id);
         return BookingOptionSerializer(booking_options, many=True).data
@@ -249,7 +258,7 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             return 'expired'
         else:
             return 'error'
-        
+
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id);
         return BookingOptionSerializer(booking_options, many=True).data

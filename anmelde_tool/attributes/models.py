@@ -1,7 +1,7 @@
 from django.db import models
 
 import anmelde_tool.event.models
-from anmelde_tool.attributes.choices import TravelType
+from anmelde_tool.attributes.choices import TravelType, AttributeType
 from anmelde_tool.registration.models import Registration
 from basic.models import TagType
 
@@ -46,7 +46,7 @@ class TravelAttribute(AbstractAttribute):
     description = models.CharField(max_length=100, blank=True)
 
 
-class AttributeEventModuleMapper(models.Model):
+class AttributeModule(models.Model):
     """
     if the is_required is set to True the user has explicit do a choice or has to confirm smth.
     min_length, max_length are only relevant for attributes with texts
@@ -60,9 +60,10 @@ class AttributeEventModuleMapper(models.Model):
     max_length = models.IntegerField(default=0)
     tooltip = models.CharField(max_length=1000, null=True, blank=True)
     default_value = models.CharField(max_length=1000, null=True, blank=True)
-    field_type = models.CharField(max_length=25, null=True, blank=True)
+    field_type = models.CharField(max_length=3, choices=AttributeType.choices, default=AttributeType.IntegerAttribute)
     icon = models.CharField(max_length=25, null=True, blank=True)
     max_entries = models.IntegerField(default=1)
+    standard = models.BooleanField(default=False)
     event_module = models.ForeignKey(
         anmelde_tool.event.models.EventModule,
         on_delete=models.CASCADE,
@@ -71,4 +72,4 @@ class AttributeEventModuleMapper(models.Model):
         )
 
     def __str__(self):
-        return f'{self.title}'
+        return f'{self.title} ({self.event_module.name})'
