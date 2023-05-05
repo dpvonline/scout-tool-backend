@@ -4,7 +4,7 @@ from rest_framework_nested import routers
 from . import views
 
 router = routers.SimpleRouter()
-# router.register(r'attributes', views.AttributeViewSet)
+router.register(r'attribute-module', views.AttributeModuleViewSet)
 # router.register(r'attribute-choices', views.AttributeTypeViewSet, basename='attribute-choices')
 # router.register(r'travel-type-choices', views.TravelTypeViewSet, basename='travel-type-choices')
 

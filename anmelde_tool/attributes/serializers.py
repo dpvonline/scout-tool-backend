@@ -14,6 +14,8 @@ class AttributeModuleSerializer(serializers.ModelSerializer):
 
 
 class AttributeModuleEventReadSerializer(serializers.ModelSerializer):
+    field_type = serializers.CharField(source='get_field_type_display', read_only=True)
+
     class Meta:
         model = attribute_models.AttributeModule
         exclude = (
