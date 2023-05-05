@@ -5,8 +5,9 @@ from .models import BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttr
 
 
 class BaseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'registration')
-    search_fields = ('name',)
+    list_display = ('id', 'registration', 'attribute_module')
+    search_fields = ('registration', 'attribute_module__title', 'attribute_module__text')
+    list_filter = ('registration', 'attribute_module')
 
 
 @admin.register(BooleanAttribute)

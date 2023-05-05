@@ -5,6 +5,10 @@ from rest_framework import serializers
 
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializers
+from anmelde_tool.attributes.models import BooleanAttribute, StringAttribute, TimeAttribute, IntegerAttribute, \
+    FloatAttribute, StringAttribute, TravelAttribute
+from anmelde_tool.attributes.serializers import BooleanAttributeSerializer, StringAttributeSerializer, \
+    TimeAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from authentication.serializers import UserScoutHierarchySerializer
 from basic.models import EatHabit
@@ -205,9 +209,6 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             return 'error'
 
 
-
-
-
 class RegistrationReadSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
@@ -215,6 +216,7 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     registrationparticipant_set = RegistrationParticipantSerializer(many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
+    attributes = serializers.SerializerMethodField()
 
     class Meta:
         model = Registration
@@ -225,7 +227,8 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
             'event',
             'price',
             'participant_count',
-            'registrationparticipant_set'
+            'registrationparticipant_set',
+            'attributes'
         )
 
     def get_participant_count(self, registration: Registration) -> int:
@@ -234,3 +237,24 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     def get_price(self, registration: Registration) -> float:
         return registration.registrationparticipant_set.aggregate(
             sum=Sum('booking_option__price'))['sum']
+
+    def get_attributes(self, registration: Registration):
+        boolean_attributes = BooleanAttribute.objects.filter(registration=registration)
+        boolean_serializer = BooleanAttributeSerializer(boolean_attributes, many=True, read_only=True)
+
+        string_attributes = StringAttribute.objects.filter(registration=registration)
+        string_serializer = StringAttributeSerializer(string_attributes, many=True, read_only=True)
+
+        integer_attributes = IntegerAttribute.objects.filter(registration=registration)
+        integer_serializer = StringAttributeSerializer(integer_attributes, many=True, read_only=True)
+
+        float_attributes = FloatAttribute.objects.filter(registration=registration)
+        float_serializer = FloatAttributeSerializer(float_attributes, many=True, read_only=True)
+
+        time_attributes = TimeAttribute.objects.filter(registration=registration)
+        time_serializer = TimeAttributeSerializer(time_attributes, many=True, read_only=True)
+
+        travel_attributes = TravelAttribute.objects.filter(registration=registration)
+        travel_serializer = TravelAttributeSerializer(travel_attributes, many=True, read_only=True)
+        return [*boolean_serializer.data, *string_serializer.data, *integer_serializer.data, *float_serializer.data,
+                *time_serializer.data, *travel_serializer.data]

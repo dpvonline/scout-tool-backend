@@ -54,6 +54,7 @@ class EventReadViewSet(viewsets.ModelViewSet):
     serializer_class = event_serializers.EventReadSerializer
 
 
+
 class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = event_serializers.MyInvitationsSerializer

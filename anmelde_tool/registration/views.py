@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from datetime import timezone
 
@@ -7,10 +9,9 @@ from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import mixins, viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from anmelde_tool.attributes import models as attributes_model
-from anmelde_tool.attributes import serializers as attributes_serializer
 from anmelde_tool.event import api_exceptions as event_api_exceptions
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
@@ -19,6 +20,14 @@ from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.registration import serializers as registration_serializers
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from anmelde_tool.registration.serializers import RegistrationParticipantGroupSerializer
+from anmelde_tool.attributes.serializers import BooleanAttributePostSerializer, \
+    TimeAttributePostSerializer, StringAttributePostSerializer, FloatAttributePostSerializer, \
+    IntegerAttributePostSerializer, TravelAttributePostSerializer, BooleanAttributeSerializer, \
+    StringAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer, \
+    TimeAttributeSerializer
+from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, StringAttribute, TimeAttribute, \
+    IntegerAttribute, FloatAttribute, TravelAttribute, AbstractAttribute
+from anmelde_tool.attributes.choices import AttributeType, TravelType
 from authentication import models as auth_models
 from basic import models as basic_models
 from basic.models import ZipCode
@@ -39,6 +48,14 @@ def create_missing_eat_habits(request) -> [str]:
             if not basic_models.EatHabit.objects.filter(name__exact=split).exists():
                 basic_models.EatHabit.objects.create(name=split)
     return result
+
+
+def get_attribute_params(kwargs, post_serializer):
+    registration_id = kwargs.get('registration_pk')
+    registration = get_object_or_404(Registration, id=registration_id)
+    attribute_module_id = post_serializer.data['attribute_module']
+    attribute_module = get_object_or_404(AttributeModule, id=attribute_module_id)
+    return attribute_module, registration
 
 
 class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
@@ -151,8 +168,6 @@ class RegistrationAddGroupParticipantViewSet(viewsets.ViewSet):
         total_participant_count: int = existing_participants.count()
 
         new_participants = []
-
-        confirm = ParticipantActionConfirmation.Nothing
 
         switcher = {
             'N': 14,
@@ -289,49 +304,121 @@ class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
             )
 
 
-class RegistrationAttributeViewSet(viewsets.ModelViewSet):
-    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
+class RegistrationBooleanAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs) -> Response:
-        serializer: attributes_serializer.AbstractAttributePutPolymorphicSerializer = self.get_serializer(
-            data=request.data
+        post_serializer = BooleanAttributePostSerializer(data=request.data)
+        post_serializer.is_valid(raise_exception=True)
+
+        attribute_module, registration = get_attribute_params(kwargs, post_serializer)
+
+        attribute = BooleanAttribute.objects.create(
+            attribute_module=attribute_module,
+            registration=registration,
+            boolean_field=post_serializer.data.get('boolean_field', False)
         )
-        serializer.is_valid(raise_exception=True)
 
-        registration_id = self.kwargs.get("registration_pk", None)
-        registration: Registration = get_object_or_404(Registration, id=registration_id)
+        result_serializer = BooleanAttributeSerializer(attribute)
+        return Response(result_serializer.data, status=status.HTTP_201_CREATED)
 
-        template_attribute: attributes_model.AbstractAttribute = \
-            get_object_or_404(attributes_model.AbstractAttribute, pk=serializer.data.get('template_id', -1))
 
-        new_attribute = add_event_attribute(template_attribute)
+class RegistrationStringAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
 
-        serializer.update(new_attribute, serializer.validated_data)
+    def create(self, request, *args, **kwargs) -> Response:
+        post_serializer = StringAttributePostSerializer(data=request.data)
+        post_serializer.is_valid(raise_exception=True)
 
-        registration.tags.add(new_attribute.id)
+        attribute_module, registration = get_attribute_params(kwargs, post_serializer)
 
-        json = attributes_serializer.AbstractAttributeGetPolymorphicSerializer(new_attribute)
-        return Response(json.data, status=status.HTTP_201_CREATED)
+        attribute = StringAttribute.objects.create(
+            attribute_module=attribute_module,
+            registration=registration,
+            string_field=post_serializer.data.get('string_field', '')
+        )
 
-    def update(self, request, *args, **kwargs) -> Response:
-        super().update(request, *args, **kwargs)
-        json = attributes_serializer.AbstractAttributeGetPolymorphicSerializer(self.get_object())
-        return Response(json.data, status=status.HTTP_200_OK)
+        result_serializer = StringAttributeSerializer(attribute)
+        return Response(result_serializer.data, status=status.HTTP_201_CREATED)
 
-    # def get_serializer_class(self):
-    # if self.request.method == 'POST':
-    #     return attributes_serializer.AbstractAttributePostPolymorphicSerializer
-    # elif self.request.method == 'GET':
-    #     return attributes_serializer.AbstractAttributeGetPolymorphicSerializer
-    # elif self.request.method == 'PUT':
-    #     return attributes_serializer.AbstractAttributePutPolymorphicSerializer
-    # else:
-    #     return attributes_serializer.AbstractAttributePutPolymorphicSerializer
 
-    def get_queryset(self) -> QuerySet:
-        registration_id = self.kwargs.get("registration_pk", None)
-        registration: Registration = get_object_or_404(Registration, id=registration_id)
-        return registration.tags
+class RegistrationIntegerAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        post_serializer = IntegerAttributePostSerializer(data=request.data)
+        post_serializer.is_valid(raise_exception=True)
+
+        attribute_module, registration = get_attribute_params(kwargs, post_serializer)
+
+        attribute = IntegerAttribute.objects.create(
+            attribute_module=attribute_module,
+            registration=registration,
+            integer_field=post_serializer.data.get('integer_field', 0)
+        )
+
+        result_serializer = IntegerAttributeSerializer(attribute)
+        return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RegistrationFloatAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        post_serializer = FloatAttributePostSerializer(data=request.data)
+        post_serializer.is_valid(raise_exception=True)
+
+        attribute_module, registration = get_attribute_params(kwargs, post_serializer)
+
+        attribute = FloatAttribute.objects.create(
+            attribute_module=attribute_module,
+            registration=registration,
+            float_field=post_serializer.data.get('float_field', 0.0)
+        )
+
+        result_serializer = FloatAttributeSerializer(attribute)
+        return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RegistrationTimeAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        post_serializer = TimeAttributePostSerializer(data=request.data)
+        post_serializer.is_valid(raise_exception=True)
+
+        attribute_module, registration = get_attribute_params(kwargs)
+
+        attribute = TimeAttribute.objects.create(
+            attribute_module=attribute_module,
+            registration=registration,
+            time_field=post_serializer.data.get('time_field', None)
+        )
+
+        result_serializer = TimeAttributeSerializer(attribute)
+        return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RegistrationTravelAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs) -> Response:
+        post_serializer = TravelAttributePostSerializer(data=request.data)
+        post_serializer.is_valid(raise_exception=True)
+
+        attribute_module, registration = get_attribute_params(kwargs, post_serializer)
+
+        attribute = TravelAttribute.objects.create(
+            attribute_module=attribute_module,
+            registration=registration,
+            number_persons=post_serializer.data.get('number_persons', 0),
+            type_field=post_serializer.data.get('type_field', TravelType.Train),
+            date_time_field=post_serializer.data.get('date_time_field', None),
+            description=post_serializer.data.get('description', ''),
+        )
+
+        result_serializer = TravelAttributeSerializer(attribute)
+        return Response(result_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class AddResponsiblePersonRegistrationViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
