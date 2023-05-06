@@ -112,7 +112,7 @@
     "pk": "e26041ac-5c4e-4482-aac4-ecf33e905727",
     "fields": {
       "created_at": "2023-05-04T22:47:27.538Z",
-      "updated_at": "2023-05-04T22:47:27.538Z",
+      "updated_at": "2023-05-05T06:16:23.196Z",
       "name": "Hagis Lager",
       "technical_name": "hagis-lager",
       "short_description": "Das beste Lager überhaupt",
@@ -136,7 +136,9 @@
       "responsible_persons": [
         2
       ],
-      "invited_groups": []
+      "invited_groups": [
+        "2fb07c05-a61f-42e8-958d-326474289267"
+      ]
     }
   },
   {
