@@ -20,7 +20,6 @@ def post_save_keycloak_group(sender: KeycloakGroup, instance: KeycloakGroup, cre
         instance.keycloak_id = new_group_id
         instance.save()
     else:
-        print(instance.keycloak_id)
         group = keycloak_admin.get_group(instance.keycloak_id)
         name_edited = False
         parent_edited = False
