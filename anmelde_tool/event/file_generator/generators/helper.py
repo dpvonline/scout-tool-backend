@@ -70,9 +70,9 @@ def get_participant_full_name(participant: RegistrationParticipant) -> str:
     return full_name.strip()
 
 
-def get_participant_street(participant: RegistrationParticipant) -> str:
-    if participant.street:
-        return participant.street
+def get_participant_address(participant: RegistrationParticipant) -> str:
+    if participant.address:
+        return participant.address
     else:
         return ''
 
@@ -85,13 +85,13 @@ def get_participant_zip_city(participant: RegistrationParticipant) -> str:
 
 
 def get_participant_adress(participant: RegistrationParticipant) -> str:
-    street = get_participant_street(participant)
+    address = get_participant_address(participant)
     zip_city = get_participant_zip_city(participant)
     full_adress = ''
-    if street:
-        full_adress += f'{participant.street}'
+    if address:
+        full_adress += f'{participant.address}'
     if zip_city:
-        if street:
+        if address:
             full_adress += ', '
         full_adress += f'{participant.zip_code.zip_code} {participant.zip_code.city}'
 

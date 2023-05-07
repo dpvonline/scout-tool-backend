@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework_nested import routers
 
 from anmelde_tool.email_services import views as email_services_views
+from anmelde_tool.attributes import views as attributes_views
 from . import views
 
 router = routers.SimpleRouter()
@@ -11,6 +12,7 @@ router.register(r'my-invitations', views.MyInvitationsViewSet, basename='my-invi
 router.register(r'event-overview', views.EventOverviewViewSet, basename='event-overview')
 router.register(r'event-read', views.EventReadViewSet)
 router.register(r'email-sets', email_services_views.StandardEmailViewSet)
+router.register(r'travel-type-choices', attributes_views.TravelTypeViewSet, basename='travel-type-choices')
 
 event_router = routers.NestedSimpleRouter(router, r'event', lookup='event')
 event_router.register(r'booking-options', views.BookingOptionViewSet, basename='booking-options')

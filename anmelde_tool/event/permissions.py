@@ -31,7 +31,6 @@ def check_event_permission(event_id: [str, Event], request, admin_only=False) ->
     event = get_event(event_id)
     token = request.META.get('HTTP_AUTHORIZATION')
     child_ids = get_groups_of_user(token, user.keycloak_id)
-    # Todo: Hagi can you please fixt it
     if not admin_only and any(event.view_group.keycloak_id == child_id for child_id in child_ids):
         return True
     if any(event.admin_group.keycloak_id == child_id for child_id in child_ids):

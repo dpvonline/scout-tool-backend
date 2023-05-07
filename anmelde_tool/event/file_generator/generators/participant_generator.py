@@ -42,7 +42,7 @@ class ParticipantGenerator(AbstractGenerator):
             original[f'F{index + 4}'] = helper.get_participant_mobile_numer(participant)
             original[f'G{index + 4}'] = helper.get_participant_email(participant)
             original[f'H{index + 4}'] = helper.get_participant_registration_scout_organisation_name(participant)
-            original[f'I{index + 4}'] = helper.get_participant_street(participant)
+            original[f'I{index + 4}'] = helper.get_participant_address(participant)
             original[f'J{index + 4}'] = helper.get_participant_zip_city(participant)
 
             original.row_dimensions[index + 4].height = 25

@@ -9,6 +9,7 @@ from anmelde_tool.attributes.models import BooleanAttribute, StringAttribute, Ti
     FloatAttribute, StringAttribute, TravelAttribute
 from anmelde_tool.attributes.serializers import BooleanAttributeSerializer, StringAttributeSerializer, \
     TimeAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer
+from basic import serializers as basic_serializers
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from authentication.serializers import UserScoutHierarchySerializer
 from basic.models import EatHabit
@@ -87,8 +88,58 @@ class RegistrationParticipantSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
+    eat_habit = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field='name',
+        queryset=EatHabit.objects.all(),
+        required=False
+    )
+    booking_option = RegistrationSummaryBookingOptionSerializer(many=False, read_only=True)
+    zip_code = basic_serializers.ZipCodeSerializer(many=False, read_only=True)
+    display_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = RegistrationParticipant
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'scout_name',
+            'display_name',
+
+            'address',
+            'zip_code',
+
+            'age',
+            'scout_group',
+            'phone_number',
+            'email',
+            'birthday',
+            'gender',
+            'eat_habit',
+            'booking_option',
+        )
+        
+    def get_display_name(self, obj):
+        return_list = []
+
+        if hasattr(obj, 'first_name') and obj.first_name:
+            return_list.append(f"{obj.first_name}")
+
+        if hasattr(obj, 'scout_name') and obj.scout_name:
+            return_list.append(f"'{obj.scout_name}'")
+
+        if hasattr(obj, 'last_name') and obj.last_name:
+            return_list.append(f"{obj.last_name}")
+
+
+        return ' '.join(return_list)
+
+
 class MyRegistrationGetSerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationParticipantSerializer(many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantReadSerializer(many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
     scout_organisation = UserScoutHierarchySerializer()
@@ -171,7 +222,7 @@ class RegistrationParticipantGroupSerializer(serializers.Serializer):
 
 
 class RegistrationSummarySerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationParticipantSerializer(many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantReadSerializer(many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
     scout_organisation = UserScoutHierarchySerializer()
@@ -213,7 +264,7 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
     event = event_serializers.EventRegistrationSerializer()
-    registrationparticipant_set = RegistrationParticipantSerializer(many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantReadSerializer(many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     attributes = serializers.SerializerMethodField()

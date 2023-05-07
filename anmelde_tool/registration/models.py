@@ -8,6 +8,7 @@ from anmelde_tool.event.models import Event, BookingOption
 from authentication.models import CustomUser
 from basic import choices as basic_choices
 from basic import models as basic_models
+from authentication import models as auth_models
 
 User: CustomUser = get_user_model()
 
@@ -32,7 +33,7 @@ class RegistrationParticipant(basic_models.TimeStampMixin):
     scout_name = models.CharField(max_length=100, blank=True, null=True)
     first_name = models.CharField(max_length=100, default="Generated")
     last_name = models.CharField(max_length=100, default="Generated")
-    street = models.CharField(max_length=100, blank=True)
+    address = models.CharField(max_length=100, blank=True)
     zip_code = models.ForeignKey(basic_models.ZipCode, on_delete=models.PROTECT, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     scout_group = models.ForeignKey(basic_models.ScoutHierarchy, on_delete=models.PROTECT, null=True, blank=True)
@@ -54,6 +55,7 @@ class RegistrationParticipant(basic_models.TimeStampMixin):
         choices=event_choices.ScoutLevelTypes.choices,
         default=event_choices.ScoutLevelTypes.Unbekannt
     )
+    person = models.ForeignKey(auth_models.Person, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return f"{self.registration}: {self.last_name}, {self.first_name}"
