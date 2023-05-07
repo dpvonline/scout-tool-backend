@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework_nested import routers
-from . import views
+from anmelde_tool.registration import views
 
 router = routers.SimpleRouter()
 router.register('registration', views.RegistrationViewSet, basename='registration')

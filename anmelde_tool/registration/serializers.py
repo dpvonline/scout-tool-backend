@@ -297,7 +297,7 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
         string_serializer = StringAttributeSerializer(string_attributes, many=True, read_only=True)
 
         integer_attributes = IntegerAttribute.objects.filter(registration=registration)
-        integer_serializer = StringAttributeSerializer(integer_attributes, many=True, read_only=True)
+        integer_serializer = IntegerAttributeSerializer(integer_attributes, many=True, read_only=True)
 
         float_attributes = FloatAttribute.objects.filter(registration=registration)
         float_serializer = FloatAttributeSerializer(float_attributes, many=True, read_only=True)

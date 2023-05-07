@@ -117,9 +117,9 @@ class EventCompleteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_status(self, obj: event_models.Event) -> str:
-        registration = Registration.objects.filter(event=obj.id).filter(
-            responsible_persons=self.context['request'].user
-        ).first()
+        registration = Registration.objects \
+            .filter(event=obj.id, responsible_persons=self.context['request'].user) \
+            .exists()
 
         if registration:
             return 'already'
@@ -184,7 +184,7 @@ class EventReadSerializer(serializers.ModelSerializer):
             return 'error'
 
     def get_booking_options(self, obj: event_models.Event) -> list:
-        booking_options = event_models.BookingOption.objects.filter(event=obj.id);
+        booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data
 
 
@@ -246,9 +246,9 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
         )
 
     def get_status(self, obj: event_models.Event) -> str:
-        registration = Registration.objects.filter(event=obj.id).filter(
-            responsible_persons=self.context['request'].user
-        ).first()
+        registration = Registration.objects \
+            .filter(event=obj.id, responsible_persons=self.context['request'].user) \
+            .exists()
 
         if registration:
             return 'already'
@@ -260,5 +260,5 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             return 'error'
 
     def get_booking_options(self, obj: event_models.Event) -> list:
-        booking_options = event_models.BookingOption.objects.filter(event=obj.id);
+        booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data

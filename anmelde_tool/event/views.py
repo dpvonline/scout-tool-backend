@@ -54,7 +54,6 @@ class EventReadViewSet(viewsets.ModelViewSet):
     serializer_class = event_serializers.EventReadSerializer
 
 
-
 class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = event_serializers.MyInvitationsSerializer
@@ -74,7 +73,7 @@ class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
             parent_ids.add(group.id)
             if group.parent:
                 q.put(group.parent)
-        return Event.objects.filter(is_public=True, invited_groups__in=parent_ids)
+        return Event.objects.filter((Q(invited_groups__in=parent_ids) | Q(invited_groups=None)), is_public=True)
 
 
 class EventViewSet(viewsets.ModelViewSet):

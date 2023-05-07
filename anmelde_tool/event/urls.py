@@ -26,11 +26,4 @@ event_router.register(r'available-modules', views.AvailableEventModulesViewSet, 
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(event_router.urls)),
-    path('', include('anmelde_tool.registration.urls')),
-    path('', include('anmelde_tool.event.summary.urls')),
-    path('choices/', include('anmelde_tool.event.choices.urls')),
-    path('cash/', include('anmelde_tool.event.cash.urls')),
-    path('', include('anmelde_tool.event.file_generator.urls')),
-    path('', include('anmelde_tool.event.email.urls')),
-    path('', include('anmelde_tool.attributes.urls'))
 ]

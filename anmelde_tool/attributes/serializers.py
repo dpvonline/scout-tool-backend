@@ -23,10 +23,10 @@ class AttributeModuleEventReadSerializer(serializers.ModelSerializer):
             'standard'
         )
 
-    
+
 class BooleanAttributeSerializer(serializers.ModelSerializer):
     type = serializers.ReadOnlyField(default='booleanAttribute')
-    attribute_module = AttributeModuleEventReadSerializer(read_only=True)
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.BooleanAttribute
@@ -35,7 +35,7 @@ class BooleanAttributeSerializer(serializers.ModelSerializer):
 
 class TimeAttributeSerializer(serializers.ModelSerializer):
     type = serializers.ReadOnlyField(default='timeAttribute')
-    attribute_module = AttributeModuleEventReadSerializer(read_only=True)
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.TimeAttribute
@@ -44,7 +44,7 @@ class TimeAttributeSerializer(serializers.ModelSerializer):
 
 class IntegerAttributeSerializer(serializers.ModelSerializer):
     type = serializers.ReadOnlyField(default='integerAttribute')
-    attribute_module = AttributeModuleEventReadSerializer(read_only=True)
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.IntegerAttribute
@@ -53,7 +53,7 @@ class IntegerAttributeSerializer(serializers.ModelSerializer):
 
 class FloatAttributeSerializer(serializers.ModelSerializer):
     type = serializers.ReadOnlyField(default='floatAttribute')
-    attribute_module = AttributeModuleEventReadSerializer(read_only=True)
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.FloatAttribute
@@ -62,7 +62,7 @@ class FloatAttributeSerializer(serializers.ModelSerializer):
 
 class StringAttributeSerializer(serializers.ModelSerializer):
     type = serializers.ReadOnlyField(default='stringAttribute')
-    attribute_module = AttributeModuleEventReadSerializer(read_only=True)
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.StringAttribute
@@ -71,7 +71,7 @@ class StringAttributeSerializer(serializers.ModelSerializer):
 
 class TravelAttributeSerializer(serializers.ModelSerializer):
     type = serializers.ReadOnlyField(default='travelAttribute')
-    attribute_module = AttributeModuleEventReadSerializer(read_only=True)
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.TravelAttribute
