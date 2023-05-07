@@ -33,7 +33,7 @@ def get_email(email_type: EmailType, event: event_models.Event) -> [Template, Te
 
 def get_headers(person, sender):
     headers = {
-        'List-Unsubscribe': f'<mailto: {sender}?subject=unsubscribe>, <{url}/unsubscribe/{person.userextended.id}/>',
+        'List-Unsubscribe': f'<mailto: {sender}?subject=unsubscribe>, <{url}/unsubscribe/{person.id}/>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
     }
     return headers
@@ -80,7 +80,7 @@ def get_booking_options(booking_options: QuerySet) -> str:
 
 def get_scout_organisation_text(registration):
     scout_orga_unit_name = 'Stamm' if registration.scout_organisation.level.id == 5 else ''
-    if not registration.single:
+    if registration.registrationparticipant_set.count() > 1:
         scout_organisation = f'{scout_orga_unit_name} {html.escape(registration.scout_organisation.name)}'
     else:
         scout_organisation = f'Einzelpersonen aus dem {scout_orga_unit_name} {html.escape(registration.scout_organisation.name)}'

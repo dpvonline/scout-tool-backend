@@ -36,6 +36,9 @@ registration_router.register(
     basename='add-responsible'
 )
 
+registration_router.register(r'send-confirmation-mail', views.SendConfirmationMail,
+                             basename='send-confirmation-mail')
+
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(registration_router.urls)),

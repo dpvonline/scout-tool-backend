@@ -4,3 +4,6 @@ from django.apps import AppConfig
 class WorkshopConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'anmelde_tool.registration'
+
+    def ready(self):
+        import anmelde_tool.registration.signals

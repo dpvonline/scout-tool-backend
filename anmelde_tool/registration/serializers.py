@@ -75,6 +75,7 @@ class RegistrationGetSerializer(serializers.ModelSerializer):
 
 
 class RegistrationParticipantSerializer(serializers.ModelSerializer):
+    allow_permanently = serializers.BooleanField(default=False, read_only=True)
     eat_habit = serializers.SlugRelatedField(
         many=True,
         read_only=False,
@@ -99,7 +100,7 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
     booking_option = RegistrationSummaryBookingOptionSerializer(many=False, read_only=True)
     zip_code = basic_serializers.ZipCodeSerializer(many=False, read_only=True)
     display_name = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = RegistrationParticipant
         fields = (
@@ -121,7 +122,7 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
             'eat_habit',
             'booking_option',
         )
-        
+
     def get_display_name(self, obj):
         return_list = []
 
@@ -134,44 +135,7 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'last_name') and obj.last_name:
             return_list.append(f"{obj.last_name}")
 
-
         return ' '.join(return_list)
-
-
-class MyRegistrationGetSerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationParticipantReadSerializer(many=True, read_only=True)
-    responsible_persons = CurrentUserSerializer(many=True, read_only=True)
-    status = serializers.SerializerMethodField()
-    scout_organisation = UserScoutHierarchySerializer()
-    participant_count = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
-    event = event_serializers.EventRegistrationSerializer()
-
-    class Meta:
-        model = Registration
-        fields = (
-            'id',
-            'scout_organisation',
-            'responsible_persons',
-            'event',
-            'is_confirmed',
-            'status'
-        )
-
-    def get_status(self, obj: Registration) -> str:
-        if obj.event.registration_deadline > timezone.now():
-            return 'pending'
-        elif obj.event.registration_deadline <= timezone.now():
-            return 'expired'
-        else:
-            return 'error'
-
-    def get_participant_count(self, registration: Registration) -> int:
-        return registration.registrationparticipant_set.count()
-
-    def get_price(self, registration: Registration) -> float:
-        return registration.registrationparticipant_set.aggregate(
-            sum=Sum('booking_option__price'))['sum']
 
 
 class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
@@ -214,11 +178,6 @@ class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
             'generated',
             'registration'
         )
-
-
-class RegistrationParticipantGroupSerializer(serializers.Serializer):
-    number = serializers.CharField(required=True)
-    avoid_manual_check = serializers.BooleanField(required=False, default=False)
 
 
 class RegistrationSummarySerializer(serializers.ModelSerializer):

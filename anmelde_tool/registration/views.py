@@ -12,22 +12,21 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from anmelde_tool.event import api_exceptions as event_api_exceptions
-from anmelde_tool.event import models as event_models
-from anmelde_tool.event import permissions as event_permissions
-from anmelde_tool.event.choices import choices as event_choices
-from anmelde_tool.event.helper import get_registration, custom_get_or_404
-from anmelde_tool.registration import serializers as registration_serializers
-from anmelde_tool.registration.models import Registration, RegistrationParticipant
-from anmelde_tool.registration.serializers import RegistrationParticipantGroupSerializer
+from anmelde_tool.attributes.choices import TravelType
+from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, StringAttribute, TimeAttribute, \
+    IntegerAttribute, FloatAttribute, TravelAttribute
 from anmelde_tool.attributes.serializers import BooleanAttributePostSerializer, \
     TimeAttributePostSerializer, StringAttributePostSerializer, FloatAttributePostSerializer, \
     IntegerAttributePostSerializer, TravelAttributePostSerializer, BooleanAttributeSerializer, \
     StringAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer, \
     TimeAttributeSerializer
-from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, StringAttribute, TimeAttribute, \
-    IntegerAttribute, FloatAttribute, TravelAttribute, AbstractAttribute
-from anmelde_tool.attributes.choices import AttributeType, TravelType
+from anmelde_tool.email_services import services
+from anmelde_tool.event import api_exceptions as event_api_exceptions
+from anmelde_tool.event import models as event_models
+from anmelde_tool.event import permissions as event_permissions
+from anmelde_tool.event.helper import get_registration, custom_get_or_404
+from anmelde_tool.registration import serializers as registration_serializers
+from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from authentication import models as auth_models
 from basic import models as basic_models
 from basic.models import ZipCode
@@ -63,9 +62,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         registration_id = self.kwargs.get("registration_pk", None)
-        return RegistrationParticipant.objects.filter(
-            registration=registration_id
-        ).order_by('age')
+        return RegistrationParticipant.objects.filter(registration=registration_id).order_by('age')
 
     def create(self, request, *args, **kwargs) -> Response:
         eat_habits_formatted = create_missing_eat_habits(request)
@@ -73,6 +70,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
 
+        zip_code = None
         if request.data.get('zip_code'):
             zip_code = get_object_or_404(ZipCode, zip_code=request.data.get('zip_code'))
             request.data['zip_code'] = zip_code.id
@@ -90,9 +88,6 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         if request.data.get('booking_option') is None:
             request.data['booking_option'] = registration.event.bookingoption_set.first().id
-
-        if registration.event.registration_deadline < timezone.now():
-            request.data['needs_confirmation'] = event_choices.ParticipantActionConfirmation.AddCompletyNew
 
         if request.data.get('allow_permanently'):
             person = auth_models.Person(
@@ -151,157 +146,6 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 raise event_api_exceptions.TooLate
 
         return registration
-
-
-class RegistrationAddGroupParticipantViewSet(viewsets.ViewSet):
-    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
-    serializer_class = registration_serializers.RegistrationParticipantShortSerializer
-
-    def create(self, request, *args, **kwargs) -> Response:
-        registration: Registration = self.participant_group_initialization(request)
-        number: int = request.data.get('number', 0)
-        scout_level: int = request.data.get('scout_level', 'N')
-        eat_habit_id: int = request.data.get('eat_habit', 1)
-        existing_participants: QuerySet = RegistrationParticipant.objects.filter(
-            registration=registration.id
-        )
-        total_participant_count: int = existing_participants.count()
-
-        new_participants = []
-
-        switcher = {
-            'N': 14,
-            'W': 9,
-            'S': 14,
-            'R': 18,
-        }
-        print(scout_level)
-        if scout_level:
-            age = switcher.get(scout_level, 14)
-            print(age)
-            birthday = timezone.now() - relativedelta(years=int(age))
-            print(birthday)
-
-        booking: event_models.BookingOption = registration.event.bookingoption_set.first()
-        if eat_habit_id:
-            eat_habit: basic_models.EatHabit = get_object_or_404(basic_models.EatHabit, id=eat_habit_id)
-        for i in range(total_participant_count + 1, total_participant_count + int(number) + 1):
-            participant = RegistrationParticipant(
-                first_name='Teilnehmender',
-                scout_name=f'Teilnehmender',
-                last_name=i,
-                age=age,
-                birthday=birthday,
-                scout_level=scout_level,
-                registration=registration,
-                generated=True,
-                needs_confirmation=confirm,
-                booking_option=booking
-            )
-            participant.save()
-            if eat_habit_id:
-                participant.eat_habit.add(eat_habit)
-            new_participants.append(participant)
-
-        return Response({'created  persons'}, status=status.HTTP_201_CREATED)
-
-    def participant_group_initialization(self, request) -> Registration:
-        input_serializer = RegistrationParticipantGroupSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        registration_id = self.kwargs.get("registration_pk", None)
-        registration: Registration = get_object_or_404(Registration, id=registration_id)
-
-        if registration.event.registration_start > timezone.now():
-            raise event_api_exceptions.TooEarly
-        elif self.action != 'destroy' and registration.event.last_possible_update < timezone.now():
-            raise event_api_exceptions.TooLate
-
-        return registration
-
-
-class RegistrationGroupParticipantViewSet(viewsets.ViewSet):
-    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
-    serializer_class = registration_serializers.RegistrationParticipantShortSerializer
-
-    def create(self, request, *args, **kwargs) -> Response:
-        registration: Registration = self.participant_group_initialization(request)
-        number: int = request.data.get('number', 0)
-        existing_participants: QuerySet = RegistrationParticipant.objects.filter(
-            registration=registration.id
-        )
-        active_participants: QuerySet = existing_participants.filter(deactivated=False)
-        inactive_participants: QuerySet = existing_participants.filter(deactivated=True)
-        active_participant_count: int = active_participants.count()
-        inactive_participant_count: int = inactive_participants.count()
-        total_participant_count: int = active_participant_count + inactive_participant_count
-        activate = min(inactive_participant_count, number)
-        create: int = max(number - total_participant_count, 0)
-        confirm_needed: bool = registration.event.registration_deadline < timezone.now()
-
-        if activate > 0:
-            RegistrationParticipant.objects \
-                .filter(pk__in=inactive_participants.order_by('created_at').values_list('pk', flat=True)[:activate]) \
-                .update(deactivated=False)
-
-        if create > 0:
-            new_participants = []
-
-            booking: event_models.BookingOption = registration.event.bookingoption_set.first().id
-
-            for i in range(total_participant_count + 1, number + 1):
-                participant = RegistrationParticipant(
-                    first_name='Pfadi',
-                    last_name=i,
-                    registration=registration,
-                    generated=True,
-                    booking_option=booking
-                )
-                new_participants.append(participant)
-            RegistrationParticipant.objects.bulk_create(new_participants)
-
-        return Response({'activated': activate, 'created': create}, status=status.HTTP_201_CREATED)
-
-    def participant_group_initialization(self, request) -> Registration:
-        input_serializer = registration_serializers.RegistrationParticipantGroupSerializer(data=request.data)
-        input_serializer.is_valid(raise_exception=True)
-
-        registration_id = self.kwargs.get("registration_pk", None)
-        registration: Registration = get_object_or_404(Registration, id=registration_id)
-
-        if registration.event.registration_start > timezone.now():
-            raise event_api_exceptions.TooEarly
-        elif self.action != 'destroy' and registration.event.last_possible_update < timezone.now():
-            raise event_api_exceptions.TooLate
-
-        return registration
-
-    def delete(self, request, *args, **kwargs) -> Response:
-        registration: Registration = self.participant_group_initialization(request)
-        number: int = request.data.get('number', 9999)
-        all_participants: QuerySet = RegistrationParticipant.objects.filter(registration=registration.id)
-        participant_count = all_participants.count()
-
-        if number <= participant_count:
-            num_delete: int = max(participant_count - number, 0)
-            deletable_participants: QuerySet = all_participants.filter(generated=True)
-            deletable_participants_count: int = deletable_participants.count()
-
-            if num_delete < deletable_participants_count:
-                selected_deletable_participants = RegistrationParticipant.objects.filter(
-                    pk__in=deletable_participants.order_by('-created_at').values_list('pk', flat=True)[:num_delete]
-                )
-            else:
-                selected_deletable_participants = deletable_participants
-
-            selected_deletable_participants.delete()
-            return Response({'deleted': num_delete}, status=status.HTTP_204_NO_CONTENT)
-
-        else:
-            return Response(
-                f'number: {number} is higher or equal than current participantc count {participant_count}',
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
 
 class RegistrationBooleanAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -532,13 +376,6 @@ class RegistrationViewSet(
             return registration_serializers.RegistrationPutSerializer
 
 
-class SimpleRegistrationViewSet(viewsets.ModelViewSet):
-    serializer_class = registration_serializers.RegistrationGetSerializer
-
-    def get_queryset(self) -> QuerySet:
-        return Registration.objects.all()
-
-
 class MyRegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = registration_serializers.RegistrationSummarySerializer
 
@@ -551,3 +388,11 @@ class RegistrationReadViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         return Registration.objects.filter(responsible_persons=self.request.user.id)
+
+
+class SendConfirmationMail(mixins.CreateModelMixin, viewsets.GenericViewSet):
+
+    def create(self, request, *args, **kwargs):
+        registration_id = self.kwargs.get("registration_pk", None)
+        services.send_registration_created_mail(instance_id=registration_id)
+        return Response(status=status.HTTP_201_CREATED)

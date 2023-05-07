@@ -3,6 +3,7 @@ from .choices import EmailType
 from .threads.registration import registration_confirmed_mail
 from .threads.payment_reminder import payment_reminder_mail
 from .threads.news import news_mail
+
 url = getattr(settings, 'FRONT_URL', '')
 email_active = getattr(settings, 'SEND_MAIL', False)
 
