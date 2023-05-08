@@ -99,6 +99,7 @@ class EventModule(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True)
     name = models.CharField(max_length=100, default='', blank=True)
     header = models.CharField(max_length=100, default='Default Header')
+    description = models.TextField(default='')
     internal = models.BooleanField(default=False)
     ordering = models.IntegerField(default=999, auto_created=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
