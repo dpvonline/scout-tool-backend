@@ -20,6 +20,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('user', 'first_name', 'last_name', 'scout_group')
+    search_fields = ('email', 'user__username', 'user__keycloak_id', 'first_name', 'last_name')
     autocomplete_fields = ('created_by', 'scout_group', 'zip_code')
 
 

@@ -2,7 +2,8 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from anmelde_tool.event import models as event_models
+
+from anmelde_tool.registration.models import Registration
 
 User = get_user_model()
 
@@ -15,7 +16,7 @@ class CashIncome(models.Model):
     transfer_person = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     transfer_reference_id = models.CharField(max_length=100, blank=True, null=True)
     description = models.CharField(max_length=250, blank=True, null=True)
-    registration = models.ForeignKey(event_models.Registration, null=True, blank=True, on_delete=models.SET_NULL)
+    registration = models.ForeignKey(Registration, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f'{self.registration}: {self.amount}'

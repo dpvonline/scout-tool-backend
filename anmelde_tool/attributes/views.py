@@ -1,44 +1,56 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from anmelde_tool.attributes.choices import TravelType, AttributeType
+from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, IntegerAttribute, FloatAttribute, \
+    StringAttribute, TimeAttribute, TravelAttribute
+from anmelde_tool.attributes.serializers import AttributeModuleSerializer, BooleanUpdateAttributeSerializer, \
+    IntegerUpdateAttributeSerializer, FloatUpdateAttributeSerializer, TimeUpdateAttributeSerializer, \
+    TravelUpdateAttributeSerializer, StringUpdateAttributeSerializer
 from basic.helper import choice_to_json
-from . import models as attribute_models
-from . import serializers as attribute_serializers
-from .choices import TravelType
 
 
-class AttributeViewSet(viewsets.ModelViewSet):
+class AttributeModuleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = attribute_models.AbstractAttribute.objects.all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['type', 'type__name']
-
-    def get_serializer_class(self):
-        if self.action == 'create' or self.action == 'update':
-            return attribute_serializers.AbstractAttributePostPolymorphicSerializer
-        else:
-            return attribute_serializers.AbstractAttributeGetPolymorphicSerializer
+    serializer_class = AttributeModuleSerializer
+    queryset = AttributeModule.objects.all()
 
 
-class AttributeTypeViewSet(viewsets.ViewSet):
+class BooleanAttributeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = BooleanUpdateAttributeSerializer
+    queryset = BooleanAttribute.objects.all()
 
-    def inheritors(self, klass) -> [str]:
-        subclasses = set()
-        work = [klass]
-        while work:
-            parent = work.pop()
-            for child in parent.__subclasses__():
-                if child not in subclasses:
-                    subclasses.add(child.__name__)
-                    work.append(child)
-        return subclasses
 
-    def list(self, request) -> Response:
-        choices = self.inheritors(attribute_models.AbstractAttribute)
-        return Response(choices, status=status.HTTP_200_OK)
+class IntegerAttributeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = IntegerUpdateAttributeSerializer
+    queryset = IntegerAttribute.objects.all()
+
+
+class FloatAttributeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FloatUpdateAttributeSerializer
+    queryset = FloatAttribute.objects.all()
+
+
+class StringAttributeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = StringUpdateAttributeSerializer
+    queryset = StringAttribute.objects.all()
+
+
+class TravelAttributeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TravelUpdateAttributeSerializer
+    queryset = TravelAttribute.objects.all()
+
+
+class TimeAttributeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TimeUpdateAttributeSerializer
+    queryset = TimeAttribute.objects.all()
 
 
 class TravelTypeViewSet(viewsets.ViewSet):
@@ -46,4 +58,12 @@ class TravelTypeViewSet(viewsets.ViewSet):
 
     def list(self, request) -> Response:
         result = choice_to_json(TravelType.choices)
+        return Response(result, status=status.HTTP_200_OK)
+
+
+class AttributeTypeViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request) -> Response:
+        result = choice_to_json(AttributeType.choices)
         return Response(result, status=status.HTTP_200_OK)

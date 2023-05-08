@@ -1,230 +1,181 @@
 from rest_framework import serializers
 
-from basic.serializers import TagTypeShortSerializer
-from . import models as attribute_models
-from .polymorphic_serializer import PolymorphicSerializer
+from anmelde_tool.attributes import models as attribute_models
 
 """
 # noqa turn off pycharm warnings about missing abstract methods, which is a bug of pycharm
 """
 
 
-class AbstractAttributeSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
+class AttributeModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = attribute_models.AttributeModule
+        fields = '__all__'
+
+
+class AttributeModuleEventReadSerializer(serializers.ModelSerializer):
+    field_type = serializers.CharField(source='get_field_type_display', read_only=True)
 
     class Meta:
-        model = attribute_models.AbstractAttribute
-        exclude = ('template', 'polymorphic_ctype')
+        model = attribute_models.AttributeModule
+        exclude = (
+            'event_module',
+            'standard'
+        )
 
 
-class BooleanAttributeGetSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
+class BooleanAttributeSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='booleanAttribute')
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.BooleanAttribute
-        exclude = ('template', 'polymorphic_ctype', 'in_summary')
+        fields = '__all__'
 
 
-class TimeAttributeGetSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
+class TimeAttributeSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='timeAttribute')
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.TimeAttribute
-        exclude = ('template', 'polymorphic_ctype', 'in_summary')
+        fields = '__all__'
 
 
-class IntegerAttributeGetSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
+class IntegerAttributeSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='integerAttribute')
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.IntegerAttribute
-        exclude = ('template', 'polymorphic_ctype', 'in_summary')
+        fields = '__all__'
 
 
-class FloatAttributeGetSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
+class FloatAttributeSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='floatAttribute')
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.FloatAttribute
-        exclude = ('template', 'polymorphic_ctype', 'in_summary')
+        fields = '__all__'
 
 
-class TravelAttributeGetSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
-    type_field = serializers.CharField(source='get_type_field_display')
-
-    class Meta:
-        model = attribute_models.TravelAttribute
-        exclude = ('template', 'polymorphic_ctype', 'in_summary')
-
-
-class StringAttributeGetSerializer(serializers.ModelSerializer):  # noqa
-    type = TagTypeShortSerializer(many=False)
+class StringAttributeSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='stringAttribute')
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.StringAttribute
-        exclude = ('template', 'polymorphic_ctype', 'in_summary')
+        fields = '__all__'
 
 
-class AbstractAttributeGetPolymorphicSerializer(PolymorphicSerializer):
-    model_serializer_mapping = {
-        attribute_models.FloatAttribute: FloatAttributeGetSerializer,
-        attribute_models.IntegerAttribute: IntegerAttributeGetSerializer,
-        attribute_models.TimeAttribute: TimeAttributeGetSerializer,
-        attribute_models.BooleanAttribute: BooleanAttributeGetSerializer,
-        attribute_models.TravelAttribute: TravelAttributeGetSerializer,
-        attribute_models.StringAttribute: StringAttributeGetSerializer
-    }
-
-
-class BooleanAttributePutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.BooleanAttribute
-        fields = ('boolean_field',)
-
-
-class TimeAttributePutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.TimeAttribute
-        fields = ('date_field',)
-
-
-class IntegerAttributePutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.IntegerAttribute
-        fields = ('integer_field',)
-
-
-class FloatAttributePutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.FloatAttribute
-        fields = ('float_field',)
-
-
-class TravelAttributePutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.TravelAttribute
-        fields = ('type_field', 'date_time_field', 'number_persons', 'description')
-
-
-class StringAttributePutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.StringAttribute
-        fields = ('string_field',)
-
-
-class AbstractAttributePutPolymorphicSerializer(PolymorphicSerializer):
-    model_serializer_mapping = {
-        attribute_models.FloatAttribute: FloatAttributePutSerializer,
-        attribute_models.IntegerAttribute: IntegerAttributePutSerializer,
-        attribute_models.TimeAttribute: TimeAttributePutSerializer,
-        attribute_models.BooleanAttribute: BooleanAttributePutSerializer,
-        attribute_models.TravelAttribute: TravelAttributePutSerializer,
-        attribute_models.StringAttribute: StringAttributePutSerializer
-    }
-
-
-class BooleanAttributeTemplatePostSerializer(serializers.ModelSerializer):
-    resourcetype = serializers.CharField()
-
-    class Meta:
-        model = attribute_models.BooleanAttribute
-        fields = ('boolean_field', 'resourcetype', 'template_id')
-
-
-class TimeAttributeTemplatePostSerializer(serializers.ModelSerializer):
-    resourcetype = serializers.CharField()
-
-    class Meta:
-        model = attribute_models.TimeAttribute
-        fields = ('date_field', 'resourcetype', 'template_id')
-
-
-class IntegerAttributeTemplatePostSerializer(serializers.ModelSerializer):
-    resourcetype = serializers.CharField()
-
-    class Meta:
-        model = attribute_models.IntegerAttribute
-        fields = ('integer_field', 'resourcetype', 'template_id')
-
-
-class FloatAttributeTemplatePostSerializer(serializers.ModelSerializer):
-    resourcetype = serializers.CharField()
-
-    class Meta:
-        model = attribute_models.FloatAttribute
-        fields = ('float_field', 'resourcetype', 'template_id')
-
-
-class TravelAttributeTemplatePostSerializer(serializers.ModelSerializer):
-    resourcetype = serializers.CharField()
+class TravelAttributeSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='travelAttribute')
+    attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
         model = attribute_models.TravelAttribute
-        fields = ('type_field', 'date_time_field', 'persons', 'description', 'resourcetype', 'template_id')
-
-
-class StringAttributeTemplatePostSerializer(serializers.ModelSerializer):
-    resourcetype = serializers.CharField()
-
-    class Meta:
-        model = attribute_models.StringAttribute
-        fields = ('string_field', 'resourcetype', 'template_id')
-
-
-class AbstractAttributeTemplatePostPolymorphicSerializer(PolymorphicSerializer):
-    model_serializer_mapping = {
-        attribute_models.FloatAttribute: FloatAttributeTemplatePostSerializer,
-        attribute_models.IntegerAttribute: IntegerAttributeTemplatePostSerializer,
-        attribute_models.TimeAttribute: TimeAttributeTemplatePostSerializer,
-        attribute_models.BooleanAttribute: BooleanAttributeTemplatePostSerializer,
-        attribute_models.TravelAttribute: TravelAttributeTemplatePostSerializer,
-        attribute_models.StringAttribute: StringAttributeTemplatePostSerializer
-    }
-
-
-class BooleanAttributePostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.BooleanAttribute
         fields = '__all__'
+        fields = (
+            'number_persons',
+            'get_type_field_display',
+            'date_time_field',
+            'description',
+            'attribute_module',
+            'type_field',
+            'type'
+        )
 
 
-class TimeAttributePostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.TimeAttribute
-        fields = '__all__'
+class BooleanAttributePostSerializer(serializers.Serializer):
+    attribute_module = serializers.IntegerField(required=True)
+    boolean_field = serializers.BooleanField(required=True)
 
 
-class IntegerAttributePostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.IntegerAttribute
-        fields = '__all__'
+class TimeAttributePostSerializer(serializers.Serializer):
+    attribute_module = serializers.IntegerField(required=True)
+    time_field = serializers.CharField(required=True)
 
 
-class FloatAttributePostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = attribute_models.FloatAttribute
-        fields = '__all__'
+class IntegerAttributePostSerializer(serializers.Serializer):
+    attribute_module = serializers.IntegerField(required=True)
+    integer_field = serializers.IntegerField(required=True)
+
+
+class FloatAttributePostSerializer(serializers.Serializer):
+    attribute_module = serializers.IntegerField(required=True)
+    float_field = serializers.FloatField(required=True)
+
+
+class StringAttributePostSerializer(serializers.Serializer):
+    attribute_module = serializers.IntegerField(required=True)
+    string_field = serializers.CharField(required=True)
 
 
 class TravelAttributePostSerializer(serializers.ModelSerializer):
+    attribute_module = serializers.IntegerField(required=True)
+
     class Meta:
         model = attribute_models.TravelAttribute
-        fields = '__all__'
+        fields = (
+            'registration',
+            'number_persons',
+            'type_field',
+            'date_time_field',
+            'description',
+            'attribute_module'
+        )
 
 
-class StringAttributePostSerializer(serializers.ModelSerializer):
+class BooleanUpdateAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = attribute_models.BooleanAttribute
+        exclude = (
+            'registration',
+            'attribute_module'
+        )
+
+
+class TimeUpdateAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = attribute_models.TimeAttribute
+        exclude = (
+            'registration',
+            'attribute_module'
+        )
+
+
+class IntegerUpdateAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = attribute_models.IntegerAttribute
+        exclude = (
+            'registration',
+            'attribute_module'
+        )
+
+
+class FloatUpdateAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = attribute_models.FloatAttribute
+        exclude = (
+            'registration',
+            'attribute_module'
+        )
+
+
+class StringUpdateAttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = attribute_models.StringAttribute
-        fields = '__all__'
+        exclude = (
+            'registration',
+            'attribute_module'
+        )
 
 
-class AbstractAttributePostPolymorphicSerializer(PolymorphicSerializer):
-    model_serializer_mapping = {
-        attribute_models.FloatAttribute: FloatAttributePostSerializer,
-        attribute_models.IntegerAttribute: IntegerAttributePostSerializer,
-        attribute_models.TimeAttribute: TimeAttributePostSerializer,
-        attribute_models.BooleanAttribute: BooleanAttributePostSerializer,
-        attribute_models.TravelAttribute: TravelAttributePostSerializer,
-        attribute_models.StringAttribute: StringAttributePostSerializer
-    }
+class TravelUpdateAttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = attribute_models.TravelAttribute
+        exclude = (
+            'registration',
+            'attribute_module'
+        )

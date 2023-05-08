@@ -1,9 +1,9 @@
 from rest_framework import permissions
 from rest_framework.request import Request
 from rest_framework.generics import get_object_or_404
-from anmelde_tool.event.models import Registration
 from anmelde_tool.event.cash.models import CashIncome
 from anmelde_tool.event.permissions import check_event_permission
+from anmelde_tool.registration.models import Registration
 
 
 class IsCashResponsiblePerson(permissions.BasePermission):

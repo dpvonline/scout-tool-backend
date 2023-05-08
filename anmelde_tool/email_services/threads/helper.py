@@ -1,6 +1,8 @@
 from django.db.models import Sum, QuerySet
 from django.template import Template
 import html
+
+from anmelde_tool.registration.models import Registration
 from backend import settings
 from anmelde_tool.email_services import models as email_services_models
 from anmelde_tool.email_services.choices import EmailType
@@ -31,7 +33,7 @@ def get_email(email_type: EmailType, event: event_models.Event) -> [Template, Te
 
 def get_headers(person, sender):
     headers = {
-        'List-Unsubscribe': f'<mailto: {sender}?subject=unsubscribe>, <{url}/unsubscribe/{person.userextended.id}/>',
+        'List-Unsubscribe': f'<mailto: {sender}?subject=unsubscribe>, <{url}/unsubscribe/{person.id}/>',
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
     }
     return headers
@@ -47,7 +49,7 @@ def get_event_pronoun(event_name: str) -> str:
         return 'das'
 
 
-def get_html_participant_list(registration: event_models.Registration) -> str:
+def get_html_participant_list(registration: Registration) -> str:
     list_participants = '<ul>'
     for participant in registration.registrationparticipant_set.all():
         particpiant_entry = f'<li>{participant.first_name}, {participant.last_name}'
@@ -60,7 +62,7 @@ def get_html_participant_list(registration: event_models.Registration) -> str:
     return list_participants
 
 
-def get_participant_count(registration: event_models.Registration) -> [int, int]:
+def get_participant_count(registration: Registration) -> [int, int]:
     count = registration.registrationparticipant_set.count() or 0
     participant_sum = registration.registrationparticipant_set \
                           .aggregate(sum=Sum('booking_option__price'))['sum'] or 0
@@ -78,7 +80,7 @@ def get_booking_options(booking_options: QuerySet) -> str:
 
 def get_scout_organisation_text(registration):
     scout_orga_unit_name = 'Stamm' if registration.scout_organisation.level.id == 5 else ''
-    if not registration.single:
+    if registration.registrationparticipant_set.count() > 1:
         scout_organisation = f'{scout_orga_unit_name} {html.escape(registration.scout_organisation.name)}'
     else:
         scout_organisation = f'Einzelpersonen aus dem {scout_orga_unit_name} {html.escape(registration.scout_organisation.name)}'

@@ -4,10 +4,10 @@ from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 
-from anmelde_tool.event.api_exceptions import RequiredGroupNotFound
-from anmelde_tool.event.helper import custom_get_or_404, get_registration
 from anmelde_tool.event.helper import get_event
-from anmelde_tool.event.models import Registration, Event
+from anmelde_tool.event.helper import get_registration
+from anmelde_tool.event.models import Event
+from anmelde_tool.registration.models import Registration
 from keycloak_auth.helper import get_groups_of_user
 
 CREATE_METHOD = 'POST'
@@ -42,7 +42,7 @@ def check_event_permission(event_id: [str, Event], request, admin_only=False) ->
 
 def check_leader_permission(event_id: [str, Event], user: User) -> bool:
     event = get_event(event_id)
-    # ToDo: Hagi fix it
+    # Todo: Hagi can you please fixt it
     # if event.limited_registration_hierarchy.id == 493 and user.userextended.scout_organisation.id != 493:
     #     perm_name = 'dpv_bundesfuehrungen'
     #     bufu_group = custom_get_or_404(RequiredGroupNotFound(perm_name), Group, name=perm_name)
