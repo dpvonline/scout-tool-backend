@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class TravelType(models.TextChoices):
-    Train = 'T', _('Bahn')
+    Train = 'T', _('Öffis')
     Bus = 'B', _('Reisebus')
     Car = 'C', _('PKW')
     Other = 'O', _('Sonstiges')

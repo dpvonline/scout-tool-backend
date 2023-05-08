@@ -119,6 +119,7 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
             'email',
             'birthday',
             'gender',
+            'get_gender_display',
             'eat_habit',
             'booking_option',
         )

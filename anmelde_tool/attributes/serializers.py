@@ -76,6 +76,15 @@ class TravelAttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = attribute_models.TravelAttribute
         fields = '__all__'
+        fields = (
+            'number_persons',
+            'get_type_field_display',
+            'date_time_field',
+            'description',
+            'attribute_module',
+            'type_field',
+            'type'
+        )
 
 
 class BooleanAttributePostSerializer(serializers.Serializer):
@@ -109,6 +118,7 @@ class TravelAttributePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = attribute_models.TravelAttribute
         fields = (
+            'registration',
             'number_persons',
             'type_field',
             'date_time_field',

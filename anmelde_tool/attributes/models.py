@@ -86,4 +86,4 @@ class TravelAttribute(AbstractAttribute):
     description = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
-        return f'{self.attribute_module.title}: {self.type_field.value} - {self.date_time_field}'
+        return f'{self.attribute_module.title}: {self.type_field} - {self.date_time_field}'
