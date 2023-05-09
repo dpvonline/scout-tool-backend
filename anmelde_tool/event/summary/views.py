@@ -30,7 +30,7 @@ class WorkshopEventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
             registration__event__id=event_id
         )
 
-        if not event_permissions.check_event_permission(event, self.request.user) \
+        if not event_permissions.check_event_permission(event, self.request) \
                 and event_permissions.check_leader_permission(event, self.request.user):
             bund = get_bund(self.request.user.userextended.scout_organisation)
             workshops = workshops.filter(

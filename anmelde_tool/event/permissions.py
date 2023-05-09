@@ -106,7 +106,7 @@ class IsEventResponsiblePersonOrReadOnly(permissions.BasePermission):
         if request.method in SAFE_METHODS:
             return True
         event_id: str = view.kwargs.get("pk", None)
-        return check_event_permission(event_id, request.user)
+        return check_event_permission(event_id, request)
 
 
 class IsSubEventResponsiblePerson(permissions.BasePermission):
@@ -118,7 +118,7 @@ class IsSubEventResponsiblePerson(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         event_id: str = view.kwargs.get('event_pk', None)
-        return check_event_permission(event_id, request.user)
+        return check_event_permission(event_id, request)
 
 
 class IsLeaderPerson(permissions.BasePermission):
@@ -142,7 +142,7 @@ class IsSubEventResponsiblePersonOrReadOnly(permissions.BasePermission):
         if request.method in SAFE_METHODS:
             return True
         event_id: str = view.kwargs.get('event_pk', None)
-        return check_event_permission(event_id, request.user)
+        return check_event_permission(event_id, request)
 
 
 class IsRegistrationResponsiblePerson(permissions.BasePermission):

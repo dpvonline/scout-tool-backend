@@ -23,5 +23,7 @@ class IsCashResponsiblePerson(permissions.BasePermission):
         elif pk is not None:
             cash_income: CashIncome = get_object_or_404(CashIncome, id=pk)
             event = cash_income.registration.event
+        else:
+            raise Exception('Error')
 
-        return check_event_permission(event, request.user, admin_only=True)
+        return check_event_permission(event, request,  admin_only=True)
