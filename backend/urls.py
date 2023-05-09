@@ -7,7 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('basic/', include('basic.urls')),
     path('auth/', include('authentication.urls')),
-    path('event/', include('anmelde_tool.event.urls')),
+    path('event/', include('anmelde_tool.urls')),
     path('message/', include('messaging.urls')),
     path('food/', include('food.urls')),
     path('keycloak/', include('keycloak_auth.urls')),

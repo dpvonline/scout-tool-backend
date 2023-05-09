@@ -1,55 +1,46 @@
 from django.contrib import admin
-from polymorphic.admin import PolymorphicChildModelAdmin, PolymorphicParentModelAdmin, PolymorphicChildModelFilter
 
-from .models import AbstractAttribute, BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, \
-    TravelAttribute, StringAttribute
+from .models import BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, \
+    TravelAttribute, StringAttribute, AttributeModule
 
 
-class AbstractAttributeChildAdmin(PolymorphicChildModelAdmin):
-    """ Base admin class for all child models """
-    base_model = AbstractAttribute  # Optional, explicitly set here.
-    list_display = ('name', 'type', 'template')
-    search_fields = ('name', 'type')
-    autocomplete_fields = ('type',)
-    show_in_index = True
+class BaseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'registration', 'attribute_module')
+    search_fields = ('registration', 'attribute_module__title', 'attribute_module__text')
+    list_filter = ('registration', 'attribute_module')
 
 
 @admin.register(BooleanAttribute)
-class BooleanAttributeAdmin(AbstractAttributeChildAdmin):
-    base_model = BooleanAttribute
+class BooleanAttributeAdmin(BaseAdmin):
+    pass
 
 
 @admin.register(TimeAttribute)
-class TimeAttributeAdmin(AbstractAttributeChildAdmin):
-    base_model = TimeAttribute
+class TimeAttributeAdmin(BaseAdmin):
+    pass
 
 
 @admin.register(IntegerAttribute)
-class IntegerAttributeAdmin(AbstractAttributeChildAdmin):
-    base_model = IntegerAttribute
+class IntegerAttributeAdmin(BaseAdmin):
+    pass
 
 
 @admin.register(FloatAttribute)
-class FloatAttributeAdmin(AbstractAttributeChildAdmin):
-    base_model = FloatAttribute
+class FloatAttributeAdmin(BaseAdmin):
+    pass
 
 
 @admin.register(TravelAttribute)
-class TravelAttributeAdmin(AbstractAttributeChildAdmin):
-    base_model = TravelAttribute
+class TravelAttributeAdmin(BaseAdmin):
+    pass
 
 
 @admin.register(StringAttribute)
-class StringAttributeAdmin(AbstractAttributeChildAdmin):
-    base_model = StringAttribute
+class StringAttributeAdmin(BaseAdmin):
+    pass
 
 
-@admin.register(AbstractAttribute)
-class AbstractAttributeParentAdmin(PolymorphicParentModelAdmin):
-    """ The parent model admin """
-    base_model = AbstractAttribute  # Optional, explicitly set here.
-    child_models = (
-        BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, TravelAttribute,
-        StringAttribute)
-    list_filter = (PolymorphicChildModelFilter,)  # This is optional.
-    list_display = ('name', 'type', 'template')
+@admin.register(AttributeModule)
+class AttributeEventModuleMapperAdmin(admin.ModelAdmin):
+    list_display = ('id', 'text', 'standard', 'event_module', 'field_type')
+    search_fields = ('event_module',)

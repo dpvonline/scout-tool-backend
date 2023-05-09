@@ -9,6 +9,7 @@ from basic.serializers import ScoutHierarchySerializer
 from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.choices import CreateGroupChoices
 from keycloak_auth.enums import PermissionType
+from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup, ExternalLinks
 from keycloak_auth.permissions import request_group_access
 
@@ -20,7 +21,7 @@ def cut_email(input):
     return f"{first_half[0][0:5]}...@"
 
 
-def get_display_name(obj: User):
+def get_display_name_user(obj: User):
     return_list = []
 
     if hasattr(obj, 'person') and obj.person.scout_name:
@@ -36,6 +37,19 @@ def get_display_name(obj: User):
         return_list.append(f"Stamm {obj.person.scout_group.name}")
 
     return ' '.join(return_list)
+
+
+def get_display_name_group(obj: KeycloakGroup):
+    if hasattr(obj, 'scouthierarchy') and obj.scouthierarchy:
+        return obj.scouthierarchy.name
+
+    if obj.parent:
+        if hasattr(obj.parent, 'scouthierarchy') and obj.parent.scouthierarchy:
+            return f'{obj.parent.scouthierarchy} - {obj.name}'
+        else:
+            return f'{obj.parent.name} - {obj.name}'
+
+    return obj.name
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -132,6 +146,7 @@ class FullGroupSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
     permission = serializers.SerializerMethodField()
     is_member = serializers.SerializerMethodField()
+    display_name = serializers.SerializerMethodField()
     scouthierarchy = ScoutHierarchySerializer(many=False)
     externallinks = ExternalLinksSerializer(many=False)
 
@@ -147,7 +162,8 @@ class FullGroupSerializer(serializers.ModelSerializer):
             'description',
             'scouthierarchy',
             'externallinks',
-            'is_member'
+            'is_member',
+            'display_name'
         )
 
     def get_parent(self, obj: KeycloakGroup):
@@ -182,19 +198,15 @@ class FullGroupSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.META:
             token = request.META.get('HTTP_AUTHORIZATION')
-            try:
-                keycloak_groups = keycloak_user.get_user_groups(
-                    token,
-                    request.user.keycloak_id,
-                    brief_representation=True
-                )
-            except KeycloakGetError:
-                raise NotAuthorized()
+            ids = get_groups_of_user(token, request.user.keycloak_id)
 
-            if any(obj.keycloak_id == group['id'] for group in keycloak_groups):
+            if any(obj.keycloak_id == group_id for group_id in ids):
                 return True
 
         return False
+
+    def get_display_name(self, obj: KeycloakGroup):
+        return get_display_name_group(obj)
 
 
 class PartialUserSerializer(serializers.ModelSerializer):
@@ -225,7 +237,7 @@ class PartialUserSerializer(serializers.ModelSerializer):
         return obj.keycloak_id
 
     def get_display_name(self, obj: User):
-        return get_display_name(obj)
+        return get_display_name_user(obj)
 
     def get_scout_name(self, obj: User):
         if hasattr(obj, 'person'):
@@ -260,8 +272,24 @@ class SearchResultUserSerializer(serializers.ModelSerializer):
         return ''
 
     def get_display_name(self, obj: User):
-        return get_display_name(obj)
+        return get_display_name_user(obj)
 
 
 class MemberUserIdSerializer(serializers.Serializer):
     user_id = serializers.CharField(required=True)
+
+
+class GroupShortSerializer(serializers.ModelSerializer):
+    display_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = KeycloakGroup
+        fields = (
+            'name',
+            'id',
+            'keycloak_id',
+            'display_name'
+        )
+
+    def get_display_name(self, obj: KeycloakGroup):
+        return get_display_name_group(obj)

@@ -26,13 +26,6 @@ class RegistrationTypeSingle(models.TextChoices):
     External = 'E', _('Extern')
 
 
-class ParticipantActionConfirmation(models.TextChoices):
-    Nothing = 'N', _('Nichts')
-    Delete = 'D', _('Abmelden')
-    AddFromExisting = 'AE', _('Anmelden von deaktivierten Teilnehmern'),
-    AddCompletyNew = 'AN', _('Anmelden von neuen Teilnehmern'),
-
-
 class LeaderTypes(models.TextChoices):
     KeineFuehrung = 'N', _('Kein Amt')
     DPVFuehrung = "DPVFue", _('DPV-Führung')

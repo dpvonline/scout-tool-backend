@@ -4,6 +4,7 @@ from pathlib import Path
 import environ
 from celery.schedules import crontab
 from keycloak import KeycloakAdmin
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 
 from authentication.KeycloakOpenIDExtended import KeycloakOpenIDExtended
 from authentication.choices import EmailNotificationType
@@ -44,18 +45,18 @@ INSTALLED_APPS = [
     'django_filters',
     'mozilla_django_oidc',
     'colorfield',
-    'polymorphic',
     'drf_api_logger',
     'basic',
     'anmelde_tool.email_services',
     'anmelde_tool.event',
     'anmelde_tool.event.summary',
-    'anmelde_tool.event.registration',
+    'anmelde_tool.registration',
     'anmelde_tool.event.choices',
     'anmelde_tool.event.cash',
     'anmelde_tool.event.file_generator',
     'anmelde_tool.event.email',
     'anmelde_tool.attributes',
+    'anmelde_tool.workshop',
     'authentication',
     'messaging',
     'keycloak_auth',
@@ -196,6 +197,10 @@ SECURE_HSTS_PRELOAD = True
 
 SITE_ID = 1
 
+DATETIME_INPUT_FORMATS += [
+    '%Y-%m-%dT%H:%M:%S%z',
+    '%Y-%m-%dT%H:%M:%S%Z'
+]
 SEND_MAIL = env.bool('USE_SES', False)
 
 if SEND_MAIL:

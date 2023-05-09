@@ -4,10 +4,11 @@ from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 
-from anmelde_tool.event.api_exceptions import RequiredGroupNotFound
-from anmelde_tool.event.helper import custom_get_or_404, get_registration
 from anmelde_tool.event.helper import get_event
-from anmelde_tool.event.models import Registration, Event
+from anmelde_tool.event.helper import get_registration
+from anmelde_tool.event.models import Event
+from anmelde_tool.registration.models import Registration
+from keycloak_auth.helper import get_groups_of_user
 
 CREATE_METHOD = 'POST'
 UPDATE_METHODS = ('UPDATE', 'PATCH')
@@ -20,19 +21,20 @@ def get_keycloak_permission(user: User, keycloak_role: Group) -> bool:
 
 
 def get_responsible_person_permission(user: User, event: Event) -> bool:
-    # ToDo: Hagi fix it
-    return True # event.responsible_persons.filter(id=user.id).exists() if event.responsible_persons else False
+    return event.responsible_persons.filter(id=user.id).exists() if event.responsible_persons else False
 
 
-def check_event_permission(event_id: [str, Event], user: User) -> bool:
-    event = get_event(event_id)
+def check_event_permission(event_id: [str, Event], request, admin_only=False) -> bool:
+    user = request.user
     if user.is_superuser:
         return True
-    if get_keycloak_permission(user, event.keycloak_path):
+    event = get_event(event_id)
+    token = request.META.get('HTTP_AUTHORIZATION')
+    child_ids = get_groups_of_user(token, user.keycloak_id)
+    if not admin_only and any(event.view_group.keycloak_id == child_id for child_id in child_ids):
         return True
-    # ToDo: Hagi fix it
-    # if get_keycloak_permission(user, event.keycloak_admin_path):
-    #     return True
+    if any(event.admin_group.keycloak_id == child_id for child_id in child_ids):
+        return True
     if get_responsible_person_permission(user, event):
         return True
     return True
@@ -40,40 +42,19 @@ def check_event_permission(event_id: [str, Event], user: User) -> bool:
 
 def check_leader_permission(event_id: [str, Event], user: User) -> bool:
     event = get_event(event_id)
-    # ToDo: Hagi fix it
+    # Todo: Hagi can you please fixt it
     # if event.limited_registration_hierarchy.id == 493 and user.userextended.scout_organisation.id != 493:
     #     perm_name = 'dpv_bundesfuehrungen'
     #     bufu_group = custom_get_or_404(RequiredGroupNotFound(perm_name), Group, name=perm_name)
     #     return get_keycloak_permission(user, bufu_group)
     # else:
-    return True
-
-
-def check_event_permission_admin(event_id: [str, Event], user: User) -> bool:
-    event = get_event(event_id)
-    if user.is_superuser:
-        return True
-    # ToDo: Hagi fix it
-    # if get_keycloak_permission(user, event.keycloak_admin_path):
-    #     return True
-    if get_responsible_person_permission(user, event):
-        return True
-    return False
-
-
-def check_event_super_permission(event_id: [str, Event], user: User) -> bool:
-    event = get_event(event_id)
-    # ToDo: Hagi fix it
-    # if get_keycloak_permission(user, event.keycloak_admin_path):
-    #     return True
-    if get_responsible_person_permission(user, event):
-        return True
     return False
 
 
 def check_registration_permission(registration_id: str, user: User) -> bool:
     registration: Registration = get_registration(registration_id)
-    return registration.responsible_persons.contains(user) or check_event_super_permission(registration.event, user)
+    return registration.responsible_persons.contains(user) \
+        or check_event_permission(registration.event, user, admin_only=True)
 
 
 class IsStaffOrReadOnly(permissions.BasePermission):
@@ -97,7 +78,7 @@ class IsEventSuperResponsiblePerson(permissions.BasePermission):
         if request.method == CREATE_METHOD:
             return True
         event_id: str = view.kwargs.get("pk", None)
-        return check_event_super_permission(event_id, request.user)
+        return check_event_permission(event_id, request, admin_only=True)
 
 
 class IsSubEventSuperResponsiblePerson(permissions.BasePermission):
@@ -111,7 +92,7 @@ class IsSubEventSuperResponsiblePerson(permissions.BasePermission):
         if request.method == CREATE_METHOD:
             return True
         event_id: str = view.kwargs.get('event_pk', None)
-        return check_event_super_permission(event_id, request.user)
+        return check_event_permission(event_id, request, admin_only=True)
 
 
 class IsEventResponsiblePersonOrReadOnly(permissions.BasePermission):

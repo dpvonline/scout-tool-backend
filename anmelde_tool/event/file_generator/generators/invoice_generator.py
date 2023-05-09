@@ -3,7 +3,6 @@ from django.db.models import QuerySet
 from django.utils.formats import date_format
 from openpyxl import load_workbook, Workbook
 
-from anmelde_tool.attributes.models import StringAttribute
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event.file_generator.generators import helper
 from anmelde_tool.event.file_generator.generators.abstract_generator import AbstractGenerator
@@ -48,7 +47,6 @@ class InvoiceGenerator(AbstractGenerator):
             person_2: User = None
             if registration.responsible_persons.count() > 1:
                 person_2 = registration.responsible_persons.all()[1]
-            letter: StringAttribute = registration.tags.instance_of(StringAttribute).first()
             payment = serialized.get('payement', None)
             price = payment.get('price', 0) if payment else 0
 
@@ -78,7 +76,6 @@ class InvoiceGenerator(AbstractGenerator):
 
             original[f'O{index + 1}'] = serialized.get('participant_count', 0)
             original[f'P{index + 1}'] = price
-            original[f'Q{index + 1}'] = letter.string_field if letter else ''
             original[f'R{index + 1}'] = ',\n'.join(participant_list)
             original[f'S{index + 1}'] = f'{registration.event.name.replace(" ", "")[:10]}' \
                                         f'-{registration.scout_organisation.name.replace(" ", "")[:10]}' \

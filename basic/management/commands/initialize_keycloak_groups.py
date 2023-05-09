@@ -51,7 +51,8 @@ class Command(BaseCommand):
                 keycloak_group = None
                 try:
                     keycloak_group: dict = keycloak_admin.get_group_by_path(
-                        path=scout_hierarchy.keycloak_group_name
+                        path=scout_hierarchy.keycloak_group_name,
+                        search_in_subgroups=True
                     )
                 except KeycloakGetError:
                     pass

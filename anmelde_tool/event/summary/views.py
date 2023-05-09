@@ -4,11 +4,13 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from anmelde_tool.registration.models import RegistrationParticipant, Registration
 from basic.models import ScoutHierarchy
 from basic.serializers import ScoutHierarchySerializer
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
-from anmelde_tool.event.helper import filter_registration_by_leadership, get_bund, to_snake_case, get_event, age_range, \
+from anmelde_tool.event.helper import filter_registration_by_leadership, get_bund, to_snake_case, get_event, \
+    age_range, \
     filter_registrations_by_query_params, get_count_by_age_gender_leader
 from anmelde_tool.event.summary import serializers as summary_serializers
 
@@ -25,15 +27,18 @@ class WorkshopEventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         event: event_models.Event = get_event(event_id)
 
         workshops = event_models.Workshop.objects.filter(
-            registration__event__id=event_id)
+            registration__event__id=event_id
+        )
 
         if not event_permissions.check_event_permission(event, self.request.user) \
                 and event_permissions.check_leader_permission(event, self.request.user):
             bund = get_bund(self.request.user.userextended.scout_organisation)
-            workshops = workshops.filter(Q(registration__scout_organisation__parent=bund)
-                                         | Q(registration__scout_organisation__parent__parent=bund)
-                                         | Q(registration__scout_organisation__parent__parent__parent=bund)
-                                         | Q(registration__scout_organisation__parent__parent__parent__parent=bund))
+            workshops = workshops.filter(
+                Q(registration__scout_organisation__parent=bund)
+                | Q(registration__scout_organisation__parent__parent=bund)
+                | Q(registration__scout_organisation__parent__parent__parent=bund)
+                | Q(registration__scout_organisation__parent__parent__parent__parent=bund)
+                )
         return workshops
 
 
@@ -48,20 +53,23 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
     serializer_class = summary_serializers.RegistrationEventSummarySerializer
     ordering_fields = ('scout_organisation__name',
-                       'is_confirmed', 'single', 'created_at', 'updated_at')
+                       'is_confirmed', 'created_at', 'updated_at')
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
-        registrations = event_models.Registration.objects.filter(
-            event=event_id)
+        registrations = Registration.objects.filter(
+            event=event_id
+        )
 
         registrations = filter_registrations_by_query_params(
-            self.request, event_id, registrations)
+            self.request, event_id, registrations
+        )
 
         ordering: str = self.request.query_params.get('ordering', None)
         order_desc: bool = self.request.query_params.get(
-            'order-desc', 'false') == 'true'
+            'order-desc', 'false'
+        ) == 'true'
         camel_case = to_snake_case(ordering, order_desc, self.ordering_fields)
 
         return registrations.order_by(camel_case)
@@ -92,15 +100,16 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
-        registrations = event_models.Registration.objects.filter(event=event_id)
+        registrations = Registration.objects.filter(event=event_id)
         registrations = filter_registrations_by_query_params(self.request, event_id, registrations)
 
         reg_ids = registrations.values_list('id', flat=True)
 
-        participants: QuerySet = event_models.RegistrationParticipant.objects.filter(registration__id__in=reg_ids)
+        participants: QuerySet = RegistrationParticipant.objects.filter(registration__id__in=reg_ids)
 
         booking_option_list = self.request.query_params.getlist(
-            'booking-option')
+            'booking-option'
+        )
         if booking_option_list:
             participants = participants.filter(booking_option__in=booking_option_list)
 
@@ -117,12 +126,14 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
 
 class EventAttributeSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsSubEventResponsiblePerson]
-    serializer_class = summary_serializers.EventAttributeSummarySerializer
+
+    # serializer_class = summary_serializers.EventAttributeSummarySerializer
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
         mapper_ids = event_models.EventModuleMapper.objects.filter(
-            event=event_id).values_list('attributes', flat=True)
+            event=event_id
+        ).values_list('attributes', flat=True)
         return event_models.AttributeEventModuleMapper.objects.filter(id__in=mapper_ids)
 
 
@@ -131,7 +142,7 @@ class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
 
     def list(self, request, *args, **kwargs) -> Response:
-        participants: QuerySet[event_models.RegistrationParticipant] = self.get_queryset(
+        participants: QuerySet[RegistrationParticipant] = self.get_queryset(
         )
 
         eat_habits_sum = {}
@@ -157,21 +168,25 @@ class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         return Response(formatted_eat_habits, status=status.HTTP_200_OK)
 
-    def get_queryset(self) -> QuerySet[event_models.RegistrationParticipant]:
+    def get_queryset(self) -> QuerySet[RegistrationParticipant]:
         event_id = self.kwargs.get("event_pk", None)
 
-        registrations = event_models.Registration.objects.filter(
-            event=event_id)
+        registrations = Registration.objects.filter(
+            event=event_id
+        )
         registrations = filter_registrations_by_query_params(
-            self.request, event_id, registrations)
+            self.request, event_id, registrations
+        )
 
         registration_ids = registrations.values_list('id', flat=True)
 
-        queryset = event_models.RegistrationParticipant.objects.filter(
-            registration__id__in=registration_ids)
+        queryset = RegistrationParticipant.objects.filter(
+            registration__id__in=registration_ids
+        )
 
         booking_option_list = self.request.query_params.getlist(
-            'booking-option')
+            'booking-option'
+        )
         if booking_option_list:
             queryset = queryset.filter(booking_option__in=booking_option_list)
 
@@ -181,7 +196,7 @@ class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class EventLeaderTypesSummaryViewSet(EventFoodSummaryViewSet):
 
     def list(self, request, *args, **kwargs) -> Response:
-        all_participants: QuerySet[event_models.RegistrationParticipant] = self.get_queryset(
+        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset(
         )
 
         n = self.get_leder_type_count('N', all_participants)
@@ -200,7 +215,7 @@ class EventLeaderTypesSummaryViewSet(EventFoodSummaryViewSet):
 
         return Response(result, status=status.HTTP_200_OK)
 
-    def get_leder_type_count(self, leader_type, participants: QuerySet[event_models.RegistrationParticipant]):
+    def get_leder_type_count(self, leader_type, participants: QuerySet[RegistrationParticipant]):
         return participants.filter(leader=leader_type).count()
 
 
@@ -215,7 +230,7 @@ class EventAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
         """
         event_id = self.kwargs.get("event_pk", None)
         event = get_event(event_id)
-        all_participants: QuerySet[event_models.RegistrationParticipant] = self.get_queryset(
+        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset(
         )
 
         woelfling = age_range(0, 13, all_participants, event)
@@ -244,14 +259,14 @@ class EventAgeGroupsSummaryDetailViewSet(EventFoodSummaryViewSet):
         """
         event_id = self.kwargs.get("event_pk", None)
         event = get_event(event_id)
-        all_participants: QuerySet[event_models.RegistrationParticipant] = self.get_queryset(
+        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset(
         )
 
         result = {
-            'p_6-_m_no': get_count_by_age_gender_leader(0, 7,   'M', False, all_participants, event),
-            'p_07_m_no': get_count_by_age_gender_leader(7, 8,   'M', False, all_participants, event),
-            'p_08_m_no': get_count_by_age_gender_leader(8, 9,   'M', False, all_participants, event),
-            'p_09_m_no': get_count_by_age_gender_leader(9, 10,  'M', False, all_participants, event),
+            'p_6-_m_no': get_count_by_age_gender_leader(0, 7, 'M', False, all_participants, event),
+            'p_07_m_no': get_count_by_age_gender_leader(7, 8, 'M', False, all_participants, event),
+            'p_08_m_no': get_count_by_age_gender_leader(8, 9, 'M', False, all_participants, event),
+            'p_09_m_no': get_count_by_age_gender_leader(9, 10, 'M', False, all_participants, event),
             'p_10_m_no': get_count_by_age_gender_leader(10, 11, 'M', False, all_participants, event),
             'p_11_m_no': get_count_by_age_gender_leader(11, 12, 'M', False, all_participants, event),
             'p_12_m_no': get_count_by_age_gender_leader(12, 13, 'M', False, all_participants, event),
@@ -270,10 +285,10 @@ class EventAgeGroupsSummaryDetailViewSet(EventFoodSummaryViewSet):
             'p_25_m_no': get_count_by_age_gender_leader(25, 26, 'M', False, all_participants, event),
             'p_26_m_no': get_count_by_age_gender_leader(26, 27, 'M', False, all_participants, event),
             'p_26+_m_no': get_count_by_age_gender_leader(27, 100, 'M', False, all_participants, event),
-            'p_6-_f_no': get_count_by_age_gender_leader(0, 7,   'F', False, all_participants, event),
-            'p_07_f_no': get_count_by_age_gender_leader(7, 8,   'F', False, all_participants, event),
-            'p_08_f_no': get_count_by_age_gender_leader(8, 9,   'F', False, all_participants, event),
-            'p_09_f_no': get_count_by_age_gender_leader(9, 10,  'F', False, all_participants, event),
+            'p_6-_f_no': get_count_by_age_gender_leader(0, 7, 'F', False, all_participants, event),
+            'p_07_f_no': get_count_by_age_gender_leader(7, 8, 'F', False, all_participants, event),
+            'p_08_f_no': get_count_by_age_gender_leader(8, 9, 'F', False, all_participants, event),
+            'p_09_f_no': get_count_by_age_gender_leader(9, 10, 'F', False, all_participants, event),
             'p_10_f_no': get_count_by_age_gender_leader(10, 11, 'F', False, all_participants, event),
             'p_11_f_no': get_count_by_age_gender_leader(11, 12, 'F', False, all_participants, event),
             'p_12_f_no': get_count_by_age_gender_leader(12, 13, 'F', False, all_participants, event),
@@ -312,7 +327,7 @@ class EventAlcoholAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
     def list(self, request, *args, **kwargs) -> Response:
         event_id = self.kwargs.get("event_pk", None)
         event = get_event(event_id)
-        all_participants: QuerySet[event_models.RegistrationParticipant] = self.get_queryset(
+        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset(
         )
 
         young = age_range(0, 16, all_participants, event)
@@ -345,19 +360,23 @@ class EmailResponsiblePersonsViewSet(mixins.ListModelMixin, viewsets.GenericView
         event_id = self.kwargs.get("event_pk", None)
         only_admin = self.request.query_params.get('only-admins', False)
         event: event_models.Event = event_models.Event.objects.filter(
-            id=event_id).first()
+            id=event_id
+        ).first()
 
         all_users: QuerySet[User] = event.responsible_persons.exclude(
-            email__exact='')
+            email__exact=''
+        )
 
         if event.keycloak_admin_path:
             admin_groups: QuerySet[User] = event.keycloak_admin_path.user_set.exclude(
-                email__exact='')
+                email__exact=''
+            )
             all_users = admin_groups | all_users
 
         if not only_admin and event.keycloak_path:
             normal_groups: QuerySet[User] = event.keycloak_path.user_set.exclude(
-                email__exact='')
+                email__exact=''
+            )
             all_users = all_users | normal_groups
 
         return all_users.distinct()
@@ -371,30 +390,35 @@ class EmailRegistrationResponsiblePersonsViewSet(mixins.ListModelMixin, viewsets
         event_id = self.kwargs.get("event_pk", None)
 
         confirmed: bool = self.request.query_params.get(
-            'confirmed', 'true') == 'true'
+            'confirmed', 'true'
+        ) == 'true'
         unconfirmed: bool = self.request.query_params.get(
-            'unconfirmed', 'true') == 'true'
+            'unconfirmed', 'true'
+        ) == 'true'
         # all_participants: bool = self.request.query_params.get('all-participants', False)
 
-        all_registrations: QuerySet[event_models.Registration] = event_models.Registration.objects. \
+        all_registrations: QuerySet[Registration] = Registration.objects. \
             filter(event=event_id)
-        registrations: QuerySet[event_models.Registration] = event_models.Registration.objects.none(
+        registrations: QuerySet[Registration] = Registration.objects.none(
         )
 
         if confirmed:
             confirmed_registrations = all_registrations.filter(
-                is_confirmed=True)
+                is_confirmed=True
+            )
             registrations = registrations | confirmed_registrations
 
         if unconfirmed:
             unconfirmed_registrations = all_registrations.filter(
-                is_confirmed=False)
+                is_confirmed=False
+            )
             registrations = registrations | unconfirmed_registrations
 
         registrations_ids: QuerySet[int] = registrations.all().distinct() \
             .values_list('responsible_persons__id', flat=True)
         all_users = User.objects.filter(
-            id__in=registrations_ids).distinct().exclude(email__exact='')
+            id__in=registrations_ids
+        ).distinct().exclude(email__exact='')
 
         return all_users
 
@@ -408,14 +432,18 @@ class RegistrationParentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_id = self.kwargs.get("event_pk", None)
         level_id = self.request.query_params.get('level', 5)
 
-        registrations = event_models.Registration.objects.filter(
-            event=event_id)
+        registrations = Registration.objects.filter(
+            event=event_id
+        )
         registrations = filter_registration_by_leadership(
-            self.request.user, event_id, registrations)
+            self.request.user, event_id, registrations
+        )
         ids = registrations.values_list('scout_organisation__id', flat=True)
 
-        return ScoutHierarchy.objects.filter(Q(id__in=ids) |
-                                             Q(parent__id__in=ids) |
-                                             Q(parent__parent__id__in=ids) |
-                                             Q(parent__parent__parent__id__in=ids),
-                                             level__id=level_id).distinct().order_by('name')
+        return ScoutHierarchy.objects.filter(
+            Q(id__in=ids) |
+            Q(parent__id__in=ids) |
+            Q(parent__parent__id__in=ids) |
+            Q(parent__parent__parent__id__in=ids),
+            level__id=level_id
+            ).distinct().order_by('name')

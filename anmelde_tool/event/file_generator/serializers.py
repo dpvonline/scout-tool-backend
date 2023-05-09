@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from anmelde_tool.event.file_generator.models import GeneratedFiles, FileTemplate
-from anmelde_tool.event.registration import serializers as registration_serializers
+from anmelde_tool.registration.serializers import CurrentUserSerializer
 
 
 class FileTemplateSerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class FileTemplateSerializer(serializers.ModelSerializer):
 
 
 class GeneratedFilesGetSerializer(serializers.ModelSerializer):
-    user = registration_serializers.CurrentUserSerializer(many=False, read_only=True)
+    user = CurrentUserSerializer(many=False, read_only=True)
     extension = serializers.CharField(source='get_extension_display', read_only=True)
     template = FileTemplateSerializer(many=False, read_only=True)
 

@@ -58,9 +58,6 @@ class MyOIDCAB(OIDCAuthenticationBackend):
                 group.user_set.add(user)
 
     def set_user_info(self, user: CustomUser, claims: dict):
-        if datetime.now(timezone.utc) - user.person.edited_last < timedelta(seconds=30):
-            return
-
         edited = False
 
         if not user.keycloak_id and user.keycloak_id != claims['sub']:

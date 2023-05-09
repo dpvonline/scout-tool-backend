@@ -1,22 +1,28 @@
 import html
 
 from celery import shared_task
+from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
 from django.template.context import make_context
 from rest_framework.generics import get_object_or_404
 
+from anmelde_tool.registration.models import Registration
+from authentication.models import CustomUser
 from backend import settings
 from anmelde_tool.email_services.choices import EmailType
-from anmelde_tool.email_services.threads.helper import get_email, get_headers, get_event_pronoun, get_html_participant_list, \
+from anmelde_tool.email_services.threads.helper import get_email, get_headers, get_event_pronoun, \
+    get_html_participant_list, \
     get_participant_count, get_scout_organisation_text
 from anmelde_tool.event import models as event_models
 
 url = getattr(settings, 'FRONT_URL', '')
 
+User: CustomUser = get_user_model()
+
 
 @shared_task
 def registration_confirmed_mail(registration_id: str, email_type: EmailType):
-    registration: event_models.Registration = get_object_or_404(event_models.Registration, id=registration_id)
+    registration: Registration = get_object_or_404(Registration, id=registration_id)
     event: event_models.Event = registration.event
 
     technical_name = event.technical_name or 'info'
@@ -40,14 +46,15 @@ def registration_confirmed_mail(registration_id: str, email_type: EmailType):
 
     scout_organisation = get_scout_organisation_text(registration)
 
+    person : User
     for person in registration.responsible_persons.all():
         receiver = [person.email, ]
 
         data = {
             'event_name': event_name,
             'event_pronoun': event_pronoun,
-            # 'responsible_persons': html.escape(person.userextended.scout_name) or '',
-            # 'unsubscribe': person.userextended.id,
+            'responsible_persons': html.escape(person.person.scout_name) or '',
+            'unsubscribe': person.id,
             'participant_count': count,
             'sum': participant_sum,
             'list_participants': list_participants,

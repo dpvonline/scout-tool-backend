@@ -23,7 +23,7 @@ class Command(BaseCommand):
             participant.scout_name = 'Teilnehmende(r)'
             participant.first_name = 'Teilnehmende(r)'
             participant.last_name = i
-            participant.street = f'Straße {i}'
+            participant.address = f'Straße {i}'
             participant.scout_group = None
             participant.phone_number = ''
             participant.email = ''
