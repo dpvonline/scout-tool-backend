@@ -40,7 +40,7 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'is_confirmed',
-            'is_accepted',
+            # 'is_accepted',
             'scout_organisation',
             'responsible_persons',
             'responsible_persons_extended',
@@ -77,7 +77,7 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
     def get_responsible_persons_extended(self, registration: Registration) -> str:
         return_string = ''
         for person in registration.responsible_persons.all():
-            return_string = return_string + f'{person.scout_name} (Tel:{person.mobile_number}) '
+            return_string = return_string + f'{person.first_name} '
         return return_string
 
 
@@ -153,7 +153,7 @@ class RegistrationAttributeGetSerializer(serializers.ModelSerializer):
         fields = (
             'scout_organisation',
             'is_confirmed',
-            'is_accepted',
+            # 'is_accepted',
             'responsible_persons'
         )
 
@@ -213,7 +213,7 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
         model = Registration
         fields = ('id',
                   'is_confirmed',
-                  'is_accepted',
+                #   'is_accepted',
                   'scout_organisation',
                   'responsible_persons',
                   'participant_count',
