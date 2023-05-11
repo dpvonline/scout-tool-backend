@@ -25,7 +25,7 @@ class TotalParticipantsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_id = self.kwargs.get("event_pk", None)
 
         registrations = Registration.objects.filter(event=event_id)
-        registrations = filter_registration_by_leadership(self.request.user, event_id, registrations)
+        registrations = filter_registration_by_leadership(self.request, event_id, registrations)
 
         return registrations
 
@@ -65,7 +65,7 @@ class BookingOptionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         return event_models.BookingOption.objects.filter(event=event_id)
 
     def list(self, request, *args, **kwargs) -> Response:
-        booking_options: QuerySet[registration_models.BookingOption] = self.get_queryset()    
+        booking_options: QuerySet[registration_models.BookingOption] = self.get_queryset()
         serializer = kpi_serializers.BookingOptionKPISerializer(booking_options, many=True, read_only=True)
-    
+
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -436,7 +436,7 @@ class RegistrationParentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             event=event_id
         )
         registrations = filter_registration_by_leadership(
-            self.request.user, event_id, registrations
+            self.request, event_id, registrations
         )
         ids = registrations.values_list('scout_organisation__id', flat=True)
 

@@ -25,10 +25,11 @@ def get_bund(obj: basic_models.ScoutHierarchy) -> [basic_models.ScoutHierarchy |
     return None
 
 
-def filter_registration_by_leadership(user: User, event_id: str, registrations: QuerySet[Registration]) \
+def filter_registration_by_leadership(request, event_id: str, registrations: QuerySet[Registration]) \
         -> QuerySet[Registration]:
     event: event_models.Event = get_event(event_id)
-    if not event_permissions.check_event_permission(event, user) \
+    user = request.user
+    if not event_permissions.check_event_permission(event, request) \
             and event_permissions.check_leader_permission(event, user):
         bund = get_bund(user.userextended.scout_organisation)
 
@@ -131,5 +132,5 @@ def filter_registrations_by_query_params(request,
               scout_organisation__parent__parent__level__id=3) |
             Q(scout_organisation__parent__parent__parent__id__in=bund_list,
               scout_organisation__parent__parent__parent__level__id=3))
-    registrations = filter_registration_by_leadership(request.user, event_id, registrations)
+    registrations = filter_registration_by_leadership(request, event_id, registrations)
     return registrations
