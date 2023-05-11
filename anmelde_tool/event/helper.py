@@ -110,9 +110,6 @@ def filter_registrations_by_query_params(request,
                                          event_id: str,
                                          registrations: QuerySet[Registration]) \
         -> QuerySet[Registration]:
-    confirmed: bool = request.query_params.get('confirmed', 'true') == 'true'
-    if confirmed:
-        registrations = registrations.filter(is_confirmed=confirmed)
     stamm_list = request.query_params.getlist('stamm')
     ring_list = request.query_params.getlist('ring')
     bund_list = request.query_params.getlist('bund')
