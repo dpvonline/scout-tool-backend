@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework import serializers
 
-from anmelde_tool.attributes.serializers import AttributeModuleSerializer, AttributeModuleEventReadSerializer
+from anmelde_tool.attributes.serializers import AttributeModuleEventReadSerializer
 from anmelde_tool.email_services import serializers as email_services_serializers
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
@@ -203,7 +203,7 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         return event_permissions.check_event_permission(obj, self.context['request'])
 
     def get_can_view_leader(self, obj: event_models.Event) -> bool:
-        return event_permissions.check_leader_permission(obj, self.context['request'])
+        return event_permissions.check_leader_permission(obj, self.context['request'].user)
 
     def get_can_edit(self, obj: event_models.Event) -> bool:
         return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)

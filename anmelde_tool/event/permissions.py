@@ -51,10 +51,10 @@ def check_leader_permission(event_id: [str, Event], user: User) -> bool:
     return False
 
 
-def check_registration_permission(registration_id: str, user: User) -> bool:
+def check_registration_permission(registration_id: str, request) -> bool:
     registration: Registration = get_registration(registration_id)
-    return registration.responsible_persons.contains(user) \
-        or check_event_permission(registration.event, user, admin_only=True)
+    return registration.responsible_persons.contains(request.user) \
+        or check_event_permission(registration.event, request, admin_only=True)
 
 
 class IsStaffOrReadOnly(permissions.BasePermission):
@@ -156,7 +156,7 @@ class IsRegistrationResponsiblePerson(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         registration_id: str = view.kwargs.get('pk', None)
-        return check_registration_permission(registration_id, request.user)
+        return check_registration_permission(registration_id, request)
 
 
 class IsSubRegistrationResponsiblePerson(permissions.BasePermission):
@@ -168,4 +168,4 @@ class IsSubRegistrationResponsiblePerson(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         registration_id: str = view.kwargs.get('registration_pk', None)
-        return check_registration_permission(registration_id, request.user)
+        return check_registration_permission(registration_id, request)
