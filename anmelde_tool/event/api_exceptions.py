@@ -142,6 +142,15 @@ class EventNotFound(APIException):
             detail = force_str(self.default_detail).format(event_id=event_id)
         super().__init__(detail, code)
 
+class NoUUID(APIException):
+    status_code = 400
+    default_detail = "Die UUID {uuid} ist ungültig und konnte nicht gelesen werden."
+    default_code = 'bad_formatted'
+
+    def __init__(self, uuid, detail=None, code=None):
+        if detail is None:
+            detail = force_str(self.default_detail).format(uuid=uuid)
+        super().__init__(detail, code)
 
 class ScoutHierarchyChildModelNotFound(APIException):
     status_code = 404
