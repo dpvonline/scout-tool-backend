@@ -37,6 +37,8 @@ User = get_user_model()
 def create_missing_eat_habits(request) -> [str]:
     eat_habits = request.data.get('eat_habit', [])
     result = []
+    if not eat_habits:
+        return result
     for habit in eat_habits:
         if len(habit) > 100:
             raise event_api_exceptions.EatHabitTooLong
@@ -69,6 +71,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
+        else:
+            del request.data['eat_habit']
 
         zip_code = None
         if request.data.get('zip_code'):
@@ -113,6 +117,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
+        else:
+            del request.data['eat_habit']
 
         request.data['generated'] = False
         return super().update(request, *args, **kwargs)
