@@ -71,7 +71,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
-        elif request.data.get('eat_habit'):
+        elif 'eat_habit' in request.data:
             del request.data['eat_habit']
 
         zip_code = None
@@ -117,7 +117,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted
-        elif request.data.get('eat_habit'):
+        elif 'eat_habit' in request.data:
             del request.data['eat_habit']
 
         request.data['generated'] = False
