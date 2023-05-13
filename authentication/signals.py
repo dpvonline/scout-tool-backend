@@ -3,9 +3,11 @@ from celery.utils.log import get_task_logger
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from keycloak import KeycloakPutError
 from notifications.signals import notify
 
 from backend.settings import keycloak_admin
+from .api_exceptions import KeycloakError
 from .choices import RequestGroupAccessChoices
 from .models import CustomUser, RequestGroupAccess, Person
 
@@ -73,13 +75,16 @@ def save_keycloak_user(instance: User):
         if email != instance.email:
             email = instance.email
 
-        keycloak_admin.update_user(
-            instance.keycloak_id, {
-                'email': email,
-                'firstName': first_name,
-                'lastName': last_name,
-            }
-        )
+        try:
+            keycloak_admin.update_user(
+                instance.keycloak_id, {
+                    'email': email,
+                    'firstName': first_name,
+                    'lastName': last_name,
+                }
+            )
+        except KeycloakPutError as exc:
+            raise KeycloakError(exc.error_message)
 
 
 def save_keycloak_person(instance: Person):
@@ -89,10 +94,10 @@ def save_keycloak_person(instance: Person):
     keycloak_user = keycloak_admin.get_user(instance.user.keycloak_id)
 
     if keycloak_user['username'] == instance.user.username:
-        verband = keycloak_user['attributes'].get('verband')
-        bund = keycloak_user['attributes'].get('bund')
-        stamm = keycloak_user['attributes'].get('stamm')
-        fahrtenname = keycloak_user['attributes'].get('fahrtenname')
+        verband = keycloak_user.get('attributes', {}).get('verband')
+        bund = keycloak_user.get('attributes', {}).get('bund')
+        stamm = keycloak_user.get('attributes', {}).get('stamm')
+        fahrtenname = keycloak_user.get('attributes', {}).get('fahrtenname')
 
         if verband:
             verband = verband[0]
@@ -118,16 +123,19 @@ def save_keycloak_person(instance: Person):
         if fahrtenname != instance.scout_name:
             fahrtenname = instance.scout_name
 
-        keycloak_admin.update_user(
-            instance.user.keycloak_id, {
-                'attributes': {
-                    'verband': verband,
-                    'fahrtenname': fahrtenname,
-                    'bund': bund,
-                    'stamm': stamm
+        try:
+            keycloak_admin.update_user(
+                instance.user.keycloak_id, {
+                    'attributes': {
+                        'verband': verband,
+                        'fahrtenname': fahrtenname,
+                        'bund': bund,
+                        'stamm': stamm
+                    }
                 }
-            }
-        )
+            )
+        except KeycloakPutError as exc:
+            raise KeycloakError(exc.error_message)
 
 
 @receiver(post_save, sender=RequestGroupAccess, dispatch_uid='post_save_request_group_access')

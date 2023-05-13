@@ -1,12 +1,13 @@
 from __future__ import annotations  # we use a python 3.10 Feature in line 14
 
 from datetime import datetime
-
+import uuid
 import pytz
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Q
 
-from anmelde_tool.registration.models import Registration
+from anmelde_tool.event.api_exceptions import NoUUID
+from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from basic import models as basic_models
 from anmelde_tool.event import api_exceptions as event_exceptions
 from anmelde_tool.event import models as event_models
@@ -14,6 +15,14 @@ from anmelde_tool.event import permissions as event_permissions
 
 User = get_user_model()
 
+
+
+def is_valid_uuid(val):
+    try:
+        uuid.UUID(str(val))
+        return True
+    except ValueError:
+        return False
 
 def get_bund(obj: basic_models.ScoutHierarchy) -> [basic_models.ScoutHierarchy | None]:
     iterator: basic_models.ScoutHierarchy = obj
@@ -43,6 +52,8 @@ def filter_registration_by_leadership(request, event_id: str, registrations: Que
 
 def get_event(event_id: [str, event_models.Event], ex=None) -> event_models.Event:
     if isinstance(event_id, str):
+        if not is_valid_uuid(event_id):
+            raise NoUUID(event_id)
         if not ex:
             ex = event_exceptions.EventNotFound(event_id)
         return custom_get_or_404(ex, event_models.Event, id=event_id)
@@ -52,6 +63,8 @@ def get_event(event_id: [str, event_models.Event], ex=None) -> event_models.Even
 
 def get_registration(registration_id: [str, Registration], ex=None) -> Registration:
     if isinstance(registration_id, str):
+        if not is_valid_uuid(registration_id):
+            raise NoUUID(registration_id)
         if not ex:
             ex = event_exceptions.RegistrationNotFound(registration_id)
         return custom_get_or_404(ex, Registration, id=registration_id)
