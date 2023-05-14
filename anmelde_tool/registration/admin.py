@@ -8,7 +8,7 @@ from anmelde_tool.registration.models import Registration, RegistrationParticipa
 class RegistrationAdmin(admin.ModelAdmin):
     list_display = ('scout_organisation', 'get_event_name', 'is_confirmed')
     search_fields = ('scout_organisation__name',)
-    autocomplete_fields = ('event', 'scout_organisation')
+    autocomplete_fields = ('event', 'scout_organisation', 'responsible_persons')
     list_filter = ('event__name',)
 
     @display(ordering='event__name', description='Event name')
