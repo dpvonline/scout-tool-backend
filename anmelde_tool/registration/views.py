@@ -26,6 +26,7 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.registration import serializers as registration_serializers
+from anmelde_tool.registration.api_exceptions import ZipCodeNotFound
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from authentication import models as auth_models
 from basic import models as basic_models
@@ -75,8 +76,11 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             del request.data['eat_habit']
 
         zip_code = None
-        if request.data.get('zip_code'):
-            zip_code = get_object_or_404(ZipCode, zip_code=request.data.get('zip_code'))
+        zip_code_data = request.data.get('zip_code')
+        if zip_code_data:
+            zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
+            if not zip_code:
+                raise ZipCodeNotFound()
             request.data['zip_code'] = zip_code.id
 
         registration: Registration = self.participant_initialization(request)

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
 
 from django.contrib.auth.models import Group
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Q
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
@@ -13,16 +15,21 @@ class MyOIDCAB(OIDCAuthenticationBackend):
     def get_username(self, claims: dict) -> str:
         return claims.get('preferred_username')
 
-    def create_user(self, claims: dict) -> CustomUser:
-        user: CustomUser = super(MyOIDCAB, self).create_user(claims)
-        user.person = Person.objects.create()
-        user.keycloak_id = claims['sub']
-        user.save()
+    def create_user(self, claims: dict) -> CustomUser | None:
+        try:
+            user: CustomUser = super(MyOIDCAB, self).create_user(claims)
+            user.person = Person.objects.create()
+            user.keycloak_id = claims['sub']
+            user.save()
 
-        self.set_user_info(user, claims)
-        self.update_groups(user, claims)
+            self.set_user_info(user, claims)
+            self.update_groups(user, claims)
 
-        return user
+            return user
+        except IntegrityError:
+            pass
+
+        return None
 
     def update_user(self, user: CustomUser, claims: dict) -> CustomUser:
         self.set_user_info(user, claims)
