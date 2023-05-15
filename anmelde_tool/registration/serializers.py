@@ -212,9 +212,9 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             sum=Sum('booking_option__price'))['sum']
 
     def get_status(self, obj: Registration) -> str:
-        if obj.event.registration_deadline > timezone.now():
+        if obj.event.endDate > timezone.now():
             return 'pending'
-        elif obj.event.registration_deadline <= timezone.now():
+        elif obj.event.endDate <= timezone.now():
             return 'expired'
         else:
             return 'error'
