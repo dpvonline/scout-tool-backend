@@ -62,7 +62,7 @@ class RegistrationPutSerializer(serializers.ModelSerializer):
 class RegistrationSummaryBookingOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.BookingOption
-        fields = ('name', 'price')
+        fields = ('id', 'name', 'price')
 
 
 class RegistrationGetSerializer(serializers.ModelSerializer):
@@ -97,7 +97,8 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
         queryset=EatHabit.objects.all(),
         required=False
     )
-    booking_option = RegistrationSummaryBookingOptionSerializer(many=False, read_only=True)
+    booking_option = RegistrationSummaryBookingOptionSerializer(
+        many=False, read_only=True)
     zip_code = basic_serializers.ZipCodeSerializer(many=False, read_only=True)
     display_name = serializers.SerializerMethodField()
 
@@ -140,7 +141,8 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
 
 
 class RegistrationParticipantShortSerializer(serializers.ModelSerializer):
-    booking_option = RegistrationSummaryBookingOptionSerializer(many=False, read_only=True)
+    booking_option = RegistrationSummaryBookingOptionSerializer(
+        many=False, read_only=True)
     scout_level = serializers.CharField(source='get_scout_level_display')
     eat_habit = serializers.SlugRelatedField(
         many=True,
@@ -182,7 +184,8 @@ class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSummarySerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationParticipantReadSerializer(many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantReadSerializer(
+        many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
     scout_organisation = UserScoutHierarchySerializer()
@@ -212,9 +215,9 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             sum=Sum('booking_option__price'))['sum']
 
     def get_status(self, obj: Registration) -> str:
-        if obj.event.registration_deadline > timezone.now():
+        if obj.event.end_date > timezone.now():
             return 'pending'
-        elif obj.event.registration_deadline <= timezone.now():
+        elif obj.event.end_date <= timezone.now():
             return 'expired'
         else:
             return 'error'
@@ -224,7 +227,8 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
     event = event_serializers.EventRegistrationSerializer()
-    registrationparticipant_set = RegistrationParticipantReadSerializer(many=True, read_only=True)
+    registrationparticipant_set = RegistrationParticipantReadSerializer(
+        many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     attributes = serializers.SerializerMethodField()
@@ -250,22 +254,34 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
             sum=Sum('booking_option__price'))['sum']
 
     def get_attributes(self, registration: Registration):
-        boolean_attributes = BooleanAttribute.objects.filter(registration=registration)
-        boolean_serializer = BooleanAttributeSerializer(boolean_attributes, many=True, read_only=True)
+        boolean_attributes = BooleanAttribute.objects.filter(
+            registration=registration)
+        boolean_serializer = BooleanAttributeSerializer(
+            boolean_attributes, many=True, read_only=True)
 
-        string_attributes = StringAttribute.objects.filter(registration=registration)
-        string_serializer = StringAttributeSerializer(string_attributes, many=True, read_only=True)
+        string_attributes = StringAttribute.objects.filter(
+            registration=registration)
+        string_serializer = StringAttributeSerializer(
+            string_attributes, many=True, read_only=True)
 
-        integer_attributes = IntegerAttribute.objects.filter(registration=registration)
-        integer_serializer = IntegerAttributeSerializer(integer_attributes, many=True, read_only=True)
+        integer_attributes = IntegerAttribute.objects.filter(
+            registration=registration)
+        integer_serializer = IntegerAttributeSerializer(
+            integer_attributes, many=True, read_only=True)
 
-        float_attributes = FloatAttribute.objects.filter(registration=registration)
-        float_serializer = FloatAttributeSerializer(float_attributes, many=True, read_only=True)
+        float_attributes = FloatAttribute.objects.filter(
+            registration=registration)
+        float_serializer = FloatAttributeSerializer(
+            float_attributes, many=True, read_only=True)
 
-        time_attributes = TimeAttribute.objects.filter(registration=registration)
-        time_serializer = TimeAttributeSerializer(time_attributes, many=True, read_only=True)
+        time_attributes = TimeAttribute.objects.filter(
+            registration=registration)
+        time_serializer = TimeAttributeSerializer(
+            time_attributes, many=True, read_only=True)
 
-        travel_attributes = TravelAttribute.objects.filter(registration=registration)
-        travel_serializer = TravelAttributeSerializer(travel_attributes, many=True, read_only=True)
+        travel_attributes = TravelAttribute.objects.filter(
+            registration=registration)
+        travel_serializer = TravelAttributeSerializer(
+            travel_attributes, many=True, read_only=True)
         return [*boolean_serializer.data, *string_serializer.data, *integer_serializer.data, *float_serializer.data,
                 *time_serializer.data, *travel_serializer.data]
