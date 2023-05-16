@@ -118,6 +118,14 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs) -> Response:
 
         eat_habits_formatted = create_missing_eat_habits(request)
+        
+        zip_code = None
+        zip_code_data = request.data.get('zip_code')
+        if zip_code_data:
+            zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
+            if not zip_code:
+                raise ZipCodeNotFound()
+            request.data['zip_code'] = zip_code.id
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data['eat_habit'] = eat_habits_formatted

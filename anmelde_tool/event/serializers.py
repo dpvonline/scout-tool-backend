@@ -210,11 +210,11 @@ class EventOverviewSerializer(serializers.ModelSerializer):
 
     def get_status(self, obj: event_models.Event) -> str:
 
-        if obj.registration_deadline > timezone.now() and obj.is_public:
+        if obj.end_date > timezone.now() and obj.is_public:
             return 'open'
-        elif obj.registration_deadline > timezone.now() and not obj.is_public:
+        elif obj.end_date > timezone.now() and not obj.is_public:
             return 'wip'
-        elif obj.registration_deadline <= timezone.now():
+        elif obj.end_date <= timezone.now():
             return 'closed'
         else:
             return 'error'
