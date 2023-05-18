@@ -369,21 +369,25 @@ class RegistrationViewSet(
             return registration_serializers.RegistrationPutSerializer
 
 
-class MyRegistrationViewSet(viewsets.ModelViewSet):
+class MyRegistrationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = registration_serializers.RegistrationSummarySerializer
 
     def get_queryset(self) -> QuerySet:
         return Registration.objects.filter(responsible_persons=self.request.user.id)
 
 
-class RegistrationReadViewSet(viewsets.ModelViewSet):
+class RegistrationReadViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = registration_serializers.RegistrationReadSerializer
+    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
     def get_queryset(self) -> QuerySet:
-        return Registration.objects.filter(responsible_persons=self.request.user.id)
+        registration_id = self.kwargs.get("pk", None)
+        return Registration.objects.filter(id=registration_id)
 
 
 class SendConfirmationMail(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
     def create(self, request, *args, **kwargs):
         registration_id = self.kwargs.get("registration_pk", None)

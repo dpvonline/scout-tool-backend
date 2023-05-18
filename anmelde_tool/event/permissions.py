@@ -4,8 +4,7 @@ from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 
-from anmelde_tool.event.helper import get_event
-from anmelde_tool.event.helper import get_registration
+from anmelde_tool.event.helper import get_event, get_registration
 from anmelde_tool.event.models import Event
 from anmelde_tool.registration.models import Registration
 from keycloak_auth.helper import get_groups_of_user
@@ -168,4 +167,6 @@ class IsSubRegistrationResponsiblePerson(permissions.BasePermission):
         if request.user.is_superuser:
             return True
         registration_id: str = view.kwargs.get('registration_pk', None)
+        if registration_id is None:
+            registration_id: str = view.kwargs.get('pk', None)
         return check_registration_permission(registration_id, request)
