@@ -75,8 +75,8 @@ class TravelAttributeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = attribute_models.TravelAttribute
-        fields = '__all__'
         fields = (
+            'id',
             'number_persons',
             'get_type_field_display',
             'date_time_field',

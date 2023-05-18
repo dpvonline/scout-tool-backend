@@ -30,12 +30,6 @@ registration_router.register(r'integer-attribute', views.RegistrationIntegerAttr
                              basename='integer-attribute')
 registration_router.register(r'summary', views.RegistrationSummaryViewSet, basename='summary')
 
-registration_router.register(
-    r'add-responsible',
-    views.AddResponsiblePersonRegistrationViewSet,
-    basename='add-responsible'
-)
-
 registration_router.register(r'send-confirmation-mail', views.SendConfirmationMail,
                              basename='send-confirmation-mail')
 

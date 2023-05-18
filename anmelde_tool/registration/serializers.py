@@ -50,7 +50,7 @@ class RegistrationPostSerializer(serializers.ModelSerializer):
 class RegistrationPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Registration
-        fields = ('responsible_persons', 'is_confirmed', 'tags')
+        fields = ('responsible_persons',)
         extra_kwargs = {
             "responsible_persons": {
                 "required": False,
