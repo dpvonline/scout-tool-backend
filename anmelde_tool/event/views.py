@@ -130,8 +130,8 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs) -> Response:
 
-        price = request.data.get('price', 15.00)
-        if ',' in price:
+        price = request.data.get('price', str(15.00))
+        if ',' in str(price):
             price = price.replace(',', '.')
         del request.data['price']
 
