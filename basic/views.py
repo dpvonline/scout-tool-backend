@@ -57,7 +57,8 @@ class ZipCodeSearchFilter(FilterSet):
     def get_zip_city(self, queryset, field_name, value) -> QuerySet[basic_models.ZipCode]:
         if value is None:
             raise NoSearchValue
-        cities = queryset.filter(Q(zip_code__contains=value) | Q(city__icontains=value))
+        cities = queryset.filter(
+            Q(zip_code__contains=value) | Q(city__icontains=value))
         if cities.count() > 250:
             raise TooManySearchResults
         if cities.count() == 0:
@@ -70,6 +71,31 @@ class ZipCodeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = basic_models.ZipCode.objects.all()
     serializer_class = basic_serializers.ZipCodeSerializer
     filterset_class = ZipCodeSearchFilter
+
+
+def find_zip_code(value, keycloak_param, *filter_args, **filter_kwargs):
+    if basic_models.ZipCode.objects.filter(*filter_args, **filter_kwargs).exists():
+        return True
+
+    return False
+
+
+class CheckZipCodeViewSet(viewsets.ReadOnlyModelViewSet):
+    def create(self, request, *args, **kwargs) -> Response:
+        serializer = basic_serializers.CheckZipCodeSerializer(
+            data=request.data, many=False)
+        serializer.is_valid(raise_exception=True)
+        zip_code = serializer.data['zip_code']
+
+        found = find_zip_code(zip_code, 'zip_code', zip_code__iexact=zip_code)
+
+        print('found')
+        print(found)
+
+        if found:
+            return Response('Zip Code ist vorhanden.', status=status.HTTP_200_OK)
+
+        return Response('Zip Code nicht vorhanden.', status=status.HTTP_409_CONFLICT)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -116,13 +142,14 @@ class FrontendThemeViewSet(viewsets.ModelViewSet):
 
 
 class GenderViewSet(viewsets.ViewSet):
-    
+
     def list(self, request) -> Response:
         result = choice_to_json(Gender.choices)
         return Response(result, status=status.HTTP_200_OK)
 
+
 class SearchViewSet(viewsets.ViewSet):
-    
+
     def list(self, request) -> Response:
         query = request.GET.get("query", None)
 
@@ -134,11 +161,12 @@ class SearchViewSet(viewsets.ViewSet):
             groups = groups.filter(name__icontains=query)
             # users = users.filter(name__icontains=query)
             issues = issues.filter(issue_subject__icontains=query)
-            
-            
-            return_groups = keycloak_serializers.FullGroupSerializer(groups, many=True).data
+
+            return_groups = keycloak_serializers.FullGroupSerializer(
+                groups, many=True).data
             # return_users = authentication_serializers.UserShortSerializer(users, many=True).data
-            return_issues = messaging_serializers.IssueSerializer(issues, many=True).data
+            return_issues = messaging_serializers.IssueSerializer(
+                issues, many=True).data
 
             return Response({
                 "group": return_groups,
