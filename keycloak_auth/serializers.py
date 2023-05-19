@@ -215,6 +215,7 @@ class PartialUserSerializer(serializers.ModelSerializer):
     """
     person = PersonSerializer(many=False)
     id = serializers.SerializerMethodField()
+    django_id = serializers.SerializerMethodField()
     display_name = serializers.SerializerMethodField()
     scout_name = serializers.SerializerMethodField()
     first_name = serializers.SerializerMethodField()
@@ -224,6 +225,7 @@ class PartialUserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id',
+            'django_id',
             'username',
             'person',
             'keycloak_id',
@@ -235,6 +237,9 @@ class PartialUserSerializer(serializers.ModelSerializer):
 
     def get_id(self, obj: User):
         return obj.keycloak_id
+
+    def get_django_id(self, obj: User):
+        return obj.id
 
     def get_display_name(self, obj: User):
         return get_display_name_user(obj)

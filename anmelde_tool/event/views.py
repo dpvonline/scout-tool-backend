@@ -130,7 +130,9 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs) -> Response:
 
-        price = request.data.get('price', 15.00)
+        price = request.data.get('price', str(15.00))
+        if ',' in str(price):
+            price = price.replace(',', '.')
         del request.data['price']
 
         if (request.data.get('responsible_persons') is None) | (request.data.get('responsible_persons', []) is []):
@@ -180,6 +182,8 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
+        if not event_helper.is_valid_uuid(event_id):
+            raise event_api_exceptions.NoUUID(event_id)
         return event_models.BookingOption.objects.filter(event=event_id)
 
     def create(self, request, *args, **kwargs) -> Response:

@@ -283,31 +283,6 @@ class RegistrationTravelAttributeViewSet(mixins.CreateModelMixin, viewsets.Gener
         return Response(result_serializer.data, status=status.HTTP_201_CREATED)
 
 
-class AddResponsiblePersonRegistrationViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
-    permission_classes = [event_permissions.IsRegistrationResponsiblePerson]
-    queryset = Registration.objects.all()
-    serializer_class = registration_serializers.RegistrationPutSerializer
-
-    def update(self, request, *args, **kwargs):
-        new_responsible_person = request.data.get('responsible_person')
-
-        # get user-id
-        new_responsible_person_id = User.objects.filter(email=new_responsible_person).first().id
-
-        instance = self.get_object()
-
-        # prepare the return list with new user
-        responsible_person_ids = [new_responsible_person_id]
-
-        # add all existing users-id to list
-        for x in instance.responsible_persons.all():
-            responsible_person_ids.append(x.id)
-
-        request.data['responsible_persons'] = responsible_person_ids
-
-        return super().update(request, *args, **kwargs)
-
-
 class RegistrationSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
     serializer_class = registration_serializers.RegistrationSummarySerializer
@@ -394,21 +369,25 @@ class RegistrationViewSet(
             return registration_serializers.RegistrationPutSerializer
 
 
-class MyRegistrationViewSet(viewsets.ModelViewSet):
+class MyRegistrationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = registration_serializers.RegistrationSummarySerializer
 
     def get_queryset(self) -> QuerySet:
         return Registration.objects.filter(responsible_persons=self.request.user.id)
 
 
-class RegistrationReadViewSet(viewsets.ModelViewSet):
+class RegistrationReadViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = registration_serializers.RegistrationReadSerializer
+    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
     def get_queryset(self) -> QuerySet:
-        return Registration.objects.filter(responsible_persons=self.request.user.id)
+        registration_id = self.kwargs.get("pk", None)
+        return Registration.objects.filter(id=registration_id)
 
 
 class SendConfirmationMail(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
     def create(self, request, *args, **kwargs):
         registration_id = self.kwargs.get("registration_pk", None)

@@ -114,7 +114,8 @@ class ScoutHierarchyDetailedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = basic_models.ScoutHierarchy
-        fields = ('id', 'name', 'abbreviation', 'level', 'zip_code', 'ring', 'bund', 'stamm')
+        fields = ('id', 'name', 'abbreviation', 'level',
+                  'zip_code', 'ring', 'bund', 'stamm')
 
     def get_ring(self, obj: basic_models.ScoutHierarchy) -> str:
         return get_parent_scout_organisation(obj, 'Ring/Regional')
@@ -130,3 +131,7 @@ class DescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = basic_models.Description
         exclude = ('public', 'type')
+
+
+class CheckZipCodeSerializer(serializers.Serializer):  # noqa
+    zip_code = serializers.CharField(required=True)
