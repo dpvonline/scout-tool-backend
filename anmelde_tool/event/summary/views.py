@@ -3,6 +3,8 @@ from django.db.models import QuerySet, Q
 from rest_framework import mixins, viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 from anmelde_tool.registration.models import RegistrationParticipant, Registration
 from basic.models import ScoutHierarchy
@@ -97,6 +99,9 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
     ordering_fields = ('first_name', 'last_name', 'scout_name',
                        'birthday', 'scout_organisation')
     pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ['booking_option__name']
+    search_fields = ['first_name', 'last_name', 'scout_name', 'booking_option__name', 'registration__scout_organisation__name']
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
@@ -233,9 +238,9 @@ class EventAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
         all_participants: QuerySet[RegistrationParticipant] = self.get_queryset(
         )
 
-        woelfling = age_range(0, 13, all_participants, event)
-        pfadfinder = age_range(13, 18, all_participants, event)
-        rover = age_range(18, 25, all_participants, event)
+        woelfling = age_range(0, 11, all_participants, event)
+        pfadfinder = age_range(11, 16, all_participants, event)
+        rover = age_range(16, 25, all_participants, event)
         alt_rover = age_range(25, 999, all_participants, event)
 
         result = {

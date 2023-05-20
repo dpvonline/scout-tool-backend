@@ -99,11 +99,8 @@ class RegistrationParticipantEventDetailedSummarySerializer(serializers.ModelSer
     class Meta:
         model = RegistrationParticipant
         exclude = (
-            'deactivated',
-            'generated',
             'registration',
             'id',
-            'tags'
         )
 
     def get_scout_organisation(self, participant: RegistrationParticipant) -> str:

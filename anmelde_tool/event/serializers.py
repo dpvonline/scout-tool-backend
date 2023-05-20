@@ -138,6 +138,7 @@ class EventReadModuleSerializer(serializers.ModelSerializer):
         model = EventModule
         fields = (
             'name',
+            'description',
             'header',
             'ordering',
             'required',
