@@ -19,7 +19,7 @@ class CashIncomeViewSet(mixins.CreateModelMixin,
 
 
 class MailReminderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    permission_classes = [event_permissions.IsStaffOrReadOnly]
+    permission_classes = [event_permissions.IsEventSuperResponsiblePerson]
     serializer_class = cash_serializers.MailReminderSerializer
 
     def create(self, request, *args, **kwargs):
