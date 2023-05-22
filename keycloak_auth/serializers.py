@@ -45,9 +45,9 @@ def get_display_name_group(obj: KeycloakGroup):
 
     if obj.parent:
         if hasattr(obj.parent, 'scouthierarchy') and obj.parent.scouthierarchy:
-            return f'{obj.parent.scouthierarchy} - {obj.name}'
+            return f'{obj.name} <- {obj.parent.scouthierarchy}'
         else:
-            return f'{obj.parent.name} - {obj.name}'
+            return f'{obj.name} <- {obj.parent.name}'
 
     return obj.name
 

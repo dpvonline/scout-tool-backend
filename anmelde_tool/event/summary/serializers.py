@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Count, F
 from rest_framework import serializers
+from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializer
@@ -95,19 +97,21 @@ class RegistrationParticipantEventDetailedSummarySerializer(serializers.ModelSer
         required=False
     )
     scout_organisation = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
 
     class Meta:
         model = RegistrationParticipant
         exclude = (
-            'deactivated',
-            'generated',
             'registration',
             'id',
-            'tags'
         )
 
     def get_scout_organisation(self, participant: RegistrationParticipant) -> str:
         return participant.registration.scout_organisation.name
+
+
+    def get_age(self, participant: RegistrationParticipant) -> str:
+        return relativedelta(timezone.now(), participant.birthday).years
 
 
 class RegistrationLocationSerializer(serializers.ModelSerializer):
