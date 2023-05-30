@@ -26,4 +26,4 @@ class IsCashResponsiblePerson(permissions.BasePermission):
         else:
             raise Exception('Error')
 
-        return check_event_permission(event, request,  admin_only=True)
+        return check_event_permission(event, request, admin_only=True)
