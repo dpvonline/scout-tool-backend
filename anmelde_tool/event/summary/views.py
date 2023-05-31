@@ -382,6 +382,14 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_id = self.kwargs.get("event_pk", None)
         return registration_models.Registration.objects.filter(event_id=event_id)
 
+class CashDetailViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
+    serializer_class = summary_serializers.RegistrationCashSummarySerializer
+
+    def get_queryset(self) -> QuerySet[registration_models.Registration]:
+        registration_id = self.kwargs.get("registration_pk", None)
+        return registration_models.Registration.objects.filter(id=registration_id)
+
 
 class EmailResponsiblePersonsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsSubEventResponsiblePerson]

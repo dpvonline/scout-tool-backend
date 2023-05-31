@@ -1,6 +1,7 @@
 from django.urls import include, path
 from rest_framework_nested import routers
 from anmelde_tool.registration import views
+from anmelde_tool.event.summary import views as event_summary_views
 
 router = routers.SimpleRouter()
 router.register('registration', views.RegistrationViewSet, basename='registration')
@@ -29,6 +30,7 @@ registration_router.register(r'time-attribute', views.RegistrationTimeAttributeV
 registration_router.register(r'integer-attribute', views.RegistrationIntegerAttributeViewSet,
                              basename='integer-attribute')
 registration_router.register(r'summary', views.RegistrationSummaryViewSet, basename='summary')
+registration_router.register(r'cash-detail', event_summary_views.CashDetailViewSet, basename='cash-detail')
 
 registration_router.register(r'send-confirmation-mail', views.SendConfirmationMail,
                              basename='send-confirmation-mail')
