@@ -105,6 +105,7 @@ class EventPostSerializer(serializers.ModelSerializer):
 
 class EventCompleteSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
+    existing_register = serializers.SerializerMethodField()
     responsible_persons = serializers.SlugRelatedField(
         many=True,
         read_only=False,
@@ -121,14 +122,20 @@ class EventCompleteSerializer(serializers.ModelSerializer):
             .filter(event=obj.id, responsible_persons=self.context['request'].user) \
             .exists()
 
-        if registration:
-            return 'already'
-        elif obj.registration_deadline > timezone.now():
+        if obj.registration_deadline > timezone.now():
             return 'pending'
         elif obj.registration_deadline <= timezone.now():
             return 'expired'
         else:
             return 'error'
+        
+    def get_existing_register(self, obj: event_models.Event) -> Registration:
+        registration = Registration.objects \
+            .filter(event=obj.id, responsible_persons=self.context['request'].user)
+            
+        if (registration):
+            return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
+        return None
 
 
 class EventReadModuleSerializer(serializers.ModelSerializer):
@@ -170,6 +177,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
     theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
     booking_options = serializers.SerializerMethodField()
+    existing_register = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -187,6 +195,15 @@ class EventReadSerializer(serializers.ModelSerializer):
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data
+    
+
+    def get_existing_register(self, obj: event_models.Event) -> Registration:
+        registration = Registration.objects \
+            .filter(event=obj.id, responsible_persons=self.context['request'].user)
+            
+        if (registration):
+            return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
+        return None
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):
@@ -220,11 +237,17 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         else:
             return 'error'
 
+class RegistrationReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Registration
+        fields = '__all__'
 
 class MyInvitationsSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
     booking_options = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(many=False, read_only=True)
+    existing_register = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -244,6 +267,7 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             'registration_start',
             'last_possible_update',
             'booking_options',
+            'existing_register'
         )
 
     def get_status(self, obj: event_models.Event) -> str:
@@ -251,9 +275,7 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             .filter(event=obj.id, responsible_persons=self.context['request'].user) \
             .exists()
 
-        if registration:
-            return 'already'
-        elif obj.registration_deadline > timezone.now():
+        if obj.registration_deadline > timezone.now():
             return 'pending'
         elif obj.registration_deadline <= timezone.now():
             return 'expired'
@@ -263,3 +285,11 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data
+    
+    def get_existing_register(self, obj: event_models.Event) -> Registration:
+        registration = Registration.objects \
+            .filter(event=obj.id, responsible_persons=self.context['request'].user)
+            
+        if (registration):
+            return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
+        return None

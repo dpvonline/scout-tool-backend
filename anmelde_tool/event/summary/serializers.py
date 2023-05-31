@@ -212,12 +212,10 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
     booking_options = serializers.SerializerMethodField()
     cashincome_set = cash_serializers.CashIncomeSerializer(many=True, read_only=True)
     ref_id = serializers.SerializerMethodField()
-
     class Meta:
         model = Registration
         fields = ('id',
                   'is_confirmed',
-                #   'is_accepted',
                   'scout_organisation',
                   'responsible_persons',
                   'participant_count',
@@ -226,7 +224,8 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
                   'updated_at',
                   'booking_options',
                   'cashincome_set',
-                  'ref_id')
+                  'ref_id'
+        )
 
     def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()
@@ -255,27 +254,10 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
 
 
 class CashSummarySerializer(serializers.ModelSerializer):
-    registration_set = RegistrationCashSummarySerializer(many=True, read_only=True)
-    participant_count = serializers.SerializerMethodField()
-    booking_options = serializers.SerializerMethodField()
-
+    
     class Meta:
-        model = event_models.Event
-        fields = (
-            'participant_count',
-            'registration_set',
-            'booking_options',
-        )
-
-    def get_participant_count(self, event: event_models.Event) -> int:
-        return event.registration_set.filter(is_confirmed=True).aggregate(count=Count('registrationparticipant'))[
-            'count']
-
-    def get_booking_options(self, event: event_models.Event) -> dict:
-        return event.registration_set.filter(is_confirmed=True) \
-            .values(booking_option=F('registrationparticipant__booking_option__name')) \
-            .annotate(count=Count('registrationparticipant')) \
-            .annotate(price=Sum('registrationparticipant__booking_option__price'))
+        model = Registration
+        fields = '__all__'
 
 
 class UserEmailSerializer(serializers.ModelSerializer):

@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet, Q, Sum, Count
 from rest_framework import mixins, viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -9,6 +9,7 @@ import django_filters
 from django_filters import FilterSet, BooleanFilter, ModelMultipleChoiceFilter, NumberFilter, BaseInFilter, CharFilter
 
 from anmelde_tool.registration.models import RegistrationParticipant, Registration
+from anmelde_tool.registration import models as registration_models
 from basic.models import ScoutHierarchy
 from basic.serializers import ScoutHierarchySerializer
 from anmelde_tool.event import models as event_models
@@ -375,11 +376,19 @@ class EventAlcoholAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
 
 class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsSubEventResponsiblePerson]
-    serializer_class = summary_serializers.CashSummarySerializer
+    serializer_class = summary_serializers.RegistrationCashSummarySerializer
 
-    def get_queryset(self) -> QuerySet[event_models.Event]:
+    def get_queryset(self) -> QuerySet[registration_models.Registration]:
         event_id = self.kwargs.get("event_pk", None)
-        return event_models.Event.objects.filter(id=event_id)
+        return registration_models.Registration.objects.filter(event_id=event_id)
+
+class CashDetailViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
+    serializer_class = summary_serializers.RegistrationCashSummarySerializer
+
+    def get_queryset(self) -> QuerySet[registration_models.Registration]:
+        registration_id = self.kwargs.get("registration_pk", None)
+        return registration_models.Registration.objects.filter(id=registration_id)
 
 
 class EmailResponsiblePersonsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

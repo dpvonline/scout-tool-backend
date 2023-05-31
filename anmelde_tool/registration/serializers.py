@@ -18,6 +18,7 @@ User = get_user_model()
 
 
 class CurrentUserSerializer(serializers.ModelSerializer):
+    phone_number = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = (
@@ -26,11 +27,16 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             # 'userextended',
             'first_name',
             'last_name',
-            # 'mobile_number',
+            'phone_number',
             # 'scout_name',
             # 'scout_organisation',
             # 'dsgvo_confirmed'
         )
+        
+    def get_phone_number(self, obj: User):
+        if hasattr(obj, 'person'):
+            return obj.person.phone_number
+        return ''
 
 
 class RegistrationPostSerializer(serializers.ModelSerializer):
