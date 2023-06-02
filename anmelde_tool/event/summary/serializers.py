@@ -210,7 +210,7 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
     payement = serializers.SerializerMethodField()
     scout_organisation = basic_serializers.ScoutHierarchyDetailedSerializer(many=False, read_only=True)
     booking_options = serializers.SerializerMethodField()
-    cashincome_set = cash_serializers.CashIncomeSerializer(many=True, read_only=True)
+    cashincome_set = cash_serializers.CashIncomeReadSerializer(many=True, read_only=True)
     ref_id = serializers.SerializerMethodField()
     class Meta:
         model = Registration

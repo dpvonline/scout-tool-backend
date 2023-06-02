@@ -8,14 +8,14 @@ from anmelde_tool.event.cash import serializers as cash_serializers
 from anmelde_tool.event.cash import models as cash_models
 
 
-class CashIncomeViewSet(mixins.CreateModelMixin,
-                        mixins.DestroyModelMixin,
-                        mixins.UpdateModelMixin,
-                        mixins.RetrieveModelMixin,
-                        viewsets.GenericViewSet):
+class CashIncomeViewSet(viewsets.ModelViewSet):
     permission_classes = [cash_permissions.IsCashResponsiblePerson]
     serializer_class = cash_serializers.CashIncomeSerializer
     queryset = cash_models.CashIncome.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        request.data['transfer_person'] = request.user.id
+        return super().create(request, *args, **kwargs)
 
 
 class MailReminderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):

@@ -157,7 +157,6 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
 
 class EventAttributeSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsSubEventResponsiblePerson]
-
     # serializer_class = summary_serializers.EventAttributeSummarySerializer
 
     def get_queryset(self) -> QuerySet:
@@ -261,8 +260,7 @@ class EventAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
         """
         event_id = self.kwargs.get("event_pk", None)
         event = get_event(event_id)
-        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset(
-        )
+        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset()
 
         woelfling = age_range(0, 11, all_participants, event)
         pfadfinder = age_range(11, 16, all_participants, event)
