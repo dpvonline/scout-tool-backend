@@ -62,7 +62,7 @@ class FileType(models.TextChoices):
 
 class FileExtension(models.TextChoices):
     Excel = 'E', _('Excel')
-    PDF = 'P', _('PDF')
+    # PDF = 'P', _('PDF') enable when using
 
 
 class WorkshopType(models.TextChoices):
