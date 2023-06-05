@@ -8,6 +8,7 @@ router.register(r'event-type-single', views.RegistrationTypeSingleViewSet, basen
 router.register(r'leader-types', views.LeaderTypesViewSet, basename='leader-types')
 router.register(r'scout-level-types', views.ScoutLevelTypesViewSet, basename='scout-level-types')
 router.register(r'file-type', views.FileTypeViewSet, basename='file-type')
+router.register(r'file-generation-status', views.FileGenerationStatusViewSet, basename='file-generation-status')
 router.register(r'file-extension', views.FileExtensionViewSet, basename='file-extension')
 router.register(r'workshop-type', views.WorkshopTypeViewSet, basename='workshop-type')
 

@@ -1,23 +1,25 @@
+import django_filters
 from django.contrib.auth import get_user_model
-from django.db.models import QuerySet, Q, Sum, Count
+from django.db.models import QuerySet, Q
+from django_filters import BaseInFilter, CharFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, status
+from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
-import django_filters
-from django_filters import FilterSet, BooleanFilter, ModelMultipleChoiceFilter, NumberFilter, BaseInFilter, CharFilter
 
-from anmelde_tool.registration.models import RegistrationParticipant, Registration
-from anmelde_tool.registration import models as registration_models
-from basic.models import ScoutHierarchy
-from basic.serializers import ScoutHierarchySerializer
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import filter_registration_by_leadership, get_bund, to_snake_case, get_event, \
     age_range, \
     filter_registrations_by_query_params, get_count_by_age_gender_leader
+from anmelde_tool.event.models import EventModule
 from anmelde_tool.event.summary import serializers as summary_serializers
+from anmelde_tool.event.summary.serializers import EventModuleSummarySerializer
+from anmelde_tool.registration import models as registration_models
+from anmelde_tool.registration.models import RegistrationParticipant, Registration
+from basic.models import ScoutHierarchy
+from basic.serializers import ScoutHierarchySerializer
 
 User = get_user_model()
 
@@ -74,7 +76,8 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
                        'is_confirmed', 'created_at', '-created_at', 'updated_at')
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['scout_organisation__name', 'responsible_persons__first_name', 'responsible_persons__last_name',
-                     'responsible_persons__person__scout_name', 'responsible_persons__person__email', 'responsible_persons__email']
+                     'responsible_persons__person__scout_name', 'responsible_persons__person__email',
+                     'responsible_persons__email']
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self) -> QuerySet:
@@ -150,23 +153,18 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         check_case = ('-' if order_desc else '') + 'scout_organisation'
         if camel_case == check_case:
             camel_case = ('-' if order_desc else '') + \
-                'registration__scout_organisation__name'
+                         'registration__scout_organisation__name'
 
         return participants.order_by(camel_case)
 
 
-class EventAttributeSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class EventModuleSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [event_permissions.IsSubEventResponsiblePerson]
+    serializer_class = EventModuleSummarySerializer
 
-    # serializer_class = summary_serializers.EventAttributeSummarySerializer
-
-    def get_queryset(self) -> QuerySet:
+    def get_queryset(self):
         event_id = self.kwargs.get("event_pk", None)
-        mapper_ids = event_models.EventModuleMapper.objects.filter(
-            event=event_id
-        ).values_list('attributes', flat=True)
-        return event_models.AttributeEventModuleMapper.objects.filter(id__in=mapper_ids)
-
+        return EventModule.objects.filter(event__id=event_id)
 
 class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [
@@ -261,8 +259,7 @@ class EventAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
         """
         event_id = self.kwargs.get("event_pk", None)
         event = get_event(event_id)
-        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset(
-        )
+        all_participants: QuerySet[RegistrationParticipant] = self.get_queryset()
 
         woelfling = age_range(0, 11, all_participants, event)
         pfadfinder = age_range(11, 16, all_participants, event)
@@ -381,6 +378,7 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def get_queryset(self) -> QuerySet[registration_models.Registration]:
         event_id = self.kwargs.get("event_pk", None)
         return registration_models.Registration.objects.filter(event_id=event_id)
+
 
 class CashDetailViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
