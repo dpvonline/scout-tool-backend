@@ -26,7 +26,9 @@ class GeneratedFilesGetSerializer(serializers.ModelSerializer):
 class GeneratedFilesPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = GeneratedFiles
-        fields = ('extension',
-                  'event',
-                  'user',
-                  'template')
+        fields = (
+            'extension',
+            'event',
+            'user',
+            'template'
+        )

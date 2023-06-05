@@ -45,7 +45,6 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'is_confirmed',
-            # 'is_accepted',
             'scout_organisation',
             'responsible_persons',
             'responsible_persons_extended',
@@ -159,7 +158,6 @@ class RegistrationAttributeGetSerializer(serializers.ModelSerializer):
         fields = (
             'scout_organisation',
             'is_confirmed',
-            # 'is_accepted',
             'responsible_persons'
         )
 

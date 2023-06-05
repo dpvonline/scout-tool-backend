@@ -6,7 +6,7 @@ from anmelde_tool.registration.models import Registration, RegistrationParticipa
 
 
 def get_registrations(event: event_models.Event) -> QuerySet[Registration]:
-    return Registration.objects.filter(event=event, is_confirmed=True)
+    return Registration.objects.filter(event=event)
 
 
 def get_event_location(event: event_models.Event) -> str:
@@ -121,7 +121,7 @@ def get_participant_days(event: event_models.Event, participant: RegistrationPar
         return ''
 
 
-def get_particpant_below_27(event: event_models.Event, participant: RegistrationParticipant) -> str:
+def get_participant_below_27(event: event_models.Event, participant: RegistrationParticipant) -> str:
     if participant.birthday:
         return 'Ja' if get_participant_age(event, participant) < 27 else 'Nein'
     else:
@@ -142,7 +142,7 @@ def get_participant_email(participant: RegistrationParticipant) -> str:
         return ''
 
 
-def get_registration_scout_organistation_name(registration: Registration) -> str:
+def get_registration_scout_organisation_name(registration: Registration) -> str:
     if registration.scout_organisation:
         return registration.scout_organisation.name
     else:
@@ -151,7 +151,7 @@ def get_registration_scout_organistation_name(registration: Registration) -> str
 
 def get_participant_registration_scout_organisation_name(participant: RegistrationParticipant) -> str:
     if participant.registration:
-        return get_registration_scout_organistation_name(participant.registration)
+        return get_registration_scout_organisation_name(participant.registration)
     else:
         return ''
 

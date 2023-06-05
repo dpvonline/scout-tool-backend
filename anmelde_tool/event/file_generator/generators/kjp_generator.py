@@ -1,17 +1,18 @@
 from django.db.models import QuerySet
 from openpyxl import load_workbook, Workbook
 
-from anmelde_tool.event import models as event_models
 from anmelde_tool.event.file_generator.generators import helper
 from anmelde_tool.event.file_generator.generators.abstract_generator import AbstractGenerator
 from anmelde_tool.event.file_generator.models import FileTemplate
+from anmelde_tool.event.models import Event
+from anmelde_tool.registration.models import Registration, RegistrationParticipant
 
 
 class KjpGenerator(AbstractGenerator):
 
     def generate(self) -> Workbook:
-        event: event_models.Event = self.generated_file.event
-        registrations: QuerySet[event_models.Registration] = helper.get_registrations(event)
+        event: Event = self.generated_file.event
+        registrations: QuerySet[Registration] = helper.get_registrations(event)
 
         file: FileTemplate = self.generated_file.template
         wb: Workbook = load_workbook(file.file)
@@ -19,7 +20,7 @@ class KjpGenerator(AbstractGenerator):
 
         sheets_count = 0
         participants_count = 0
-        registration: event_models.Registration
+        registration: Registration
         for registration in registrations:
             participants = registration.registrationparticipant_set.all().order_by('last_name')
             participant_count = participants.count()
@@ -38,7 +39,7 @@ class KjpGenerator(AbstractGenerator):
                 sheet['AW9'] = helper.get_event_days(event)
                 sheet['AZ1'] = sheets_count
 
-                participant: event_models.RegistrationParticipant
+                participant: RegistrationParticipant
                 for participant_index, participant in enumerate(registration_chunk):
                     cell = participant_index * 3 + 17
                     participants_count += 1
@@ -47,8 +48,9 @@ class KjpGenerator(AbstractGenerator):
                                         f'\n{helper.get_participant_adress(participant)}'
                     sheet[f'T{cell}'] = helper.get_participant_gender(participant)
                     sheet[f'V{cell}'] = helper.get_participant_state(participant)
-                    sheet[f'Z{cell}'] = helper.get_particpant_below_27(event, participant)
+                    sheet[f'Z{cell}'] = helper.get_participant_below_27(event, participant)
                     sheet[f'AQ{cell}'] = helper.get_participant_days(event, participant)
 
-        wb.remove(original)
+        if len(wb.worksheets) > 1:
+            wb.remove(original)
         return wb
