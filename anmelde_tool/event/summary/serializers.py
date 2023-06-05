@@ -1,14 +1,17 @@
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Count, F
-from rest_framework import serializers
-from dateutil.relativedelta import relativedelta
 from django.utils import timezone
+from rest_framework import serializers
 
+from anmelde_tool.attributes.models import AttributeModule, TimeAttribute, BooleanAttribute, IntegerAttribute, \
+    FloatAttribute, StringAttribute, TravelAttribute
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializer
 from anmelde_tool.event.cash import serializers as cash_serializers
 from anmelde_tool.registration import serializers as registration_serializers
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
+from anmelde_tool.registration.serializers import RegistrationGetSerializer
 from anmelde_tool.workshop.models import Workshop
 from basic import serializers as basic_serializers
 from basic.models import EatHabit
@@ -109,7 +112,6 @@ class RegistrationParticipantEventDetailedSummarySerializer(serializers.ModelSer
     def get_scout_organisation(self, participant: RegistrationParticipant) -> str:
         return participant.registration.scout_organisation.name
 
-
     def get_age(self, participant: RegistrationParticipant) -> str:
         return relativedelta(timezone.now(), participant.birthday).years
 
@@ -162,48 +164,6 @@ class RegistrationAttributeGetSerializer(serializers.ModelSerializer):
         )
 
 
-# class EventAttributeSummarySerializer(serializers.ModelSerializer):
-#     attribute = AbstractAttributeGetPolymorphicSerializer(many=False, read_only=False)
-#     attributes = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = event_models.AttributeEventModuleMapper
-#         fields = '__all__'
-#
-#     def get_attributes(self, mapper: event_models.AttributeEventModuleMapper) -> dict:
-#         event_id = self.context['view'].kwargs.get("event_pk", None)
-#         registrations: QuerySet[Registration] = Registration.objects.filter(event=event_id)
-#
-#         registration_tags = []
-#         attribute_sum = 0
-#         for registration in registrations.all():
-#             tags = registration.tags.filter(
-#                 template=False, template_id=mapper.attribute.id)
-#
-#             if mapper.attribute.polymorphic_ctype.app_labeled_name == 'basic | integer attribute':
-#                 attribute_sum += tags.aggregate(
-#                     sum=Sum('integerattribute__integer_field'))['sum'] or 0
-#             elif mapper.attribute.polymorphic_ctype.app_labeled_name == 'basic | float attribute':
-#                 attribute_sum += tags.aggregate(
-#                     sum=Sum('floatattribute__integer_field'))['sum'] or 0
-#
-#             serialized_registration = RegistrationAttributeGetSerializer(
-#                 registration, many=False).data
-#             for tag in tags.all():
-#                 serialized_tag = AbstractAttributeGetPolymorphicSerializer(
-#                     tag, many=False).data
-#                 result = {
-#                     'registration': serialized_registration,
-#                     'tag': serialized_tag,
-#                 }
-#                 registration_tags.append(result)
-#
-#         return {
-#             'data': registration_tags,
-#             'sum': attribute_sum
-#         }
-
-
 class RegistrationCashSummarySerializer(serializers.ModelSerializer):
     responsible_persons = registration_serializers.CurrentUserSerializer(many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
@@ -212,6 +172,7 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
     booking_options = serializers.SerializerMethodField()
     cashincome_set = cash_serializers.CashIncomeReadSerializer(many=True, read_only=True)
     ref_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Registration
         fields = ('id',
@@ -225,7 +186,7 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
                   'booking_options',
                   'cashincome_set',
                   'ref_id'
-        )
+                  )
 
     def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()
@@ -254,7 +215,6 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
 
 
 class CashSummarySerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Registration
         fields = '__all__'
@@ -264,3 +224,102 @@ class UserEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email',)
+
+
+class BooleanAttributeSummarySerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='booleanAttribute')
+    registration = RegistrationGetSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = BooleanAttribute
+        fields = '__all__'
+
+
+class TimeAttributeSummarySerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='timeAttribute')
+    registration = RegistrationGetSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = TimeAttribute
+        fields = '__all__'
+
+
+class IntegerAttributeSummarySerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='integerAttribute')
+    registration = RegistrationGetSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = IntegerAttribute
+        fields = '__all__'
+
+
+class FloatAttributeSummarySerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='floatAttribute')
+    registration = RegistrationGetSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = FloatAttribute
+        fields = '__all__'
+
+
+class StringAttributeSummarySerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='stringAttribute')
+    registration = RegistrationGetSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = StringAttribute
+        fields = '__all__'
+
+
+class TravelAttributeSummarySerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='travelAttribute')
+    registration = RegistrationGetSerializer(many=False, read_only=True)
+    type_field = serializers.CharField(source='get_type_field_display', read_only=True)
+
+    class Meta:
+        model = TravelAttribute
+        fields = '__all__'
+
+
+class AttributeSummarySerializer(serializers.ModelSerializer):
+    field_type = serializers.CharField(source='get_field_type_display', read_only=True)
+    booleanattribute_set = BooleanAttributeSummarySerializer(many=True, read_only=True)
+    timeattribute_set = TimeAttributeSummarySerializer(many=True, read_only=True)
+    integerattribute_set = IntegerAttributeSummarySerializer(many=True, read_only=True)
+    floatattribute_set = FloatAttributeSummarySerializer(many=True, read_only=True)
+    stringattribute_set = StringAttributeSummarySerializer(many=True, read_only=True)
+    travelattribute_set = TravelAttributeSummarySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AttributeModule
+        fields = (
+            'id',
+            'title',
+            'text',
+            'field_type',
+            'booleanattribute_set',
+            'timeattribute_set',
+            'integerattribute_set',
+            'floatattribute_set',
+            'stringattribute_set',
+            'travelattribute_set'
+        )
+
+
+class EventModuleSummarySerializer(serializers.ModelSerializer):
+    attribute_modules = serializers.SerializerMethodField()
+
+    class Meta:
+        model = event_models.EventModule
+        fields = (
+            'id',
+            'name',
+            'header',
+            'description',
+            'attribute_modules'
+        )
+
+    def get_attribute_modules(self, module: event_models.EventModule):
+        queryset = module.attributemodule_set
+        result = AttributeSummarySerializer(queryset, many=True).data
+        return result

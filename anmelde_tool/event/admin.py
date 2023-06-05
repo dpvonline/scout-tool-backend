@@ -26,7 +26,7 @@ class BookingOptionAdmin(admin.ModelAdmin):
 
 @admin.register(EventModule)
 class EventModuleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'standard')
+    list_display = ('name', 'standard', 'event')
     search_fields = ('name', 'id')
     list_filter = ('standard', 'event')
 

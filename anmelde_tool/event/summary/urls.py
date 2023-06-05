@@ -31,7 +31,7 @@ event_summary_router.register(r'summary/event-location', views.EventLocationView
 event_summary_router.register(r'summary/detailed', views.EventDetailedSummaryViewSet, basename='detailed')
 event_summary_router.register(r'summary/parents', views.RegistrationParentViewSet, basename='detailed')
 event_summary_router.register(r'summary/workshop', views.WorkshopEventSummaryViewSet, basename='workshop')
-event_summary_router.register(r'summary/attributes', views.EventAttributeSummaryViewSet, basename='attributes')
+event_summary_router.register(r'summary/attributes', views.EventModuleSummaryViewSet, basename='attributes')
 event_summary_router.register(r'summary/food', views.EventFoodSummaryViewSet, basename='food')
 event_summary_router.register(r'summary/cash', views.CashSummaryViewSet, basename='cash')
 event_summary_router.register(r'summary/emails/responsible-persons', views.EmailResponsiblePersonsViewSet,
