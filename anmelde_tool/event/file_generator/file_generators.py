@@ -26,49 +26,49 @@ def generate_file(instance_id):
     file_wrapper = GeneratedFiles.objects.get(pk=instance_id)
     file_wrapper.status = FileGenerationStatus.Processing
     file_wrapper.save()
-    # try:
-    generator: AbstractGenerator = None
-    if file_wrapper.template.type == FileType.Kjp and file_wrapper.extension == FileExtension.Excel:
-        if file_wrapper.template.version == 1:
-            generator = KjpGenerator(file_wrapper)
-        elif file_wrapper.template.version == 2:
-            generator = KjpGeneratorV2(file_wrapper)
+    try:
+        generator: AbstractGenerator = None
+        if file_wrapper.template.type == FileType.Kjp and file_wrapper.extension == FileExtension.Excel:
+            if file_wrapper.template.version == 1:
+                generator = KjpGenerator(file_wrapper)
+            elif file_wrapper.template.version == 2:
+                generator = KjpGeneratorV2(file_wrapper)
 
-    elif file_wrapper.template.type == FileType.Invoice \
-            and file_wrapper.extension == FileExtension.Excel \
-            and file_wrapper.template.version == 1:
-        generator = InvoiceGenerator(file_wrapper)
+        elif file_wrapper.template.type == FileType.Invoice \
+                and file_wrapper.extension == FileExtension.Excel \
+                and file_wrapper.template.version == 1:
+            generator = InvoiceGenerator(file_wrapper)
 
-    elif file_wrapper.template.type == FileType.ParticipantList \
-            and file_wrapper.extension == FileExtension.Excel \
-            and file_wrapper.template.version == 1:
-        generator = ParticipantGenerator(file_wrapper)
+        elif file_wrapper.template.type == FileType.ParticipantList \
+                and file_wrapper.extension == FileExtension.Excel \
+                and file_wrapper.template.version == 1:
+            generator = ParticipantGenerator(file_wrapper)
 
-    elif file_wrapper.template.type == FileType.AttributeList \
-            and file_wrapper.extension == FileExtension.Excel \
-            and file_wrapper.template.version == 1:
-        generator = AttributeGenerator(file_wrapper)
+        elif file_wrapper.template.type == FileType.AttributeList \
+                and file_wrapper.extension == FileExtension.Excel \
+                and file_wrapper.template.version == 1:
+            generator = AttributeGenerator(file_wrapper)
 
-    elif file_wrapper.template.type == FileType.TravelMatrix \
-            and file_wrapper.extension == FileExtension.Excel \
-            and file_wrapper.template.version == 1:
-        generator = TravelMatrixGenerator(file_wrapper)
+        elif file_wrapper.template.type == FileType.TravelMatrix \
+                and file_wrapper.extension == FileExtension.Excel \
+                and file_wrapper.template.version == 1:
+            generator = TravelMatrixGenerator(file_wrapper)
 
-    elif file_wrapper.template.type == FileType.KJR \
-            and file_wrapper.extension == FileExtension.Excel \
-            and file_wrapper.template.version == 1:
-        generator = KjrGenerator(file_wrapper)
+        elif file_wrapper.template.type == FileType.KJR \
+                and file_wrapper.extension == FileExtension.Excel \
+                and file_wrapper.template.version == 1:
+            generator = KjrGenerator(file_wrapper)
 
-    if generator is not None:
-        wb = generator.generate()
-        save_file_excel(file_wrapper, wb)
+        if generator is not None:
+            wb = generator.generate()
+            save_file_excel(file_wrapper, wb)
+        else:
+            logger.debug(f'No suitable template found for generated file {file_wrapper.id}: {file_wrapper.template}')
+    except Exception as e:
+        file_wrapper.error_msg = f'{e}\n{traceback.format_exc()}'
+        file_wrapper.status = FileGenerationStatus.FinishedFailed
     else:
-        logger.debug(f'No suitable template found for generated file {file_wrapper.id}: {file_wrapper.template}')
-    # except Exception as e:
-    #     file_wrapper.error_msg = f'{e}\n{traceback.format_exc()}'
-    #     file_wrapper.status = FileGenerationStatus.FinishedFailed
-    # else:
-    #     file_wrapper.status = FileGenerationStatus.FinishedSuccessfully
+        file_wrapper.status = FileGenerationStatus.FinishedSuccessfully
     file_wrapper.save()
     return True
 
