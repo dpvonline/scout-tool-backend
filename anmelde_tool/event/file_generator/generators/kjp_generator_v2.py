@@ -32,6 +32,8 @@ class KjpGeneratorV2(AbstractGenerator):
         participants_count = 0
         registration: Registration
 
+        bund_name = helper.get_bund_name(self.generated_file)
+
         current_year = helper.get_current_year()
 
         for registration in registrations:
@@ -61,6 +63,7 @@ class KjpGeneratorV2(AbstractGenerator):
                 sheet['AP3'] = sheets_count
                 sheet['AR3'] = max_sheet_count
                 sheet['M1'] = current_year
+                sheet['F8'] = bund_name
 
 
                 participant: RegistrationParticipant

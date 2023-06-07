@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
 
 from anmelde_tool.event import models as event_models
+from anmelde_tool.event.file_generator.models import GeneratedFiles
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 
 
@@ -180,5 +181,17 @@ def get_formatted_booking_option(registration: Registration, booking_options_nam
 def get_participants_by_registration(registration=None) -> QuerySet[RegistrationParticipant]:
     return RegistrationParticipant.objects.filter(registration=registration).order_by('last_name')
 
+
 def get_current_year() -> str:
     return str(datetime.date.today().year)
+
+
+def get_bund_name(file: GeneratedFiles) -> str:
+    result = []
+    if file:
+        if file.bund.abbreviation:
+            result.append(file.bund.abbreviation)
+        if file.bund.full_name:
+            result.append(file.bund.full_name)
+        return ' - '.join(result)
+    return ''

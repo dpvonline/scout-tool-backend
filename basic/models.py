@@ -62,7 +62,8 @@ class ScoutHierarchy(TimeStampMixin):
     zip_code = models.ForeignKey(ZipCode, on_delete=models.PROTECT, null=True, blank=True)
     parent = models.ForeignKey('self', null=True, on_delete=models.PROTECT, related_name='scouthierarchy', blank=True)
     abbreviation = models.CharField(max_length=5, blank=True, null=True)
-    keycloak = models.OneToOneField(KeycloakGroup, on_delete=models.SET_NULL, null=True)
+    full_name = models.CharField(max_length=200, blank=True, null=True)
+    keycloak = models.OneToOneField(KeycloakGroup, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __generate_tree_name(self, lower: bool = True) -> str:
         if lower:

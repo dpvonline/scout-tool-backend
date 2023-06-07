@@ -11,6 +11,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "DPBM",
+      "full_name": "Deutscher Pfadfinderbund Mosaik",
       "keycloak": null
     }
   },
@@ -26,6 +27,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "PBNL",
+      "full_name": "Pfadfinder & Pfadfinderinnenbund Nordlicht",
       "keycloak": null
     }
   },
@@ -41,6 +43,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "PBN",
+      "full_name": "Pfadfinder*innenbund Nord",
       "keycloak": null
     }
   },
@@ -56,6 +59,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "PBH",
+      "full_name": "Pfadfinderbund Horizonte",
       "keycloak": null
     }
   },
@@ -71,6 +75,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "DPH",
+      "full_name": "Deutscher Pfadfinderbund Hamburg",
       "keycloak": null
     }
   },
@@ -86,6 +91,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "PSD",
+      "full_name": "Pfadfinderschaft Süddeutschland",
       "keycloak": null
     }
   },
@@ -101,6 +107,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "BEP",
+      "full_name": "Bund Europäischer Pfadfinder",
       "keycloak": null
     }
   },
@@ -116,6 +123,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "PBB",
+      "full_name": "Pfadfinderbund Boreas",
       "keycloak": null
     }
   },
@@ -131,6 +139,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "PBMV",
+      "full_name": "Pfadfinderbund Mecklenburg-Vorpommern",
       "keycloak": null
     }
   },
@@ -146,6 +155,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "JOMS",
+      "full_name": "Jomsburg - Freier Pfadfinderbund",
       "keycloak": null
     }
   },
@@ -161,6 +171,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "PBW",
+      "full_name": "Pfadfinderbund Weltenbummler",
       "keycloak": null
     }
   },
@@ -176,6 +187,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "FP",
+      "full_name": "Freie Pfadfinderschaft",
       "keycloak": null
     }
   },
@@ -191,6 +203,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -206,6 +219,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -221,6 +235,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -236,6 +251,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -251,6 +267,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -266,6 +283,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -281,6 +299,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -296,6 +315,7 @@
       "zip_code": null,
       "parent": 2,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -311,6 +331,7 @@
       "zip_code": 11762,
       "parent": 20,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -326,6 +347,7 @@
       "zip_code": 9632,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -341,6 +363,7 @@
       "zip_code": 2695,
       "parent": 20,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -356,6 +379,7 @@
       "zip_code": 6238,
       "parent": 23,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -371,6 +395,7 @@
       "zip_code": 1819,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -386,6 +411,7 @@
       "zip_code": 6238,
       "parent": 23,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -401,6 +427,7 @@
       "zip_code": 6202,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -416,6 +443,7 @@
       "zip_code": 9414,
       "parent": 20,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -431,6 +459,7 @@
       "zip_code": 11032,
       "parent": 25,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -446,6 +475,7 @@
       "zip_code": 6245,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -461,6 +491,7 @@
       "zip_code": 12691,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -476,6 +507,7 @@
       "zip_code": 8956,
       "parent": 25,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -491,6 +523,7 @@
       "zip_code": 6221,
       "parent": 23,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -506,6 +539,7 @@
       "zip_code": 9416,
       "parent": 20,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -521,6 +555,7 @@
       "zip_code": 130,
       "parent": 26,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -536,6 +571,7 @@
       "zip_code": 6214,
       "parent": 23,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -551,6 +587,7 @@
       "zip_code": 7061,
       "parent": 26,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -566,6 +603,7 @@
       "zip_code": 6480,
       "parent": 24,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -581,6 +619,7 @@
       "zip_code": 3046,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -596,6 +635,7 @@
       "zip_code": 9125,
       "parent": 27,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -611,6 +651,7 @@
       "zip_code": 9125,
       "parent": 27,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -626,6 +667,7 @@
       "zip_code": 10065,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -641,6 +683,7 @@
       "zip_code": 640,
       "parent": 20,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -656,6 +699,7 @@
       "zip_code": 402,
       "parent": 26,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -671,6 +715,7 @@
       "zip_code": 3300,
       "parent": 20,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -686,6 +731,7 @@
       "zip_code": 11988,
       "parent": 26,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -701,6 +747,7 @@
       "zip_code": 45,
       "parent": 24,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -716,6 +763,7 @@
       "zip_code": 569,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -731,6 +779,7 @@
       "zip_code": 10065,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -746,6 +795,7 @@
       "zip_code": 8185,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -761,6 +811,7 @@
       "zip_code": 7854,
       "parent": 24,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -776,6 +827,7 @@
       "zip_code": 749,
       "parent": 26,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -791,6 +843,7 @@
       "zip_code": 3076,
       "parent": 24,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -806,6 +859,7 @@
       "zip_code": 1819,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -821,6 +875,7 @@
       "zip_code": 7216,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -836,6 +891,7 @@
       "zip_code": 11498,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -851,6 +907,7 @@
       "zip_code": 11841,
       "parent": 20,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -866,6 +923,7 @@
       "zip_code": 6212,
       "parent": 23,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -881,6 +939,7 @@
       "zip_code": 4,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -896,6 +955,7 @@
       "zip_code": 4071,
       "parent": 24,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -911,6 +971,7 @@
       "zip_code": 2103,
       "parent": 25,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -926,6 +987,7 @@
       "zip_code": 8301,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -941,6 +1003,7 @@
       "zip_code": 3155,
       "parent": 22,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -956,6 +1019,7 @@
       "zip_code": 1819,
       "parent": 21,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -971,6 +1035,7 @@
       "zip_code": 10038,
       "parent": 25,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -986,6 +1051,7 @@
       "zip_code": 6221,
       "parent": 23,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1001,6 +1067,7 @@
       "zip_code": 7132,
       "parent": 3,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1016,6 +1083,7 @@
       "zip_code": 4612,
       "parent": 3,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1031,6 +1099,7 @@
       "zip_code": 4620,
       "parent": 3,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1046,6 +1115,7 @@
       "zip_code": 4593,
       "parent": 3,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1061,6 +1131,7 @@
       "zip_code": 4593,
       "parent": 3,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1076,6 +1147,7 @@
       "zip_code": 4620,
       "parent": 3,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1091,6 +1163,7 @@
       "zip_code": 4257,
       "parent": 3,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1106,6 +1179,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1121,6 +1195,7 @@
       "zip_code": 4620,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1136,6 +1211,7 @@
       "zip_code": 4600,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1151,6 +1227,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1166,6 +1243,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1181,6 +1259,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1196,6 +1275,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1211,6 +1291,7 @@
       "zip_code": 4620,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1226,6 +1307,7 @@
       "zip_code": 4600,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1241,6 +1323,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1256,6 +1339,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1271,6 +1355,7 @@
       "zip_code": 1,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1286,6 +1371,7 @@
       "zip_code": 8415,
       "parent": 6,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1301,6 +1387,7 @@
       "zip_code": 5816,
       "parent": 5,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1316,6 +1403,7 @@
       "zip_code": 9443,
       "parent": 5,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1331,6 +1419,7 @@
       "zip_code": 10966,
       "parent": 5,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1346,6 +1435,7 @@
       "zip_code": 2009,
       "parent": 5,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1361,6 +1451,7 @@
       "zip_code": 1802,
       "parent": 7,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1376,6 +1467,7 @@
       "zip_code": 5827,
       "parent": 7,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1391,6 +1483,7 @@
       "zip_code": 8591,
       "parent": 7,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1406,6 +1499,7 @@
       "zip_code": 603,
       "parent": 7,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1421,6 +1515,7 @@
       "zip_code": 151,
       "parent": 7,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1436,6 +1531,7 @@
       "zip_code": 7274,
       "parent": 8,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1451,6 +1547,7 @@
       "zip_code": 12698,
       "parent": 8,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1466,6 +1563,7 @@
       "zip_code": 6238,
       "parent": 8,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1481,6 +1579,7 @@
       "zip_code": 6530,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1496,6 +1595,7 @@
       "zip_code": 10466,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1511,6 +1611,7 @@
       "zip_code": 4514,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1526,6 +1627,7 @@
       "zip_code": 307,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1541,6 +1643,7 @@
       "zip_code": 1724,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1556,6 +1659,7 @@
       "zip_code": 69,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1571,6 +1675,7 @@
       "zip_code": 3128,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1586,6 +1691,7 @@
       "zip_code": 4043,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1601,6 +1707,7 @@
       "zip_code": 3868,
       "parent": 9,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1616,6 +1723,7 @@
       "zip_code": 4561,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1631,6 +1739,7 @@
       "zip_code": 4593,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1646,6 +1755,7 @@
       "zip_code": 4590,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1661,6 +1771,7 @@
       "zip_code": 4591,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1676,6 +1787,7 @@
       "zip_code": 4598,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1691,6 +1803,7 @@
       "zip_code": 4602,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1706,6 +1819,7 @@
       "zip_code": 4590,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1721,6 +1835,7 @@
       "zip_code": 4561,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1736,6 +1851,7 @@
       "zip_code": 4553,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1751,6 +1867,7 @@
       "zip_code": 4591,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1766,6 +1883,7 @@
       "zip_code": 4553,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1781,6 +1899,7 @@
       "zip_code": 4588,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1796,6 +1915,7 @@
       "zip_code": 4591,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1811,6 +1931,7 @@
       "zip_code": 4588,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1826,6 +1947,7 @@
       "zip_code": 4565,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1841,6 +1963,7 @@
       "zip_code": 4611,
       "parent": 4,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1856,6 +1979,7 @@
       "zip_code": 8978,
       "parent": 10,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1871,6 +1995,7 @@
       "zip_code": 11069,
       "parent": 10,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1886,6 +2011,7 @@
       "zip_code": 1388,
       "parent": 10,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1901,6 +2027,7 @@
       "zip_code": 324,
       "parent": 10,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1916,6 +2043,7 @@
       "zip_code": 4113,
       "parent": 10,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1931,6 +2059,7 @@
       "zip_code": 8049,
       "parent": 10,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1946,6 +2075,7 @@
       "zip_code": 913,
       "parent": 10,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1961,6 +2091,7 @@
       "zip_code": 5963,
       "parent": 11,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1976,6 +2107,7 @@
       "zip_code": 217,
       "parent": 11,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -1991,6 +2123,7 @@
       "zip_code": 2175,
       "parent": 11,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2006,6 +2139,7 @@
       "zip_code": 5669,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2021,6 +2155,7 @@
       "zip_code": 10295,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2036,6 +2171,7 @@
       "zip_code": 2397,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2051,6 +2187,7 @@
       "zip_code": 2446,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2066,6 +2203,7 @@
       "zip_code": 2034,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2081,6 +2219,7 @@
       "zip_code": 9089,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2096,6 +2235,7 @@
       "zip_code": 7304,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2111,6 +2251,7 @@
       "zip_code": 9087,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2126,6 +2267,7 @@
       "zip_code": 11179,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2141,6 +2283,7 @@
       "zip_code": 10930,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2156,6 +2299,7 @@
       "zip_code": 704,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2171,6 +2315,7 @@
       "zip_code": 6145,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2186,6 +2331,7 @@
       "zip_code": 3811,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2201,6 +2347,7 @@
       "zip_code": 2070,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2216,6 +2363,7 @@
       "zip_code": 5772,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2231,6 +2379,7 @@
       "zip_code": 12187,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2246,6 +2395,7 @@
       "zip_code": 794,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2261,6 +2411,7 @@
       "zip_code": 10792,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2276,6 +2427,7 @@
       "zip_code": 12567,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2291,6 +2443,7 @@
       "zip_code": 8474,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2306,6 +2459,7 @@
       "zip_code": 2747,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2321,6 +2475,7 @@
       "zip_code": 9751,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2336,6 +2491,7 @@
       "zip_code": 11444,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2351,6 +2507,7 @@
       "zip_code": 4507,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2366,6 +2523,7 @@
       "zip_code": 2747,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2381,6 +2539,7 @@
       "zip_code": 2456,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2396,6 +2555,7 @@
       "zip_code": 10974,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2411,6 +2571,7 @@
       "zip_code": 9429,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2426,6 +2587,7 @@
       "zip_code": 5043,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2441,6 +2603,7 @@
       "zip_code": 1137,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2456,6 +2619,7 @@
       "zip_code": 2456,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2471,6 +2635,7 @@
       "zip_code": 3613,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2486,6 +2651,7 @@
       "zip_code": 4363,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2501,6 +2667,7 @@
       "zip_code": 2070,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2516,6 +2683,7 @@
       "zip_code": 3168,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2531,6 +2699,7 @@
       "zip_code": 7819,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2546,6 +2715,7 @@
       "zip_code": 1681,
       "parent": 12,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2561,6 +2731,7 @@
       "zip_code": 636,
       "parent": 13,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2576,6 +2747,7 @@
       "zip_code": 636,
       "parent": 13,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2591,6 +2763,7 @@
       "zip_code": 635,
       "parent": 13,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2606,6 +2779,7 @@
       "zip_code": 635,
       "parent": 13,
       "abbreviation": null,
+      "full_name": null,
       "keycloak": null
     }
   },
@@ -2614,13 +2788,14 @@
     "pk": 493,
     "fields": {
       "created_at": "2022-02-26T11:01:53.763Z",
-      "updated_at": "2022-11-23T14:47:04.638Z",
+      "updated_at": "2023-06-07T15:03:25.082Z",
       "level": 2,
       "level_choice": "Verband",
       "name": "DPV",
       "zip_code": null,
       "parent": null,
       "abbreviation": "DPV",
+      "full_name": "Deutscher Pfadfinder*innenverband",
       "keycloak": null
     }
   }
