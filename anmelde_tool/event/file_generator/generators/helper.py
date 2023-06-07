@@ -188,7 +188,7 @@ def get_current_year() -> str:
 
 def get_bund_name(file: GeneratedFiles) -> str:
     result = []
-    if file:
+    if file and file.bund:
         if file.bund.abbreviation:
             result.append(file.bund.abbreviation)
         if file.bund.full_name:
