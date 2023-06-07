@@ -1,3 +1,5 @@
+import datetime
+
 from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
 
@@ -25,7 +27,7 @@ def get_event_date(event: event_models.Event) -> str:
 
 def get_event_days(event: event_models.Event) -> str:
     if event.end_date and event.start_date:
-        return str((event.end_date.date() - event.start_date.date()).days)
+        return str((event.end_date.date() - event.start_date.date()).days + 1)
     else:
         return ''
 
@@ -177,3 +179,6 @@ def get_formatted_booking_option(registration: Registration, booking_options_nam
 
 def get_participants_by_registration(registration=None) -> QuerySet[RegistrationParticipant]:
     return RegistrationParticipant.objects.filter(registration=registration).order_by('last_name')
+
+def get_current_year() -> str:
+    return str(datetime.date.today().year)
