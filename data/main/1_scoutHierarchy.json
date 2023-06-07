@@ -11,7 +11,7 @@
       "zip_code": null,
       "parent": 493,
       "abbreviation": "DPBM",
-      "full_name": "Deutscher Pfadfinderbund Mosaik",
+      "full_name": "Deutscher Pfadfinder*innenbund Mosaik\n",
       "keycloak": null
     }
   },
@@ -343,7 +343,7 @@
       "updated_at": "2022-11-23T14:47:04.188Z",
       "level": 5,
       "level_choice": "Stamm",
-      "name": "Alexander Lion",
+      "name": "Kirkias",
       "zip_code": 9632,
       "parent": 22,
       "abbreviation": null,
