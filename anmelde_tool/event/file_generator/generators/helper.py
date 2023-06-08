@@ -1,12 +1,15 @@
+import datetime
+
 from dateutil.relativedelta import relativedelta
 from django.db.models import QuerySet
 
 from anmelde_tool.event import models as event_models
+from anmelde_tool.event.file_generator.models import GeneratedFiles
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 
 
 def get_registrations(event: event_models.Event) -> QuerySet[Registration]:
-    return Registration.objects.filter(event=event, is_confirmed=True)
+    return Registration.objects.filter(event=event)
 
 
 def get_event_location(event: event_models.Event) -> str:
@@ -25,7 +28,7 @@ def get_event_date(event: event_models.Event) -> str:
 
 def get_event_days(event: event_models.Event) -> str:
     if event.end_date and event.start_date:
-        return str((event.end_date.date() - event.start_date.date()).days)
+        return str((event.end_date.date() - event.start_date.date()).days + 1)
     else:
         return ''
 
@@ -121,7 +124,7 @@ def get_participant_days(event: event_models.Event, participant: RegistrationPar
         return ''
 
 
-def get_particpant_below_27(event: event_models.Event, participant: RegistrationParticipant) -> str:
+def get_participant_below_27(event: event_models.Event, participant: RegistrationParticipant) -> str:
     if participant.birthday:
         return 'Ja' if get_participant_age(event, participant) < 27 else 'Nein'
     else:
@@ -142,7 +145,7 @@ def get_participant_email(participant: RegistrationParticipant) -> str:
         return ''
 
 
-def get_registration_scout_organistation_name(registration: Registration) -> str:
+def get_registration_scout_organisation_name(registration: Registration) -> str:
     if registration.scout_organisation:
         return registration.scout_organisation.name
     else:
@@ -151,7 +154,7 @@ def get_registration_scout_organistation_name(registration: Registration) -> str
 
 def get_participant_registration_scout_organisation_name(participant: RegistrationParticipant) -> str:
     if participant.registration:
-        return get_registration_scout_organistation_name(participant.registration)
+        return get_registration_scout_organisation_name(participant.registration)
     else:
         return ''
 
@@ -177,3 +180,18 @@ def get_formatted_booking_option(registration: Registration, booking_options_nam
 
 def get_participants_by_registration(registration=None) -> QuerySet[RegistrationParticipant]:
     return RegistrationParticipant.objects.filter(registration=registration).order_by('last_name')
+
+
+def get_current_year() -> str:
+    return str(datetime.date.today().year)
+
+
+def get_bund_name(file: GeneratedFiles) -> str:
+    result = []
+    if file and file.bund and file.bund.level == 3:
+        if file.bund.abbreviation:
+            result.append(file.bund.abbreviation)
+        if file.bund.full_name:
+            result.append(file.bund.full_name)
+        return ' - '.join(result)
+    return ''

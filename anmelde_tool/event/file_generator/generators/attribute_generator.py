@@ -58,7 +58,7 @@ class AttributeGenerator(AbstractGenerator):
 
             all_participants = get_participants_by_registration(registration)
             original[f'A{index}'] = index - 2
-            original[f'B{index}'] = helper.get_registration_scout_organistation_name(registration)
+            original[f'B{index}'] = helper.get_registration_scout_organisation_name(registration)
             original[f'C{index}'] = all_participants.count()
 
             for idx, option in enumerate(booking_options):

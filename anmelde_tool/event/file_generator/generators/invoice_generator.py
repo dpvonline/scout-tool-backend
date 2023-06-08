@@ -54,7 +54,7 @@ class InvoiceGenerator(AbstractGenerator):
             participant_list = [helper.get_participant_full_name(participant) for participant in all_participants.all()]
 
             original[f'A{index + 1}'] = index
-            original[f'B{index + 1}'] = helper.get_registration_scout_organistation_name(registration)
+            original[f'B{index + 1}'] = helper.get_registration_scout_organisation_name(registration)
             original[f'C{index + 1}'] = date_format(registration.created_at.date(), format='SHORT_DATE_FORMAT')
             original[f'D{index + 1}'] = date_format(registration.updated_at.date(), format='SHORT_DATE_FORMAT')
             original[f'E{index + 1}'] = person_1.first_name
