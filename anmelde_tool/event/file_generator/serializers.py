@@ -30,5 +30,6 @@ class GeneratedFilesPostSerializer(serializers.ModelSerializer):
             'extension',
             'event',
             'user',
-            'template'
+            'template',
+            'bund'
         )
