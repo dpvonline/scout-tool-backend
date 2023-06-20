@@ -12,9 +12,11 @@ from anmelde_tool.attributes.models import AttributeModule
 from anmelde_tool.event import api_exceptions as event_api_exceptions
 from anmelde_tool.event import helper as event_helper
 from anmelde_tool.event import models as event_models
+from basic import models as basic_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event.models import StandardEventTemplate, Event, EventModule, EventLocation
+from anmelde_tool.registration.api_exceptions import ZipCodeNotFound
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
 
@@ -46,6 +48,27 @@ class EventLocationViewSet(viewsets.ModelViewSet):
     filterset_fields = ('name',)
     queryset = EventLocation.objects.all()
     serializer_class = event_serializers.EventLocationSerializer
+
+
+    def create(self, request, *args, **kwargs) -> Response:
+        zip_code = None
+        zip_code_data = request.data.get('zip_code')
+        if zip_code_data:
+            zip_code = basic_models.ZipCode.objects.filter(zip_code=zip_code_data).first()
+            if not zip_code:
+                raise ZipCodeNotFound()
+            request.data['zip_code'] = zip_code.id
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs) -> Response:
+        zip_code = None
+        zip_code_data = request.data.get('zip_code')
+        if zip_code_data:
+            zip_code = basic_models.ZipCode.objects.filter(zip_code=zip_code_data).first()
+            if not zip_code:
+                raise ZipCodeNotFound()
+            request.data['zip_code'] = zip_code.id
+        return super().update(request, *args, **kwargs)
 
 
 class EventReadViewSet(viewsets.ModelViewSet):
@@ -131,8 +154,6 @@ class EventViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs) -> Response:
 
         price = request.data.get('price', str(15.00))
-        if ',' in str(price):
-            price = price.replace(',', '.')
         del request.data['price']
 
         if (request.data.get('responsible_persons') is None) | (request.data.get('responsible_persons', []) is []):
@@ -150,7 +171,7 @@ class EventViewSet(viewsets.ModelViewSet):
         if price:
             event_models.BookingOption.objects.create(
                 name='Standard',
-                price=price,
+                price=float(price.replace(",", ".")),
                 event=event,
             )
 
@@ -173,7 +194,23 @@ class EventViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs) -> Response:
         event: Event = self.get_object()
         self.check_event_dates(request, event)
+        request.data["price"] = float(request.data["price"].replace(",", "."))
+        print('here')
+
         return super().update(request, *args, **kwargs)
+    
+
+class EventPartialUpdateViewSet(viewsets.ModelViewSet):
+    '''
+    You just need to provide the field which is to be modified.
+    '''
+    queryset = Event.objects.all()
+    serializer_class = event_serializers.EventCompleteSerializer
+
+    def put(self, request, *args, **kwargs):
+        event: Event = self.get_object()
+        self.check_event_dates(request, event)
+        return self.partial_update(request, *args, **kwargs)
 
 
 class BookingOptionViewSet(viewsets.ModelViewSet):
@@ -201,12 +238,15 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         if request.data.get('bookable_till', None) is None:
             request.data['bookable_till'] = event.start_date
 
+        request.data["price"] = float(request.data["price"].replace(",", "."))
+
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
         if request.data.get('name', None) is None:
             request.data['name'] = self.get_object().name
         request.data['event'] = self.get_object().event.id
+        request.data["price"] = float(request.data["price"].replace(",", "."))
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs) -> Response:

@@ -8,6 +8,7 @@ from . import views
 router = routers.SimpleRouter()
 router.register(r'event-location', views.EventLocationViewSet)
 router.register(r'event', views.EventViewSet, basename='event')
+router.register(r'event-update-partial', views.EventPartialUpdateViewSet, basename='event-update-partial')
 router.register(r'my-invitations', views.MyInvitationsViewSet, basename='my-invitations')
 router.register(r'event-overview', views.EventOverviewViewSet, basename='event-overview')
 router.register(r'event-read', views.EventReadViewSet)

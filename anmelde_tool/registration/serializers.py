@@ -10,7 +10,7 @@ from anmelde_tool.attributes.models import BooleanAttribute, StringAttribute, Ti
 from anmelde_tool.attributes.serializers import BooleanAttributeSerializer, StringAttributeSerializer, \
     TimeAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer
 from basic import serializers as basic_serializers
-from anmelde_tool.registration.models import Registration, RegistrationParticipant
+from anmelde_tool.registration.models import Registration, RegistrationParticipant, RegistrationRating
 from authentication.serializers import UserScoutHierarchySerializer
 from basic.models import EatHabit
 
@@ -116,10 +116,8 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
             'last_name',
             'scout_name',
             'display_name',
-
             'address',
             'zip_code',
-
             'age',
             'scout_group',
             'phone_number',
@@ -291,3 +289,10 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
             travel_attributes, many=True, read_only=True)
         return [*boolean_serializer.data, *string_serializer.data, *integer_serializer.data, *float_serializer.data,
                 *time_serializer.data, *travel_serializer.data]
+
+
+
+class RegistrationRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RegistrationRating
+        fields = '__all__'
