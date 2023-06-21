@@ -466,14 +466,23 @@ test = ["hypothesis (>=1.11.4,!=3.79.2)", "iso8601", "pretend", "pytest (>=6.2.0
 
 [[package]]
 name = "django"
+<<<<<<< HEAD
 version = "4.1.9"
+=======
+version = "4.1.5"
+>>>>>>> parent of b218b24 (resolve meutnlager feedback)
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
+<<<<<<< HEAD
     {file = "Django-4.1.9-py3-none-any.whl", hash = "sha256:adae3a952fd86800094ae6f64aa558572e8b4ba8dfe21f0ed8175147e75a72a1"},
     {file = "Django-4.1.9.tar.gz", hash = "sha256:e9f074a84930662104871bfcea55c3c180c50a0a47739db82435deae6cbaf032"},
+=======
+    {file = "Django-4.1.5-py3-none-any.whl", hash = "sha256:4b214a05fe4c99476e99e2445c8b978c8369c18d4dea8e22ec412862715ad763"},
+    {file = "Django-4.1.5.tar.gz", hash = "sha256:ff56ebd7ead0fd5dbe06fe157b0024a7aaea2e0593bb3785fb594cf94dad58ef"},
+>>>>>>> parent of b218b24 (resolve meutnlager feedback)
 ]
 
 [package.dependencies]
@@ -1240,5 +1249,10 @@ files = [
 
 [metadata]
 lock-version = "2.0"
+<<<<<<< HEAD
 python-versions = "~3.11"
 content-hash = "4b108606847bb66346aaac5a1c5d62181dbb5603f57988ac910d75923a7d6159"
+=======
+python-versions = "3.11.1"
+content-hash = "be3d7aaa34195512ec105b01c6c2d2c2d3264b1663229b158e8d2df00b30f6ab"
+>>>>>>> parent of b218b24 (resolve meutnlager feedback)

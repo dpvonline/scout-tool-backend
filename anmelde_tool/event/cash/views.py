@@ -14,9 +14,7 @@ class CashIncomeViewSet(viewsets.ModelViewSet):
     queryset = cash_models.CashIncome.objects.all()
 
     def create(self, request, *args, **kwargs):
-        request.data["transfer_person"] = request.user.id
-
-        request.data["amount"] = float(request.data["amount"].replace(",", "."))
+        request.data['transfer_person'] = request.user.id
         return super().create(request, *args, **kwargs)
 
 
@@ -27,6 +25,6 @@ class MailReminderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        event_id = serializer.data["event_id"]
+        event_id = serializer.data['event_id']
         send_payment_reminder_mail(event_id)
         return Response(serializer.data, status=status.HTTP_200_OK)

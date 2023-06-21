@@ -23,6 +23,7 @@ class EventLocation(basic_models.TimeStampMixin):
     contact_phone = models.CharField(max_length=30, blank=True)
     per_person_fee = models.FloatField(blank=True, null=True)
     fix_fee = models.FloatField(blank=True, null=True)
+    tags = models.ManyToManyField(basic_models.Tag, blank=True)
 
     def __str__(self):
         return f'{self.name}: ({self.address}, {self.zip_code})'
@@ -159,6 +160,3 @@ class StandardEventTemplate(models.Model):
         blank=True,
         related_name='other_required_modules'
     )
-
-    def __str__(self):
-        return self.name

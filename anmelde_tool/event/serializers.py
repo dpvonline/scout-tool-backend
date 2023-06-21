@@ -37,9 +37,7 @@ class EventLocationShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = event_models.EventLocation
         fields = (
-            'id',
             'name',
-            'description',
             'zip_code',
             'address',
             'distance'
