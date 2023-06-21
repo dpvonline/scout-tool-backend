@@ -19,6 +19,10 @@ class CashIncomeViewSet(viewsets.ModelViewSet):
         request.data["amount"] = float(request.data["amount"].replace(",", "."))
         return super().create(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        request.data["amount"] = float(request.data["amount"].replace(",", "."))
+        return super().update(request, *args, **kwargs)
+
 
 class MailReminderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [event_permissions.IsEventSuperResponsiblePerson]
