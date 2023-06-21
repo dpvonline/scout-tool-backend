@@ -160,6 +160,3 @@ class StandardEventTemplate(models.Model):
         blank=True,
         related_name='other_required_modules'
     )
-
-    def __str__(self):
-        return self.name
