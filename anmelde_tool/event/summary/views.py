@@ -8,6 +8,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.db.models import Prefetch, Sum
+import decimal 
 
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
@@ -514,14 +515,14 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )["sum"]
         paid = registrations.aggregate(sum=Sum("cashincome__amount"))["sum"]
         if total:
-            float(total)
+            total = float(total)
         else: 
-            total = 0
+            total = float(0.0)
 
         if paid:
-            float(paid)
+            paid = float(paid)
         else: 
-            total = paid
+            paid = float(0.0)
 
         unpaid = total - paid
         result = {"total": total, "paid": paid, "unpaid": unpaid}
