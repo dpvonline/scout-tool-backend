@@ -20,3 +20,7 @@ class CashIncomeReadSerializer(serializers.ModelSerializer):
 
 class MailReminderSerializer(serializers.Serializer):  # noqa
     event_id = serializers.UUIDField()
+
+
+class MailSingleReminderSerializer(serializers.Serializer):  # noqa
+    registration_id = serializers.UUIDField()
