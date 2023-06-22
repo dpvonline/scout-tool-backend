@@ -366,7 +366,7 @@ class MealItemReadSerializer(serializers.ModelSerializer):
         return round(obj.recipe.nutri_points * obj.factor, 1)
 
     def get_price_eur(self, obj):
-        return round(obj.recipe.price * obj.factor, 2)
+        return round(1 * obj.factor, 2)
 
     def get_weight_g(self, obj):
         return round(obj.recipe.weight_g * obj.factor, 0)
