@@ -513,7 +513,17 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             sum=Sum("registrationparticipant__booking_option__price")
         )["sum"]
         paid = registrations.aggregate(sum=Sum("cashincome__amount"))["sum"]
-        unpaid = float(total) - float(paid)
+        if total:
+            float(total)
+        else: 
+            total = 0
+
+        if paid:
+            float(paid)
+        else: 
+            total = paid
+
+        unpaid = total - paid
         result = {"total": total, "paid": paid, "unpaid": unpaid}
 
         return Response(result, status=status.HTTP_200_OK)

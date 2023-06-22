@@ -103,7 +103,7 @@ def single_payment_reminder_mail(registration_id: str, email_type: EmailType):
         receiver = [person.email, ]
 
         data = {
-            'responsible_persons': html.escape(person.scout_name) or '',
+            # 'responsible_persons': html.escape(person.scout_name) or '',
             # 'unsubscribe': person.id,
             'participant_count': serializer.data['participant_count'],
             'booking_options': booking_options,
