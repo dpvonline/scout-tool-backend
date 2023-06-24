@@ -146,6 +146,7 @@ class EventReadModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventModule
         fields = (
+            'id',
             'name',
             'description',
             'header',
@@ -162,7 +163,7 @@ class EventReadModuleSerializer(serializers.ModelSerializer):
 
 class EventReadSerializer(serializers.ModelSerializer):
     location = EventLocationShortSerializer(many=False, read_only=True)
-    eventmodule_set = EventReadModuleSerializer(many=True, read_only=True)
+    eventmodule_set = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     admin_group = keycloak_serializers.GroupShortSerializer(many=False, read_only=True)
     view_group = keycloak_serializers.GroupShortSerializer(many=False, read_only=True)
@@ -206,6 +207,10 @@ class EventReadSerializer(serializers.ModelSerializer):
         if (registration):
             return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
         return None
+
+    def get_eventmodule_set(self, obj: event_models.Event) -> Registration:
+        eventModules = EventModule.objects.filter(event = obj.id).order_by('ordering')
+        return EventReadModuleSerializer(eventModules, many=True, read_only=True).data
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):

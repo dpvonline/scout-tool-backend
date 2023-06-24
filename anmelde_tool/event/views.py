@@ -71,6 +71,12 @@ class EventLocationViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
+class EventModuleViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = EventModule.objects.all()
+    serializer_class = event_serializers.EventModuleSerializer
+
+
 class EventReadViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Event.objects.all()
@@ -194,7 +200,6 @@ class EventViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs) -> Response:
         event: Event = self.get_object()
         self.check_event_dates(request, event)
-        request.data["price"] = float(request.data["price"].replace(",", "."))
         print('here')
 
         return super().update(request, *args, **kwargs)
@@ -265,8 +270,8 @@ class AvailableEventModulesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
-        mapper = EventModule.objects.filter(event=event_id).values_list('module_id', flat=True)
-        return EventModule.objects.exclude(id__in=mapper).exclude(custom=True)
+        mapper = EventModule.objects.filter(event=event_id).values_list('name', flat=True)
+        return EventModule.objects.exclude(name__in=mapper).exclude(event__isnull=False).order_by('ordering')
 
 
 class AssignedEventModulesViewSet(viewsets.ModelViewSet):
