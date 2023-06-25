@@ -177,7 +177,7 @@ class EventViewSet(viewsets.ModelViewSet):
         if price:
             event_models.BookingOption.objects.create(
                 name='Standard',
-                price=float(price.replace(",", ".")),
+                price=float(str(price).replace(",", ".")),
                 event=event,
             )
 
