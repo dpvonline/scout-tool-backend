@@ -111,7 +111,6 @@ def get_count_by_age_gender_leader(min_age, max_age, gender, leader, participant
                         tzinfo=pytz.timezone('Europe/Berlin'))
 
     participants = participants.filter(birthday__date__range=[min_date, max_date]).filter(gender=gender)
-    print()
     if leader == True:
         participants = participants.exclude(leader="N")
     else:

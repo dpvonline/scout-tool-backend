@@ -89,9 +89,6 @@ class CheckZipCodeViewSet(viewsets.ReadOnlyModelViewSet):
 
         found = find_zip_code(zip_code, 'zip_code', zip_code__iexact=zip_code)
 
-        print('found')
-        print(found)
-
         if found:
             return Response('Zip Code ist vorhanden.', status=status.HTTP_200_OK)
 

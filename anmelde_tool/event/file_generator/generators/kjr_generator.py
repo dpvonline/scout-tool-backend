@@ -54,5 +54,4 @@ class KjrGenerator(AbstractGenerator):
                 original[f'{letter}{index + 5}'].alignment = alignment
                 original[f'{letter}{index + 5}'].font = font_style
 
-        print(wb)
         return wb
