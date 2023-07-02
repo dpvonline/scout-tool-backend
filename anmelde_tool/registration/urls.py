@@ -13,10 +13,14 @@ registration_router.register(
     r'single-participant', views.RegistrationSingleParticipantViewSet,
     basename='single-participant'
 )
-registration_router.register(
-    r'registration-rating', views.RegistrationRatingViewSet,
-    basename='registration-rating'
-)
+# registration_router.register(
+#     r'group-participants', views.RegistrationGroupParticipantViewSet,
+#     basename='group-participants'
+#     )
+# registration_router.register(
+#     r'add-group-participants', views.RegistrationAddGroupParticipantViewSet,
+#     basename='add-group-participants'
+#     )
 registration_router.register(r'boolean-attribute', views.RegistrationBooleanAttributeViewSet,
                              basename='boolean-attribute')
 registration_router.register(r'string-attribute', views.RegistrationStringAttributeViewSet, basename='string-attribute')

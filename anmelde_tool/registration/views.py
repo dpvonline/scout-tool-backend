@@ -27,7 +27,7 @@ from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.registration import serializers as registration_serializers
 from anmelde_tool.registration.api_exceptions import ZipCodeNotFound
-from anmelde_tool.registration.models import Registration, RegistrationParticipant, RegistrationRating
+from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from authentication import models as auth_models
 from basic import models as basic_models
 from basic.models import ZipCode
@@ -393,8 +393,3 @@ class SendConfirmationMail(mixins.CreateModelMixin, viewsets.GenericViewSet):
         registration_id = self.kwargs.get("registration_pk", None)
         services.send_registration_created_mail(instance_id=registration_id)
         return Response(status=status.HTTP_201_CREATED)
-
-
-class RegistrationRatingViewSet(viewsets.ModelViewSet):
-    queryset = RegistrationRating.objects.all()
-    serializer_class = registration_serializers.RegistrationRatingSerializer
