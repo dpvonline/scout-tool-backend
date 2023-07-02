@@ -4,11 +4,15 @@ from django.db import models
 from django.db.models import Sum
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.contrib.auth import get_user_model
 
 from food.service.nutri_lib import Nutri
 from food.service.recipe_logic import RecipeModule
 from food.service.hint import HintModule
 from food.service.price_logic import PriceModule
+from anmelde_tool.event import models as event_models
+
+User = get_user_model()
 
 
 class TimeStampMixin(models.Model):
@@ -264,6 +268,7 @@ class MealType(models.TextChoices):
     BREAKFAST = 'breakfast', 'Frühstück'
     LUNCH_WARM = 'lunch_warm', 'Menu (warm)'
     LUNCH_COLD = 'lunch_cold', 'Menu (kalt)'
+    DESSERT = 'dessert', 'Nachtisch'
     SNACK = 'snack', 'Snack'
 
 
@@ -293,6 +298,7 @@ class Recipe(TimeStampMixin, NutrientsMixin):
     nutri_points = models.FloatField(null=True, blank=True)
     weight_g = models.FloatField(default=1)
     hints = models.ManyToManyField(Hint, blank=True)
+    created_by = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -435,29 +441,30 @@ class PhysicalActivityLevel(TimeStampMixin):
         return self.__str__()
 
 
-class Event(TimeStampMixin):
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, null=True)
+class MealEvent(TimeStampMixin):
+    event = models.ForeignKey(event_models.Event, on_delete=models.PROTECT, null=True, blank=True)
     norm_portions = models.IntegerField()
     activity_factor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True, blank=True)
-    start_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
-    end_date = models.DateTimeField(auto_now=False, auto_now_add=False, null=True, blank=True)
+    reserve_factor = models.FloatField(default=1.0)
+    is_public = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True,
+                                   related_name="meal_event_created_by")
 
     def __str__(self):
-        return f'{self.name} - {self.norm_portions} Personen'
+        return f'{self.event.name} - {self.norm_portions} Personen'
 
     def __repr__(self):
         return self.__str__()
 
 
 class MealDay(TimeStampMixin):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
+    meal_event = models.ForeignKey(MealEvent, on_delete=models.CASCADE, null=True)
     activity_facor = models.ForeignKey(PhysicalActivityLevel, on_delete=models.PROTECT, null=True, blank=True)
     date = models.DateField(null=True)
     max_day_part_factor = models.FloatField(default=1)
 
     def __str__(self):
-        return f'{self.event} {self.date}'
+        return f'{self.meal_event.event.name} {self.date}'
 
     def __repr__(self):
         return self.__str__()

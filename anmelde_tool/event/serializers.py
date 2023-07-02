@@ -139,6 +139,12 @@ class EventCompleteSerializer(serializers.ModelSerializer):
             return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
         return None
 
+class EventFoodSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = event_models.Event
+        fields = '__all__'
+
 
 class EventReadModuleSerializer(serializers.ModelSerializer):
     attribute_modules = serializers.SerializerMethodField()

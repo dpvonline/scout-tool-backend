@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from food.service.nutri_lib import Nutri
 
 from food import serializers as food_serializers
+from anmelde_tool.event import serializers as event_serializers
+from anmelde_tool.registration import serializers as registration_serializers
 
 
 class MeasuringUnitSerializer(serializers.ModelSerializer):
@@ -172,6 +174,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'description',
             'tags',
             'get_meal_type_display',
+            'meal_type',
             'nutri_class',
             'nutri_points',
             'weight_g',
@@ -555,12 +558,22 @@ class MealDaySerializer(serializers.ModelSerializer):
         model = food_models.MealDay
         fields = '__all__'
 
-class EventSerializer(serializers.ModelSerializer):
+class MealEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = food_models.Event
+        model = food_models.MealEvent
         fields = '__all__'
 
-class EventReadSerializer(serializers.ModelSerializer):
+class MealEventSmallSerializer(serializers.ModelSerializer):
+    event = event_serializers.EventFoodSerializer(many=False, read_only=True)
+    created_by = registration_serializers.CurrentUserSerializer(
+        many=False, read_only=True)
+
+    class Meta:
+        model = food_models.MealEvent
+        fields = '__all__'
+
+class MealEventReadSerializer(serializers.ModelSerializer):
+    event = event_serializers.EventFoodSerializer(many=False, read_only=True)
     meal_days = serializers.SerializerMethodField()
     energy_kj = serializers.SerializerMethodField()
     price_eur = serializers.SerializerMethodField()
@@ -568,36 +581,36 @@ class EventReadSerializer(serializers.ModelSerializer):
     nutri_points = serializers.SerializerMethodField()
     nutri_class = serializers.SerializerMethodField()
     class Meta:
-        model = food_models.Event
+        model = food_models.MealEvent
         fields = '__all__'
         
     def get_meal_days(self, obj):
-        jjj = food_models.MealDay.objects.filter(event=obj)
+        jjj = food_models.MealDay.objects.filter(meal_event=obj)
         return MealDayReadSerializer(jjj, many=True).data
     
     def get_energy_kj(self, obj):
-        jjj = food_models.MealDay.objects.filter(event=obj)
+        jjj = food_models.MealDay.objects.filter(meal_event=obj)
         sum_energy_kj = 0
         for item in MealDayReadSerializer(jjj, many=True).data:
             sum_energy_kj = sum_energy_kj + item.get('energy_kj')
         return round(sum_energy_kj, 0)
     
     def get_price_eur(self, obj):
-        data = food_models.MealDay.objects.filter(event=obj)
+        data = food_models.MealDay.objects.filter(meal_event=obj)
         sum_value = 0
         for item in MealDayReadSerializer(data, many=True).data:
             sum_value = sum_value + item.get('price_eur')
         return round(sum_value, 2)
     
     def get_weight_g(self, obj):
-        data = food_models.MealDay.objects.filter(event=obj)
+        data = food_models.MealDay.objects.filter(meal_event=obj)
         sum_value = 0
         for item in MealDayReadSerializer(data, many=True).data:
             sum_value = sum_value + item.get('weight_g')
         return round(sum_value, 0)
     
     def get_nutri_points(self, obj):
-        data = food_models.MealDay.objects.filter(event=obj)
+        data = food_models.MealDay.objects.filter(meal_event=obj)
         sum_value = 0
         for item in MealDayReadSerializer(data, many=True).data:
             sum_value = sum_value + item.get('nutri_points')
@@ -612,7 +625,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     
     def get_nutri_class(self, obj):
         NutriClass = Nutri()
-        data = food_models.MealDay.objects.filter(event=obj)
+        data = food_models.MealDay.objects.filter(meal_event=obj)
         sum_value = 0
         for item in MealDayReadSerializer(data, many=True).data:
             sum_value = sum_value + item.get('nutri_points')
@@ -622,12 +635,13 @@ class EventReadSerializer(serializers.ModelSerializer):
         return nutri_class
 
 class EventReadExtendedSerializer(serializers.ModelSerializer):
+    event = event_serializers.EventFoodSerializer(many=False, read_only=True)
     meal_days = serializers.SerializerMethodField()
     class Meta:
-        model = food_models.Event
+        model = food_models.MealEvent
         fields = '__all__'
         
     def get_meal_days(self, obj):
-        jjj = food_models.MealDay.objects.filter(event=obj)
+        jjj = food_models.MealDay.objects.filter(meal_event=obj)
         return MealDayReadExtendedSerializer(jjj, many=True).data
 

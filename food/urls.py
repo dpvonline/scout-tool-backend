@@ -16,8 +16,10 @@ router.register(r'ingredient', views.IngredientViewSet)
 
 router.register(r'recipe', views.RecipeViewSet)
 router.register(r'recipe-read', views.RecipeReadViewSet)
-router.register(r'recipe-read-verified', views.RecipeReadVerifiedViewSet)
-router.register(r'recipe-item', views.RecipeItemViewSet)
+router.register(r'recipe-read-verified', views.RecipeReadVerifiedViewSet, basename='recipe-read-verified')
+router.register(r'recipe-read-user', views.RecipeReadUserViewSet, basename='recipe-read-user')
+router.register(r'my-recipe-read', views.MyRecipeReadViewSet, basename='my-recipe-read')
+router.register(r'recipe-item', views.RecipeItemViewSet, basename='recipe-item')
 router.register(r'recipe-clone', views.RecipeCloneViewSet, basename='recipe-clone')
 
 router.register(r'package', views.PackageViewSet)
@@ -34,9 +36,9 @@ router.register(r'portion-read', views.PortionReadViewSet)
 
 router.register(r'hint', views.HintViewSet)
 
-router.register(r'event', views.EventViewSet)
-router.register(r'event-read', views.EventReadViewSet)
-router.register(r'event-read-small', views.EventSmallReadViewSet)
+router.register(r'event', views.MealEventViewSet)
+router.register(r'event-read', views.MealEventReadViewSet)
+router.register(r'event-read-small', views.MealEventSmallReadViewSet)
 
 router.register(r'meal-day', views.MealDayViewSet)
 router.register(r'meal-day-read', views.MealDayReadViewSet)

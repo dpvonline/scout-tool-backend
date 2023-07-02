@@ -129,7 +129,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     ordering = ['name']
     ordering_fields = ['name', 'created_at', 'nutri_points']
-    filterset_fields = ['name']
+    filterset_fields = ['name', 'meal_type']
     search_fields = ['name']
     
 class RecipeReadViewSet(viewsets.ReadOnlyModelViewSet):
@@ -139,7 +139,7 @@ class RecipeReadViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = RecipeFilter
     ordering = ['name']
     ordering_fields = ['name', 'created_at', 'nutri_points']
-    filterset_fields = ['name']
+    filterset_fields = ['name', 'status']
     search_fields = ['name']
     
     def get_queryset(self) -> QuerySet:
@@ -147,17 +147,40 @@ class RecipeReadViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeReadVerifiedViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = food_models.Recipe.objects.all()
     serializer_class = food_serializers.RecipeSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = RecipeFilter
     ordering = ['name']
     ordering_fields = ['name', 'created_at', 'nutri_points']
-    filterset_fields = ['name']
+    filterset_fields = ['name', 'meal_type']
     search_fields = ['name']
     
     def get_queryset(self) -> QuerySet:
         return food_models.Recipe.objects.filter(status="verified")
+
+class RecipeReadUserViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = food_serializers.RecipeSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = RecipeFilter
+    ordering = ['name']
+    ordering_fields = ['name', 'created_at', 'nutri_points']
+    filterset_fields = ['name', 'meal_type']
+    search_fields = ['name']
+    
+    def get_queryset(self) -> QuerySet:
+        return food_models.Recipe.objects.filter(status="user_public")
+
+class MyRecipeReadViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = food_serializers.RecipeSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = RecipeFilter
+    ordering = ['name']
+    ordering_fields = ['name', 'created_at', 'nutri_points']
+    filterset_fields = ['name', 'meal_type']
+    search_fields = ['name']
+    
+    def get_queryset(self) -> QuerySet:
+        return food_models.Recipe.objects.filter(created_by=self.request.user.id).exclude(created_by=None)
 
 
 class RetailerViewSet(viewsets.ModelViewSet):
@@ -212,9 +235,9 @@ class PortionReadViewSet(viewsets.ModelViewSet):
     filterset_fields = ['id', 'name', 'ingredient__id']
     search_fields = ['name', 'ingredient__name']
 
-class EventViewSet(viewsets.ModelViewSet):
-    queryset = food_models.Event.objects.all()
-    serializer_class = food_serializers.EventSerializer
+class MealEventViewSet(viewsets.ModelViewSet):
+    queryset = food_models.MealEvent.objects.all()
+    serializer_class = food_serializers.MealEventSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         if request.data.get('start_date', None) is None:
@@ -222,7 +245,7 @@ class EventViewSet(viewsets.ModelViewSet):
         if request.data.get('end_date', None) is None:
             request.data['end_date'] = date.today()
 
-        new_event = food_models.Event.objects.create(
+        new_event = food_models.MealEvent.objects.create(
             name = request.data.get('name'),
             norm_portions = request.data.get('norm_portions'),
             description = request.data.get('description'),
@@ -239,16 +262,16 @@ class EventViewSet(viewsets.ModelViewSet):
                 event = new_event,
             )
 
-        return Response(food_serializers.EventReadSerializer(new_event).data, status=status.HTTP_201_CREATED)
+        return Response(food_serializers.MealEventReadSerializer(new_event).data, status=status.HTTP_201_CREATED)
 
 
-class EventReadViewSet(viewsets.ModelViewSet):
-    queryset = food_models.Event.objects.all()
-    serializer_class = food_serializers.EventReadSerializer
+class MealEventReadViewSet(viewsets.ModelViewSet):
+    queryset = food_models.MealEvent.objects.all()
+    serializer_class = food_serializers.MealEventReadSerializer
 
-class EventSmallReadViewSet(viewsets.ModelViewSet):
-    queryset = food_models.Event.objects.all()
-    serializer_class = food_serializers.EventSerializer
+class MealEventSmallReadViewSet(viewsets.ModelViewSet):
+    queryset = food_models.MealEvent.objects.all()
+    serializer_class = food_serializers.MealEventSmallSerializer
 
 
 class MealDayViewSet(viewsets.ModelViewSet):
