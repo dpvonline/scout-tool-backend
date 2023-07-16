@@ -285,7 +285,7 @@ class Recipe(TimeStampMixin, NutrientsMixin):
     nutri_points = models.FloatField(null=True, blank=True)
     weight_g = models.FloatField(default=1)
     hints = models.ManyToManyField(Hint, blank=True)
-    created_by = models.ManyToManyField(User, blank=True)
+    created_by = models.ManyToManyField(User, related_name="recipe_created_by", blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -449,7 +449,7 @@ class MealEvent(TimeStampMixin):
     )
 
     def __str__(self):
-        return f"{self.event.name} - {self.norm_portions} Personen"
+        return f"{self.event and self.event.name } - {self.norm_portions} Personen"
 
     def __repr__(self):
         return self.__str__()

@@ -216,7 +216,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             my_user = self.context.get("request").user
             status = (
                 food_models.Recipe.objects.filter(id=obj.id)
-                .filter(created_by=my_user)
+                .filter(created_by__id=my_user.id)
                 .exists()
             )
             return status
@@ -525,11 +525,11 @@ class MealDayReadSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_allow_edit(self, obj):
-        my_user = CurrentUserDefault()
         try:
+            my_user = self.context.get("request").user
             status = (
                 food_models.MealEvent.objects.filter(id=obj.meal_event.id)
-                .filter(created_by=my_user)
+                .filter(created_by__id=my_user.id)
                 .exists()
             )
             return status
@@ -643,11 +643,11 @@ class MealEventReadSerializer(serializers.ModelSerializer):
         return MealDayReadSerializer(jjj, many=True).data
 
     def get_allow_edit(self, obj):
-        my_user = CurrentUserDefault()
         try:
+            my_user = self.context.get("request").user
             status = (
                 food_models.MealEvent.objects.filter(id=obj.id)
-                .filter(created_by=my_user)
+                .filter(created_by__id=my_user.id)
                 .exists()
             )
             return status
