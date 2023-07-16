@@ -561,7 +561,6 @@ class CashSummaryListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def get_queryset(self) -> QuerySet[registration_models.Registration]:
         event_id = self.kwargs.get("event_pk", None)
         search = self.request.query_params.get("search", None)
-        print(search)
 
         if search is not None:
             return (

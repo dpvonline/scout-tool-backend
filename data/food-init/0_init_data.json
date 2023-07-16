@@ -27501,73 +27501,58 @@
     }
   },
   {
-    "model": "food.event",
+    "model": "food.mealevent",
     "pk": 1,
     "fields": {
       "created_at": "2022-12-11T21:15:49.604Z",
       "updated_at": "2022-12-11T21:15:49.604Z",
-      "name": "Wanderung",
-      "description": null,
+      "event": null,
       "norm_portions": 8,
-      "activity_factor": null,
-      "start_date": null,
-      "end_date": null
+      "activity_factor": null
     }
   },
   {
-    "model": "food.event",
+    "model": "food.mealevent",
     "pk": 3,
     "fields": {
       "created_at": "2023-01-08T18:42:59.495Z",
       "updated_at": "2023-01-16T20:50:24.617Z",
-      "name": "VIA '24",
-      "description": "DPV Verbandslager",
+      "event": null,
       "norm_portions": 20,
-      "activity_factor": 2,
-      "start_date": "2024-05-17T15:00:00Z",
-      "end_date": "2024-05-21T11:00:00Z"
+      "activity_factor": 2
     }
   },
   {
-    "model": "food.event",
+    "model": "food.mealevent",
     "pk": 5,
     "fields": {
       "created_at": "2023-01-08T18:56:47.166Z",
       "updated_at": "2023-01-09T20:15:54.861Z",
-      "name": "Wanderung im Sommer",
-      "description": "Wanderung im Sommer",
+      "event": null,
       "norm_portions": 7,
-      "activity_factor": 3,
-      "start_date": "2023-07-14T16:00:00Z",
-      "end_date": "2023-07-16T14:00:00Z"
+      "activity_factor": 3
     }
   },
   {
-    "model": "food.event",
+    "model": "food.mealevent",
     "pk": 6,
     "fields": {
       "created_at": "2023-01-12T13:24:46.284Z",
       "updated_at": "2023-01-12T13:42:59.980Z",
-      "name": "Jasmins Theorielager",
-      "description": "Hier teste ich den Inspi. Hallihallo Robert, falls du das sehen kannst.",
       "norm_portions": 7,
       "activity_factor": 2,
-      "start_date": "2023-01-13T17:00:00Z",
-      "end_date": "2023-01-15T11:00:00Z"
+      "event": null
     }
   },
   {
-    "model": "food.event",
+    "model": "food.mealevent",
     "pk": 7,
     "fields": {
       "created_at": "2023-01-16T20:47:47.878Z",
       "updated_at": "2023-01-16T20:49:13.905Z",
-      "name": "Winterlager",
-      "description": null,
+      "event": null,
       "norm_portions": 33,
-      "activity_factor": 2,
-      "start_date": "2022-12-27T09:00:00Z",
-      "end_date": "2022-12-31T13:00:00Z"
+      "activity_factor": 2
     }
   },
   {
@@ -27576,7 +27561,7 @@
     "fields": {
       "created_at": "2022-12-11T21:15:49.609Z",
       "updated_at": "2022-12-11T21:15:49.609Z",
-      "event": 1,
+      "meal_event": 1,
       "activity_facor": null,
       "date": "2022-12-17",
       "max_day_part_factor": 1.0
@@ -27588,7 +27573,7 @@
     "fields": {
       "created_at": "2023-01-08T18:42:59.510Z",
       "updated_at": "2023-01-08T18:47:09.250Z",
-      "event": 3,
+      "meal_event": 3,
       "activity_facor": null,
       "date": "2024-05-17",
       "max_day_part_factor": 0.3
@@ -27600,7 +27585,7 @@
     "fields": {
       "created_at": "2023-01-08T18:42:59.515Z",
       "updated_at": "2023-01-08T18:42:59.515Z",
-      "event": 3,
+      "meal_event": 3,
       "activity_facor": null,
       "date": "2024-05-18",
       "max_day_part_factor": 1.0
@@ -27612,7 +27597,7 @@
     "fields": {
       "created_at": "2023-01-08T18:42:59.517Z",
       "updated_at": "2023-01-08T18:42:59.517Z",
-      "event": 3,
+      "meal_event": 3,
       "activity_facor": null,
       "date": "2024-05-19",
       "max_day_part_factor": 1.0
@@ -27624,7 +27609,7 @@
     "fields": {
       "created_at": "2023-01-08T18:42:59.519Z",
       "updated_at": "2023-01-08T18:42:59.519Z",
-      "event": 3,
+      "meal_event": 3,
       "activity_facor": null,
       "date": "2024-05-20",
       "max_day_part_factor": 1.0
@@ -27636,7 +27621,7 @@
     "fields": {
       "created_at": "2023-01-08T18:43:41.910Z",
       "updated_at": "2023-01-08T18:46:59.833Z",
-      "event": 3,
+      "meal_event": 3,
       "activity_facor": 1,
       "date": "2024-05-21",
       "max_day_part_factor": 0.5
@@ -27648,7 +27633,7 @@
     "fields": {
       "created_at": "2023-01-08T18:56:47.170Z",
       "updated_at": "2023-01-08T19:13:04.086Z",
-      "event": 5,
+      "meal_event": 5,
       "activity_facor": null,
       "date": "2023-07-14",
       "max_day_part_factor": 0.3
@@ -27660,7 +27645,7 @@
     "fields": {
       "created_at": "2023-01-08T18:56:47.173Z",
       "updated_at": "2023-01-08T18:56:47.173Z",
-      "event": 5,
+      "meal_event": 5,
       "activity_facor": null,
       "date": "2023-07-15",
       "max_day_part_factor": 1.0
@@ -27672,7 +27657,7 @@
     "fields": {
       "created_at": "2023-01-08T18:57:23.866Z",
       "updated_at": "2023-01-08T18:57:23.866Z",
-      "event": 5,
+      "meal_event": 5,
       "activity_facor": 3,
       "date": "2023-07-16",
       "max_day_part_factor": 0.5
@@ -27684,7 +27669,7 @@
     "fields": {
       "created_at": "2023-01-12T13:24:46.298Z",
       "updated_at": "2023-01-12T13:24:46.298Z",
-      "event": 6,
+      "meal_event": 6,
       "activity_facor": null,
       "date": "2023-01-13",
       "max_day_part_factor": 1.0
@@ -27696,7 +27681,7 @@
     "fields": {
       "created_at": "2023-01-12T13:24:46.302Z",
       "updated_at": "2023-01-12T13:24:46.302Z",
-      "event": 6,
+      "meal_event": 6,
       "activity_facor": null,
       "date": "2023-01-14",
       "max_day_part_factor": 1.0
@@ -27708,7 +27693,7 @@
     "fields": {
       "created_at": "2023-01-16T20:47:47.891Z",
       "updated_at": "2023-01-16T20:47:47.891Z",
-      "event": 7,
+      "meal_event": 7,
       "activity_facor": null,
       "date": "2022-12-27",
       "max_day_part_factor": 1.0
@@ -27720,7 +27705,7 @@
     "fields": {
       "created_at": "2023-01-16T20:47:47.894Z",
       "updated_at": "2023-01-16T20:47:47.894Z",
-      "event": 7,
+      "meal_event": 7,
       "activity_facor": null,
       "date": "2022-12-28",
       "max_day_part_factor": 1.0
@@ -27732,7 +27717,7 @@
     "fields": {
       "created_at": "2023-01-16T20:47:47.896Z",
       "updated_at": "2023-01-16T20:47:47.896Z",
-      "event": 7,
+      "meal_event": 7,
       "activity_facor": null,
       "date": "2022-12-29",
       "max_day_part_factor": 1.0
@@ -27744,7 +27729,7 @@
     "fields": {
       "created_at": "2023-01-16T20:47:47.898Z",
       "updated_at": "2023-01-16T20:47:47.898Z",
-      "event": 7,
+      "meal_event": 7,
       "activity_facor": null,
       "date": "2022-12-30",
       "max_day_part_factor": 1.0
@@ -27756,7 +27741,7 @@
     "fields": {
       "created_at": "2023-01-16T20:47:47.900Z",
       "updated_at": "2023-01-16T20:47:47.900Z",
-      "event": 7,
+      "meal_event": 7,
       "activity_facor": null,
       "date": "2022-12-31",
       "max_day_part_factor": 1.0

@@ -200,7 +200,6 @@ class EventViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs) -> Response:
         event: Event = self.get_object()
         self.check_event_dates(request, event)
-        print('here')
 
         return super().update(request, *args, **kwargs)
     
