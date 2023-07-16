@@ -13,8 +13,7 @@
       "contact_email": "test@test.de",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -31,8 +30,7 @@
       "contact_email": "p@p.de",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -49,8 +47,7 @@
       "contact_email": "",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -67,8 +64,7 @@
       "contact_email": "",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -85,8 +81,7 @@
       "contact_email": "",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -103,8 +98,7 @@
       "contact_email": "test@test.de",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
