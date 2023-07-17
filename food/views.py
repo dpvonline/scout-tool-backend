@@ -110,6 +110,8 @@ class RecipeCloneViewSet(viewsets.ViewSet):
             new_old_obj.status = "simulator"
             new_old_obj.save()
 
+            new_old_obj.created_by.add(request.user.id)
+
             all_items = food_models.RecipeItem.objects.filter(recipe_id=recipe_id)
 
             for item in all_items:
