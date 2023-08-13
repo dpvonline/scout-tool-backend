@@ -315,7 +315,7 @@ class RegisterViewSet(viewsets.ViewSet):
                 )
             except Exception as exception:
                 print(
-                    'failed initialising django person model,removing keycloak and django user'
+                    'failed initialising django person model, removing keycloak and django user'
                 )
                 print(f'{exception=}')
                 # when django user is deleted, keycloak user is deleted as well

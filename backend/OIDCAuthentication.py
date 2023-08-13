@@ -71,9 +71,9 @@ class MyOIDCAB(OIDCAuthenticationBackend):
             user.keycloak_id = claims['sub']
             edited = True
 
-        if not user.person:
+        if not hasattr(user,'person') or not user.person:
             user.person = Person.objects.create()
-            edited = True
+            user.save()
 
         if claims.get('fahrtenname', ''):
             if user.person.scout_name != claims.get('fahrtenname', ''):
@@ -121,4 +121,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
 
         if edited:
             user.save()
-            user.person.save()
+            try:
+                user.person.save()
+            except IntegrityError:
+                user.person.delete()

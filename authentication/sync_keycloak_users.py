@@ -16,13 +16,13 @@ def import_keycloak_members():
     logger.info('Starting syncing Keycloak users')
     oicd = MyOIDCAB()
 
-    queury = {
+    query = {
         'max': -1,
         'enabled': True,
         'briefRepresentation': True,
         'emailVerified': True,
     }
-    all_keycloak_users = keycloak_admin.get_users(queury)
+    all_keycloak_users = keycloak_admin.get_users(query)
     all_keycloak_users_ids = [val['id'] for val in all_keycloak_users]
     all_django_users_ids = list(User.objects.all().values_list('keycloak_id', flat=True))
     missing_ids = list(set(all_keycloak_users_ids) - set(all_django_users_ids))
