@@ -223,6 +223,16 @@ class MemberUserSerializer(serializers.ModelSerializer):
             'email'
         )
 
+def get_display_name_user(obj: Person):
+    result = []
+    if obj.first_name:
+        result.append(obj.first_name)
+    if obj.scout_name:
+        result.append(f"'{obj.scout_name}'")
+    if obj.last_name:
+        result.append(obj.last_name)
+
+    return ' '.join(result)
 
 class MemberSerializer(serializers.ModelSerializer):
     zip_code = ZipCodeDetailedSerializer(many=False, required=False, read_only=True)
@@ -232,6 +242,7 @@ class MemberSerializer(serializers.ModelSerializer):
     scout_level = serializers.CharField(source='get_scout_level_display')
     leader = serializers.CharField(source='get_leader_display')
     user = MemberUserSerializer(many=False)
+    display_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
@@ -251,8 +262,12 @@ class MemberSerializer(serializers.ModelSerializer):
             'gender',
             'leader',
             'scout_level',
-            'user'
+            'user',
+            'display_name'
         )
+
+    def get_display_name(self, obj: User):
+        return get_display_name_user(obj)
 
 
 class EditPersonSerializer(serializers.Serializer):

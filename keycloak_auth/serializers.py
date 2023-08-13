@@ -15,28 +15,11 @@ from keycloak_auth.permissions import request_group_access
 
 User: CustomUser = get_user_model()
 
-
-def cut_email(input):
-    first_half = input.split('@')
-    return f"{first_half[0][0:5]}...@"
-
-
 def get_display_name_user(obj: User):
-    return_list = []
-
     if hasattr(obj, 'person') and obj.person.scout_name:
-        return_list.append(f"{obj.person.scout_name}")
-
-    if hasattr(obj, 'username') and obj.username:
-        return_list.append(obj.username)
-
-    if hasattr(obj, 'email') and obj.email:
-        return_list.append(f"({cut_email(obj.email)})")
-
-    if hasattr(obj, 'person') and obj.person.scout_group and obj.person.scout_group.name:
-        return_list.append(f"Stamm {obj.person.scout_group.name}")
-
-    return ' '.join(return_list)
+        return obj.person.scout_name
+    else:
+        return obj.username
 
 
 def get_display_name_group(obj: KeycloakGroup):
@@ -213,12 +196,10 @@ class PartialUserSerializer(serializers.ModelSerializer):
     """
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
-    person = PersonSerializer(many=False)
     id = serializers.SerializerMethodField()
     django_id = serializers.SerializerMethodField()
     display_name = serializers.SerializerMethodField()
     scout_name = serializers.SerializerMethodField()
-    first_name = serializers.SerializerMethodField()
     stamm_bund = serializers.SerializerMethodField()
 
     class Meta:
@@ -227,12 +208,11 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'id',
             'django_id',
             'username',
-            'person',
             'keycloak_id',
             'scout_name',
-            'first_name',
             'stamm_bund',
-            'display_name'
+            'display_name',
+            'email'
         )
 
     def get_id(self, obj: User):
@@ -249,14 +229,9 @@ class PartialUserSerializer(serializers.ModelSerializer):
             return obj.person.scout_name
         return ''
 
-    def get_first_name(self, obj: User):
-        if hasattr(obj, 'person'):
-            return obj.person.first_name
-        return ''
-
     def get_stamm_bund(self, obj: User):
         if hasattr(obj, 'person'):
-            return obj.person.scout_group and f"{obj.person.scout_group.name}"
+            return  UserScoutHierarchySerializer(obj.person.scout_group).data
         return ''
 
 
