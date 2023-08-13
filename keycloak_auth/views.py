@@ -291,10 +291,9 @@ class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         try:
             keycloak_user.get_all_users(token)
-        except KeycloakGetError:
+        except (KeycloakGetError, KeycloakAuthenticationError):
             raise NotAuthorized()
-        except KeycloakAuthenticationError:
-            raise NotAuthorized()
+
 
         # ids = [val['id'] for val in group_members if val['enabled']]
 
