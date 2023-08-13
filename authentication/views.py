@@ -521,3 +521,28 @@ class MyMembersViewSet(viewsets.ModelViewSet):
             return EditPersonSerializer
         else:
             return MemberSerializer
+
+
+class MyTribeVerifiedViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request) -> Response:
+        user: CustomUser = self.request.user
+        if not user.person.scout_group or not user.person.scout_group.keycloak:
+            return Response({'status': 'Du hast keinen gültigen Stamm', 'verified': False}, status=status.HTTP_200_OK)
+
+        group_id = user.person.scout_group.keycloak.keycloak_id
+        token = self.request.META.get('HTTP_AUTHORIZATION')
+
+        try:
+            keycloak_user.get_group_users(token, group_id)
+        except KeycloakGetError:
+            return Response(
+                {
+                    'status': 'Du bist nicht berechtigt auf diesen Stamm zuzugreifen. Bitte deine Stammesführung dich zu authorisieren.',
+                    'verified': False
+                },
+                status=status.HTTP_200_OK
+            )
+
+        return Response({'status': 'Ok', 'verified': True}, status=status.HTTP_200_OK)

@@ -31,7 +31,7 @@ class Command(BaseCommand):
             self.get_subgroup(group)
 
         print('creating missing scout hierarchies in keycloak')
-        heads = ScoutHierarchy.objects.filter(name='DPBM')
+        heads = ScoutHierarchy.objects.all()
         for head in heads:
             self.recursive_group_initialisation(head)
 
