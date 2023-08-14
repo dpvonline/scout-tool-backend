@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import display
+from copy import deepcopy
 
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 
@@ -16,6 +17,12 @@ class RegistrationAdmin(admin.ModelAdmin):
         return obj.event.name
 
 
+def duplicate_participant(modeladmin, request, queryset):
+    for participant in queryset:
+        new_obj = deepcopy(participant)
+        new_obj.id = None
+        new_obj.save()
+
 @admin.register(RegistrationParticipant)
 class RegistrationParticipantAdmin(admin.ModelAdmin):
     list_display = (
@@ -28,3 +35,4 @@ class RegistrationParticipantAdmin(admin.ModelAdmin):
     list_filter = ('registration__event__name', 'registration__scout_organisation__name')
     search_fields = ('scout_name', 'first_name', 'last_name', 'email')
     autocomplete_fields = ('zip_code', 'scout_group')
+    actions = [duplicate_participant]
