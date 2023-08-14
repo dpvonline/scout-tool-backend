@@ -12,6 +12,7 @@ from anmelde_tool.registration.models import Registration
 from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
 from keycloak_auth import serializers as keycloak_serializers
+from anmelde_tool.event.summary import serializers as summary_serializers
 
 User = get_user_model()
 
@@ -80,9 +81,15 @@ class BookingOptionSerializer(serializers.ModelSerializer):
 
 
 class EventModuleSerializer(serializers.ModelSerializer):
+    attribute_modules = serializers.SerializerMethodField()
     class Meta:
         model = event_models.EventModule
         fields = '__all__'
+
+    def get_attribute_modules(self, module: event_models.EventModule):
+        queryset = module.attributemodule_set
+        result = summary_serializers.AttributeSummarySerializer(queryset, many=True).data
+        return result
 
 
 class EventPostSerializer(serializers.ModelSerializer):
