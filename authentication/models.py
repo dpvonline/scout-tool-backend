@@ -40,7 +40,7 @@ class Person(TimeStampMixin):
     Model to save a natural person with or without login
     """
     id = models.UUIDField(auto_created=True, primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     scout_name = models.CharField(max_length=100, blank=True, null=True)
     first_name = models.CharField(max_length=100, default="")
     last_name = models.CharField(max_length=100, default="")

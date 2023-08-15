@@ -297,7 +297,7 @@ class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
 
         # ids = [val['id'] for val in group_members if val['enabled']]
 
-        users = User.objects.all()
+        users = User.objects.all().select_related('person', 'person__scout_group', 'person__zip_code')
 
         return search_user(self.request, users)
 

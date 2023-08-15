@@ -502,18 +502,19 @@ class MyMembersViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
+        scout_group = self.request.user.person.scout_group
 
-        if not self.request.user.person.scout_group or not self.request.user.person.scout_group.keycloak:
+        if not scout_group or not scout_group.keycloak:
             return Person.objects.none()
 
-        group_id = self.request.user.person.scout_group.keycloak.keycloak_id
+        group_id = scout_group.keycloak.keycloak_id
 
         try:
             keycloak_user.get_group_users(token, group_id)
         except KeycloakGetError:
             raise NotAuthorized()
 
-        user = Person.objects.filter(scout_group=self.request.user.person.scout_group)
+        user = Person.objects.filter(scout_group=scout_group).select_related('user', 'scout_group', 'zip_code')
         return user
 
     def get_serializer_class(self):
