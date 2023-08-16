@@ -1,4 +1,5 @@
 import re
+import logging
 
 from django.db.models import QuerySet
 from keycloak import KeycloakGetError, KeycloakAuthenticationError
@@ -12,6 +13,7 @@ REGEX_GROUP_ADMIN_PERMISSION = re.compile(
     'group-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}-admin-role'
 )
 
+logger = logging.getLogger(__name__)
 
 def get_or_create_keycloak_model(group: dict, parent_obj: str | KeycloakGroup) -> tuple[KeycloakGroup, bool]:
     if isinstance(parent_obj, KeycloakGroup):
@@ -56,7 +58,8 @@ def get_groups_of_user(token,keycloak_id):
             keycloak_id,
             brief_representation=True
         )
-    except KeycloakGetError:
+    except KeycloakGetError as err:
+        logger.exception(err)
         raise NotAuthorized()
     except KeycloakAuthenticationError:
         raise NotAuthorized()
