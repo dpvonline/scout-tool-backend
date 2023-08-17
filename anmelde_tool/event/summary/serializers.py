@@ -39,6 +39,7 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
     scout_organisation = basic_serializers.ScoutHierarchyDetailedSerializer(many=False, read_only=True)
     booking_options = serializers.SerializerMethodField()
     responsible_persons_extended = serializers.SerializerMethodField()
+    scout_organisation_display = serializers.SerializerMethodField()
 
     class Meta:
         model = Registration
@@ -52,7 +53,8 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
             'price',
             'created_at',
             'updated_at',
-            'booking_options',)
+            'booking_options',
+            'scout_organisation_display',)
 
     def get_participant_count(self, registration: Registration) -> int:
         booking_option_list = self.context['request'].query_params.getlist('booking-option')
@@ -82,6 +84,13 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
         return_string = ''
         for person in registration.responsible_persons.all():
             return_string = return_string + f'{person.first_name} '
+        return return_string
+
+    def get_scout_organisation_display(self, registration: Registration) -> str:
+        return_string = ''
+        scout_organisation = registration.scout_organisation
+        if scout_organisation:
+            return_string = f'{scout_organisation.name}'
         return return_string
 
 
