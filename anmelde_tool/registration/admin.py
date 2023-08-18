@@ -22,6 +22,12 @@ def duplicate_participant(modeladmin, request, queryset):
         new_obj.id = None
         new_obj.save()
 
+def duplicate_participant(modeladmin, request, queryset):
+    for participant in queryset:
+        new_obj = deepcopy(participant)
+        new_obj.id = None
+        new_obj.save()
+
 @admin.register(RegistrationParticipant)
 class RegistrationParticipantAdmin(admin.ModelAdmin):
     list_display = (
