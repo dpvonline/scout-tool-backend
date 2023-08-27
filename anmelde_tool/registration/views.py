@@ -13,13 +13,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from anmelde_tool.attributes.choices import TravelType
-from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, StringAttribute, TimeAttribute, \
+from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, StringAttribute, DateTimeAttribute, \
     IntegerAttribute, FloatAttribute, TravelAttribute
 from anmelde_tool.attributes.serializers import BooleanAttributePostSerializer, \
-    TimeAttributePostSerializer, StringAttributePostSerializer, FloatAttributePostSerializer, \
+    DateTimeAttributePostSerializer, StringAttributePostSerializer, FloatAttributePostSerializer, \
     IntegerAttributePostSerializer, TravelAttributePostSerializer, BooleanAttributeSerializer, \
     StringAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer, \
-    TimeAttributeSerializer
+    DateTimeAttributeSerializer
 from anmelde_tool.email_services import services
 from anmelde_tool.event import api_exceptions as event_api_exceptions
 from anmelde_tool.event import models as event_models
@@ -242,22 +242,22 @@ class RegistrationFloatAttributeViewSet(mixins.CreateModelMixin, viewsets.Generi
         return Response(result_serializer.data, status=status.HTTP_201_CREATED)
 
 
-class RegistrationTimeAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class RegistrationDateTimeAttributeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs) -> Response:
-        post_serializer = TimeAttributePostSerializer(data=request.data)
+        post_serializer = DateTimeAttributePostSerializer(data=request.data)
         post_serializer.is_valid(raise_exception=True)
 
-        attribute_module, registration = get_attribute_params(kwargs)
+        attribute_module, registration = get_attribute_params(kwargs, post_serializer)
 
-        attribute = TimeAttribute.objects.create(
+        attribute = DateTimeAttribute.objects.create(
             attribute_module=attribute_module,
             registration=registration,
-            time_field=post_serializer.data.get('time_field', None)
+            date_time_field=post_serializer.data.get('date_time_field', None)
         )
 
-        result_serializer = TimeAttributeSerializer(attribute)
+        result_serializer = DateTimeAttributeSerializer(attribute)
         return Response(result_serializer.data, status=status.HTTP_201_CREATED)
 
 

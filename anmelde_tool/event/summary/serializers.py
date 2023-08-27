@@ -4,7 +4,7 @@ from django.db.models import Sum, Count, F
 from django.utils import timezone
 from rest_framework import serializers
 
-from anmelde_tool.attributes.models import AttributeModule, TimeAttribute, BooleanAttribute, IntegerAttribute, \
+from anmelde_tool.attributes.models import AttributeModule, DateTimeAttribute, BooleanAttribute, IntegerAttribute, \
     FloatAttribute, StringAttribute, TravelAttribute
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializer
@@ -242,12 +242,12 @@ class BooleanAttributeSummarySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TimeAttributeSummarySerializer(serializers.ModelSerializer):
-    type = serializers.ReadOnlyField(default='timeAttribute')
+class DateTimeAttributeSummarySerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='dateTimeAttribute')
     registration = RegistrationGetSerializer(many=False, read_only=True)
 
     class Meta:
-        model = TimeAttribute
+        model = DateTimeAttribute
         fields = '__all__'
 
 
@@ -291,7 +291,7 @@ class TravelAttributeSummarySerializer(serializers.ModelSerializer):
 class AttributeSummarySerializer(serializers.ModelSerializer):
     field_type = serializers.CharField(source='get_field_type_display', read_only=True)
     booleanattribute_set = BooleanAttributeSummarySerializer(many=True, read_only=True)
-    timeattribute_set = TimeAttributeSummarySerializer(many=True, read_only=True)
+    dateTimeattribute_set = DateTimeAttributeSummarySerializer(many=True, read_only=True)
     integerattribute_set = IntegerAttributeSummarySerializer(many=True, read_only=True)
     floatattribute_set = FloatAttributeSummarySerializer(many=True, read_only=True)
     stringattribute_set = StringAttributeSummarySerializer(many=True, read_only=True)
@@ -305,7 +305,7 @@ class AttributeSummarySerializer(serializers.ModelSerializer):
             'text',
             'field_type',
             'booleanattribute_set',
-            'timeattribute_set',
+            'datetimeattribute_set',
             'integerattribute_set',
             'floatattribute_set',
             'stringattribute_set',

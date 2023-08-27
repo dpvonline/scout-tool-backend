@@ -11,7 +11,7 @@ class TravelType(models.TextChoices):
 
 class AttributeType(models.TextChoices):
     BooleanAttribute = 'BoA', _('booleanAttribute')
-    TimeAttribute = 'TiA', _('timeAttribute')
+    DateTimeAttribute = 'TiA', _('dateTimeAttribute')
     IntegerAttribute = 'InA', _('integerAttribute')
     FloatAttribute = 'FlA', _('floatAttribute')
     StringAttribute = 'StA', _('stringAttribute')
