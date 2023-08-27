@@ -55,7 +55,7 @@ class DateTimeAttribute(AbstractAttribute):
     date_time_field = models.DateTimeField()
 
     def __str__(self):
-        return f'{self.attribute_module.title}: {self.date_field}'
+        return f'{self.attribute_module.title}: {self.date_time_field}'
 
 
 class IntegerAttribute(AbstractAttribute):
