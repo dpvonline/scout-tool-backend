@@ -44,7 +44,6 @@ class KeycloakOpenIDExtended(KeycloakOpenID):
 
     def group_user_add(self, token, user_id, group_id):
         """Add user to group (user_id and group_id).
-
         :param user_id:  id of user
         :type user_id: str
         :param group_id:  id of group to add to

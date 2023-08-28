@@ -1,4 +1,3 @@
-from django.core.management.base import BaseCommand
 from keycloak import KeycloakGetError
 
 from backend.settings import keycloak_admin
@@ -7,16 +6,14 @@ from keycloak_auth.helper import get_or_create_keycloak_model
 from keycloak_auth.models import KeycloakGroup
 
 
-class Command(BaseCommand):
-    help = 'check keycloak groups'
+class SyncKeycloakGroups:
 
-    def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
-        super(Command, self).__init__(stdout, stderr, no_color, force_color)
+    def __init__(self):
         self.groups = {}
         self.groups_added = []
         self.groups_deleted = []
 
-    def handle(self, *args, **options):
+    def run(self):
         print('checking django groups')
         all_django_groups = KeycloakGroup.objects.all()
         for group in all_django_groups:

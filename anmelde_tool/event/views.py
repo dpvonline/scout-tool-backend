@@ -102,6 +102,7 @@ class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
             parent_ids.add(group.id)
             if group.parent:
                 q.put(group.parent)
+
         return Event.objects \
             .filter((Q(invited_groups__in=parent_ids) | Q(invited_groups=None)), is_public=True) \
             .distinct()
@@ -202,7 +203,7 @@ class EventViewSet(viewsets.ModelViewSet):
         self.check_event_dates(request, event)
 
         return super().update(request, *args, **kwargs)
-    
+
 
 class EventPartialUpdateViewSet(viewsets.ModelViewSet):
     '''

@@ -1,5 +1,3 @@
-from django.core.management.base import BaseCommand
-from django.shortcuts import get_object_or_404
 from keycloak import KeycloakGetError
 
 from backend.settings import keycloak_admin
@@ -16,15 +14,12 @@ additional_level_groups = {
 }
 
 
-class Command(BaseCommand):
-    help = 'check keycloak groups'
+class InitKeycloakScoutHierarchies:
 
-    def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
-        super(Command, self).__init__(stdout, stderr, no_color, force_color)
+    def __init__(self):
         self.groups_added = []
 
-    def handle(self, *args, **options):
-
+    def run(self):
         print('checking existing keycloak groups')
         all_groups = keycloak_admin.get_groups()
         for group in all_groups:
