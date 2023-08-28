@@ -122,23 +122,23 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             request.data["last_name"] = max_num + 1
 
         if request.data.get("booking_option") is None:
-            request.data[
-                "booking_option"
-            ] = registration.event.bookingoption_set.first().id
+            request.data["booking_option"] = registration.event.bookingoption_set.first().id
 
-        if request.data.get("allow_permanently"):
+        if request.data.get('allow_permanently'):
             person = auth_models.Person(
-                first_name=request.data.get("first_name"),
-                scout_name=request.data.get("scout_name"),
-                last_name=request.data.get("last_name"),
-                address=request.data.get("address"),
-                address_supplement=request.data.get("address_supplement"),
-                scout_group=request.data.get("scout_group"),
-                phone_number=request.data.get("phone_number"),
-                email=request.data.get("email"),
+                first_name=request.data.get('first_name'),
+                scout_name=request.data.get('scout_name'),
+                last_name=request.data.get('last_name'),
+                address=request.data.get('address'),
+                birthday=request.data.get('birthday'),
+                address_supplement=request.data.get('address_supplement'),
+                scout_group=request.data.get('scout_group'),
+                phone_number=request.data.get('phone_number'),
+                email=request.data.get('email'),
                 zip_code=zip_code,
                 gender=request.data.get("gender"),
                 scout_level="N",
+                created_by=self.request.user.id
             )
             person.save()
 
@@ -346,7 +346,7 @@ class RegistrationViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
+    viewsets.GenericViewSet
 ):
     permission_classes = [event_permissions.IsRegistrationResponsiblePerson]
     queryset = Registration.objects.all()
@@ -364,7 +364,7 @@ class RegistrationViewSet(
         scout_organisation = custom_get_or_404(
             event_api_exceptions.SomethingNotFound(err_msg),
             basic_models.ScoutHierarchy,
-            id=scout_organisation_id,
+            id=scout_organisation_id
         )
         registration: Registration = Registration(
             scout_organisation=scout_organisation,
@@ -374,9 +374,9 @@ class RegistrationViewSet(
         registration.save()
         registration.responsible_persons.add(request.user)
 
-        event_module: QuerySet = event_models.EventModule.objects.filter(
-            event=event.id, required=True
-        )
+        # event_module: QuerySet = event_models.EventModule.objects.filter(
+        #     event=event.id, required=True
+        # )
         # for mapper in event_module:
         #     for attribute_mapper in mapper.attributes.all():
         #         attribute = attribute_mapper.attribute
