@@ -12,7 +12,7 @@ router.register(r'boolean-attribute', views.BooleanAttributeViewSet, basename='b
 router.register(r'string-attribute', views.StringAttributeViewSet, basename='string-attribute')
 router.register(r'travel-attribute', views.TravelAttributeViewSet, basename='travel-attribute')
 router.register(r'float-attribute', views.FloatAttributeViewSet, basename='float-attribute')
-router.register(r'time-attribute', views.TimeAttributeViewSet, basename='time-attribute')
+router.register(r'date-time-attribute', views.DateTimeAttributeViewSet, basename='date-time-attribute')
 router.register(r'integer-attribute', views.IntegerAttributeViewSet, basename='integer-attribute')
 
 urlpatterns = [
