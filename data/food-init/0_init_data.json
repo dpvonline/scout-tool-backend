@@ -27562,7 +27562,6 @@
       "created_at": "2022-12-11T21:15:49.609Z",
       "updated_at": "2022-12-11T21:15:49.609Z",
       "meal_event": 1,
-      "activity_facor": null,
       "date": "2022-12-17",
       "max_day_part_factor": 1.0
     }
@@ -27574,7 +27573,6 @@
       "created_at": "2023-01-08T18:42:59.510Z",
       "updated_at": "2023-01-08T18:47:09.250Z",
       "meal_event": 3,
-      "activity_facor": null,
       "date": "2024-05-17",
       "max_day_part_factor": 0.3
     }
@@ -27586,7 +27584,6 @@
       "created_at": "2023-01-08T18:42:59.515Z",
       "updated_at": "2023-01-08T18:42:59.515Z",
       "meal_event": 3,
-      "activity_facor": null,
       "date": "2024-05-18",
       "max_day_part_factor": 1.0
     }
@@ -27598,7 +27595,6 @@
       "created_at": "2023-01-08T18:42:59.517Z",
       "updated_at": "2023-01-08T18:42:59.517Z",
       "meal_event": 3,
-      "activity_facor": null,
       "date": "2024-05-19",
       "max_day_part_factor": 1.0
     }
@@ -27610,7 +27606,6 @@
       "created_at": "2023-01-08T18:42:59.519Z",
       "updated_at": "2023-01-08T18:42:59.519Z",
       "meal_event": 3,
-      "activity_facor": null,
       "date": "2024-05-20",
       "max_day_part_factor": 1.0
     }
@@ -27622,7 +27617,6 @@
       "created_at": "2023-01-08T18:43:41.910Z",
       "updated_at": "2023-01-08T18:46:59.833Z",
       "meal_event": 3,
-      "activity_facor": 1,
       "date": "2024-05-21",
       "max_day_part_factor": 0.5
     }
@@ -27634,7 +27628,6 @@
       "created_at": "2023-01-08T18:56:47.170Z",
       "updated_at": "2023-01-08T19:13:04.086Z",
       "meal_event": 5,
-      "activity_facor": null,
       "date": "2023-07-14",
       "max_day_part_factor": 0.3
     }
@@ -27646,7 +27639,6 @@
       "created_at": "2023-01-08T18:56:47.173Z",
       "updated_at": "2023-01-08T18:56:47.173Z",
       "meal_event": 5,
-      "activity_facor": null,
       "date": "2023-07-15",
       "max_day_part_factor": 1.0
     }
@@ -27658,7 +27650,6 @@
       "created_at": "2023-01-08T18:57:23.866Z",
       "updated_at": "2023-01-08T18:57:23.866Z",
       "meal_event": 5,
-      "activity_facor": 3,
       "date": "2023-07-16",
       "max_day_part_factor": 0.5
     }
@@ -27670,7 +27661,6 @@
       "created_at": "2023-01-12T13:24:46.298Z",
       "updated_at": "2023-01-12T13:24:46.298Z",
       "meal_event": 6,
-      "activity_facor": null,
       "date": "2023-01-13",
       "max_day_part_factor": 1.0
     }
@@ -27682,7 +27672,6 @@
       "created_at": "2023-01-12T13:24:46.302Z",
       "updated_at": "2023-01-12T13:24:46.302Z",
       "meal_event": 6,
-      "activity_facor": null,
       "date": "2023-01-14",
       "max_day_part_factor": 1.0
     }
@@ -27694,7 +27683,6 @@
       "created_at": "2023-01-16T20:47:47.891Z",
       "updated_at": "2023-01-16T20:47:47.891Z",
       "meal_event": 7,
-      "activity_facor": null,
       "date": "2022-12-27",
       "max_day_part_factor": 1.0
     }
@@ -27706,7 +27694,6 @@
       "created_at": "2023-01-16T20:47:47.894Z",
       "updated_at": "2023-01-16T20:47:47.894Z",
       "meal_event": 7,
-      "activity_facor": null,
       "date": "2022-12-28",
       "max_day_part_factor": 1.0
     }
@@ -27718,7 +27705,6 @@
       "created_at": "2023-01-16T20:47:47.896Z",
       "updated_at": "2023-01-16T20:47:47.896Z",
       "meal_event": 7,
-      "activity_facor": null,
       "date": "2022-12-29",
       "max_day_part_factor": 1.0
     }
@@ -27730,7 +27716,6 @@
       "created_at": "2023-01-16T20:47:47.898Z",
       "updated_at": "2023-01-16T20:47:47.898Z",
       "meal_event": 7,
-      "activity_facor": null,
       "date": "2022-12-30",
       "max_day_part_factor": 1.0
     }
@@ -27742,7 +27727,6 @@
       "created_at": "2023-01-16T20:47:47.900Z",
       "updated_at": "2023-01-16T20:47:47.900Z",
       "meal_event": 7,
-      "activity_facor": null,
       "date": "2022-12-31",
       "max_day_part_factor": 1.0
     }

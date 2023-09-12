@@ -4,9 +4,9 @@ from rest_framework.response import Response
 
 from anmelde_tool.attributes.choices import TravelType, AttributeType
 from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, IntegerAttribute, FloatAttribute, \
-    StringAttribute, TimeAttribute, TravelAttribute
+    StringAttribute, DateTimeAttribute, TravelAttribute
 from anmelde_tool.attributes.serializers import AttributeModuleSerializer, BooleanUpdateAttributeSerializer, \
-    IntegerUpdateAttributeSerializer, FloatUpdateAttributeSerializer, TimeUpdateAttributeSerializer, \
+    IntegerUpdateAttributeSerializer, FloatUpdateAttributeSerializer, DateTimeUpdateAttributeSerializer, \
     TravelUpdateAttributeSerializer, StringUpdateAttributeSerializer
 from basic.helper import choice_to_json
 
@@ -47,10 +47,10 @@ class TravelAttributeViewSet(viewsets.ModelViewSet):
     queryset = TravelAttribute.objects.all()
 
 
-class TimeAttributeViewSet(viewsets.ModelViewSet):
+class DateTimeAttributeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = TimeUpdateAttributeSerializer
-    queryset = TimeAttribute.objects.all()
+    serializer_class = DateTimeUpdateAttributeSerializer
+    queryset = DateTimeAttribute.objects.all()
 
 
 class TravelTypeViewSet(viewsets.ViewSet):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import BooleanAttribute, TimeAttribute, IntegerAttribute, FloatAttribute, \
+from .models import BooleanAttribute, DateTimeAttribute, IntegerAttribute, FloatAttribute, \
     TravelAttribute, StringAttribute, AttributeModule
 
 
@@ -15,8 +15,8 @@ class BooleanAttributeAdmin(BaseAdmin):
     pass
 
 
-@admin.register(TimeAttribute)
-class TimeAttributeAdmin(BaseAdmin):
+@admin.register(DateTimeAttribute)
+class DateTimeAttributeAdmin(BaseAdmin):
     pass
 
 

@@ -5,10 +5,10 @@ from rest_framework import serializers
 
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializers
-from anmelde_tool.attributes.models import BooleanAttribute, StringAttribute, TimeAttribute, IntegerAttribute, \
+from anmelde_tool.attributes.models import BooleanAttribute, StringAttribute, DateTimeAttribute, IntegerAttribute, \
     FloatAttribute, StringAttribute, TravelAttribute
 from anmelde_tool.attributes.serializers import BooleanAttributeSerializer, StringAttributeSerializer, \
-    TimeAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer
+    DateTimeAttributeSerializer, IntegerAttributeSerializer, FloatAttributeSerializer, TravelAttributeSerializer
 from basic import serializers as basic_serializers
 from anmelde_tool.registration.models import Registration, RegistrationParticipant, RegistrationRating
 from authentication.serializers import UserScoutHierarchySerializer
@@ -230,7 +230,7 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
 class RegistrationReadSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
-    event = event_serializers.EventRegistrationSerializer()
+    event = event_serializers.EventReadSerializer()
     registrationparticipant_set = RegistrationParticipantReadSerializer(
         many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
@@ -278,9 +278,9 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
         float_serializer = FloatAttributeSerializer(
             float_attributes, many=True, read_only=True)
 
-        time_attributes = TimeAttribute.objects.filter(
+        time_attributes = DateTimeAttribute.objects.filter(
             registration=registration)
-        time_serializer = TimeAttributeSerializer(
+        time_serializer = DateTimeAttributeSerializer(
             time_attributes, many=True, read_only=True)
 
         travel_attributes = TravelAttribute.objects.filter(
