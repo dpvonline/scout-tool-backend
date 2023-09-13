@@ -14,7 +14,7 @@ class EventLocationAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'location', 'is_public')
     search_fields = ('name', 'location__name', 'id')
-    autocomplete_fields = ('responsible_persons', 'invited_groups')
+    autocomplete_fields = ('responsible_persons', 'invited_groups','view_group','admin_group','inviting_group', 'location')
 
 
 @admin.register(BookingOption)
