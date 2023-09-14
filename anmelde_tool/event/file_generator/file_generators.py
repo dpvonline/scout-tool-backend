@@ -8,6 +8,7 @@ from celery.utils.log import get_task_logger
 from django.core.files.base import File
 from anmelde_tool.event.file_generator.generators.attribute_generator import AttributeGenerator
 from anmelde_tool.event.file_generator.generators.kjp_generator_v2 import KjpGeneratorV2
+from anmelde_tool.event.file_generator.generators.kjp_generator_v3 import KjpGeneratorV3
 from anmelde_tool.event.file_generator.generators.kjr_generator import KjrGenerator
 from anmelde_tool.event.file_generator.generators.travel_matrix_generator import TravelMatrixGenerator
 
@@ -33,6 +34,8 @@ def generate_file(instance_id):
                 generator = KjpGenerator(file_wrapper)
             elif file_wrapper.template.version == 2:
                 generator = KjpGeneratorV2(file_wrapper)
+            elif file_wrapper.template.version == 3:
+                generator = KjpGeneratorV3(file_wrapper)
 
         elif file_wrapper.template.type == FileType.Invoice \
                 and file_wrapper.extension == FileExtension.Excel \
