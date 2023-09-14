@@ -137,11 +137,11 @@ class EventCompleteSerializer(serializers.ModelSerializer):
             return 'expired'
         else:
             return 'error'
-        
+
     def get_existing_register(self, obj: event_models.Event) -> Registration:
         registration = Registration.objects \
             .filter(event=obj.id, responsible_persons=self.context['request'].user)
-            
+
         if (registration):
             return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
         return None
@@ -184,12 +184,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     email_set = email_services_serializers.StandardEmailRegistrationSetSerializer(many=False, read_only=True)
     inviting_group = keycloak_serializers.GroupShortSerializer(many=False, read_only=True)
     limited_registration_hierarchy = UserScoutHierarchySerializer(many=False, read_only=True)
-    responsible_persons = serializers.SlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field='email',
-        queryset=User.objects.all()
-    )
+    responsible_persons = serializers.SerializerMethodField()
     registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
     theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
     booking_options = serializers.SerializerMethodField()
@@ -211,19 +206,23 @@ class EventReadSerializer(serializers.ModelSerializer):
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data
-    
+
 
     def get_existing_register(self, obj: event_models.Event) -> Registration:
         registration = Registration.objects \
             .filter(event=obj.id, responsible_persons=self.context['request'].user)
-            
-        if (registration):
+
+        if registration:
             return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
         return None
 
     def get_eventmodule_set(self, obj: event_models.Event) -> Registration:
         eventModules = EventModule.objects.filter(event = obj.id).order_by('ordering')
         return EventReadModuleSerializer(eventModules, many=True, read_only=True).data
+
+    def get_responsible_persons(self,obj):
+        return [user.get_display_name() for user in obj.responsible_persons.all()]
+
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):
@@ -305,11 +304,11 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data
-    
+
     def get_existing_register(self, obj: event_models.Event) -> Registration:
         registration = Registration.objects \
             .filter(event=obj.id, responsible_persons=self.context['request'].user)
-            
+
         if (registration):
             return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
         return None
