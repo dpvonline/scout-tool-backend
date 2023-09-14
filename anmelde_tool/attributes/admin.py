@@ -44,3 +44,4 @@ class StringAttributeAdmin(BaseAdmin):
 class AttributeEventModuleMapperAdmin(admin.ModelAdmin):
     list_display = ('id', 'text', 'standard', 'event_module', 'field_type')
     search_fields = ('event_module',)
+    list_filter = ('event_module',)

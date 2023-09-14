@@ -34,6 +34,15 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
 
+    def get_display_name(self):
+        if hasattr(self, 'person'):
+            if self.person.scout_name:
+                return self.person.scout_name
+            else:
+                return self.person.first_name
+        else:
+            return self.username
+
 
 class Person(TimeStampMixin):
     """
