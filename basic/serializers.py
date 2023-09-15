@@ -138,11 +138,9 @@ class ScoutHierarchyDetailedSerializer(serializers.ModelSerializer):
 
     def get_display_name(self, obj: basic_models.ScoutHierarchy) -> str:
         display_parent_id = obj.level.id - 1
-        print('display_parent_id-1')
-        print(display_parent_id)
+
+        # handle Ringe as Bund
         display_parent_id_2 = display_parent_id if display_parent_id != 4 else 3
-        print('display_parent_id-2')
-        print(display_parent_id_2)
 
         display_parent_name = get_parent_scout_organisation_by_id(obj, display_parent_id_2)
         return f"{obj.name} ({display_parent_name})"
