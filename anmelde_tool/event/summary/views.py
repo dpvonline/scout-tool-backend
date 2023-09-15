@@ -8,8 +8,16 @@ from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.db.models import Prefetch, Sum
-import decimal 
+import decimal
 
+from anmelde_tool.attributes.models import (
+    BooleanAttribute,
+    IntegerAttribute,
+    FloatAttribute,
+    StringAttribute,
+    DateTimeAttribute,
+    TravelAttribute,
+)
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import (
@@ -255,7 +263,7 @@ class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if booking_option_list:
             queryset = queryset.filter(booking_option__in=booking_option_list)
 
-        registration = self.request.query_params.get('regId', None)
+        registration = self.request.query_params.get("regId", None)
         if registration:
             queryset = queryset.filter(registration=registration)
 
@@ -300,7 +308,7 @@ class EventAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
         event = get_event(event_id)
         all_participants: QuerySet[RegistrationParticipant] = self.get_queryset()
 
-        registration = self.request.query_params.get('regId', None)
+        registration = self.request.query_params.get("regId", None)
         if registration:
             all_participants = all_participants.filter(registration=registration)
 
@@ -524,12 +532,12 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         paid = registrations.aggregate(sum=Sum("cashincome__amount"))["sum"]
         if total:
             total = float(total)
-        else: 
+        else:
             total = float(0.0)
 
         if paid:
             paid = float(paid)
-        else: 
+        else:
             paid = float(0.0)
 
         unpaid = total - paid
@@ -687,3 +695,43 @@ class RegistrationParentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             .distinct()
             .order_by("name")
         )
+
+
+class MergeRegistrationsViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    permission_classes = [
+        event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson
+    ]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        print(data)
+        reg_id_primary = data["reg_primary"]
+        reg_id_secondary = data["reg_secondary"]
+        reg_primary = Registration.objects.get(id=reg_id_primary)
+        reg_secondary = Registration.objects.get(id=reg_id_secondary)
+
+        model_list = [
+            RegistrationParticipant,
+            BooleanAttribute,
+            IntegerAttribute,
+            FloatAttribute,
+            StringAttribute,
+            DateTimeAttribute,
+            TravelAttribute,
+        ]
+
+        for model in model_list:
+            # move all items from secondary to primary
+            secondary_list = model.objects.filter(registration=reg_id_secondary)
+            secondary_list.update(registration=reg_id_primary)
+
+        # copy responsible persons from secondary to primary
+        if data['copy_responsible_persons']:
+            reg_primary.responsible_persons.add(*reg_secondary.responsible_persons.all())
+
+        # delete secondary registration
+        if data['delete_secondary']:
+            reg_secondary.delete()
+    
+
+        return Response({"id": reg_primary.event.id}, status=status.HTTP_200_OK)
