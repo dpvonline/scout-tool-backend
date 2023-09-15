@@ -44,8 +44,7 @@ class IssueInitCreateViewSet(viewsets.ModelViewSet):
             issue_type_id=request.data.get('issue_type'),
             issue_subject=request.data.get('issue_subject'),
         )
-        print("request.data.get('created_by_name')")
-        print(request.data.get('created_by_name'))
+
         issue.save()
 
         message = Message(
