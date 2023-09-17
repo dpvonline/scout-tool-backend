@@ -546,4 +546,7 @@ class MyTribeVerifiedViewSet(viewsets.ViewSet):
                 status=status.HTTP_200_OK
             )
 
-        return Response({'status': 'Ok', 'verified': True}, status=status.HTTP_200_OK)
+        return Response(
+            {'status': 'Dein Stammesführer hat dich erfolgreich verifiziert', 'verified': True},
+            status=status.HTTP_200_OK
+        )
