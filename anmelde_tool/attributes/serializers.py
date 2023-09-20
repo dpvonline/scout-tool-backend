@@ -33,12 +33,12 @@ class BooleanAttributeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TimeAttributeSerializer(serializers.ModelSerializer):
-    type = serializers.ReadOnlyField(default='timeAttribute')
+class DateTimeAttributeSerializer(serializers.ModelSerializer):
+    type = serializers.ReadOnlyField(default='dateTimeAttribute')
     attribute_module = AttributeModuleEventReadSerializer(many=False, read_only=True)
 
     class Meta:
-        model = attribute_models.TimeAttribute
+        model = attribute_models.DateTimeAttribute
         fields = '__all__'
 
 
@@ -92,9 +92,9 @@ class BooleanAttributePostSerializer(serializers.Serializer):
     boolean_field = serializers.BooleanField(required=True)
 
 
-class TimeAttributePostSerializer(serializers.Serializer):
+class DateTimeAttributePostSerializer(serializers.Serializer):
     attribute_module = serializers.IntegerField(required=True)
-    time_field = serializers.CharField(required=True)
+    date_time_field = serializers.CharField(required=True)
 
 
 class IntegerAttributePostSerializer(serializers.Serializer):
@@ -136,9 +136,9 @@ class BooleanUpdateAttributeSerializer(serializers.ModelSerializer):
         )
 
 
-class TimeUpdateAttributeSerializer(serializers.ModelSerializer):
+class DateTimeUpdateAttributeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = attribute_models.TimeAttribute
+        model = attribute_models.DateTimeAttribute
         exclude = (
             'registration',
             'attribute_module'
