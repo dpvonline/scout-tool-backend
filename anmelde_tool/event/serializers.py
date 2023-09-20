@@ -280,6 +280,7 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
     booking_options = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(many=False, read_only=True)
     existing_register = serializers.SerializerMethodField()
+    expired_since = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -299,20 +300,26 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             'registration_start',
             'last_possible_update',
             'booking_options',
-            'existing_register'
+            'existing_register',
+            'expired_since'
         )
 
     def get_status(self, obj: event_models.Event) -> str:
-        registration = Registration.objects \
-            .filter(event=obj.id, responsible_persons=self.context['request'].user) \
-            .exists()
-
-        if obj.registration_deadline > timezone.now():
+        if obj.registration_start > timezone.now():
+            return 'upcoming'
+        elif obj.registration_deadline > timezone.now():
             return 'pending'
-        elif obj.registration_deadline <= timezone.now():
+        elif obj.registration_deadline <= timezone.now() < obj.last_possible_update:
+            return 'just_editable'
+        elif obj.registration_deadline <= timezone.now() < obj.end_date:
             return 'expired'
+        elif obj.end_date <= timezone.now():
+            return 'archived'
         else:
             return 'error'
+
+    def get_expired_since(self, obj: event_models.Event) -> int:
+        return (timezone.now() - obj.registration_deadline).days
 
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)
