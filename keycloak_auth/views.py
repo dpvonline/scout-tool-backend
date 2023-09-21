@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import filters
 from notifications.signals import notify
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 
 from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
