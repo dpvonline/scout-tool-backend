@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from anmelde_tool.event.choices import choices as event_choices
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 
 
 class RegistrationTypeGroupViewSet(viewsets.ViewSet):

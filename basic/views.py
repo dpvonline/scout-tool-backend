@@ -11,7 +11,7 @@ from basic import models as basic_models
 from basic import serializers as basic_serializers
 from basic.api_exceptions import TooManySearchResults, NoSearchResults, NoSearchValue
 from basic.choices import Gender, DescriptionType
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 from basic.permissions import IsStaffOrReadOnly
 from keycloak_auth import models as keycloak_models
 from keycloak_auth import serializers as keycloak_serializers

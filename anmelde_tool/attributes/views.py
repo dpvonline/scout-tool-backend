@@ -8,7 +8,7 @@ from anmelde_tool.attributes.models import AttributeModule, BooleanAttribute, In
 from anmelde_tool.attributes.serializers import AttributeModuleSerializer, BooleanUpdateAttributeSerializer, \
     IntegerUpdateAttributeSerializer, FloatUpdateAttributeSerializer, DateTimeUpdateAttributeSerializer, \
     TravelUpdateAttributeSerializer, StringUpdateAttributeSerializer
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 
 
 class AttributeModuleViewSet(viewsets.ModelViewSet):

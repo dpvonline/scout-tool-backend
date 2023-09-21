@@ -7,7 +7,7 @@ from rest_framework import status, viewsets, mixins
 from messaging.models import Message, IssueType, Issue
 from messaging.serializers import MessageSerializer, IssueReadSerializer, IssueTypeSerializer, IssueTypeReadSerializer, \
     IssueTypeReadShortSerializer, MessageReadSerializer, IssueSerializer
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 from .choices import MessagePriorityChoise, MessageStatusChoise
 from authentication.models import CustomUser
 

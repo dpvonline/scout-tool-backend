@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from food.choices import Gender
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 from rest_framework.views import APIView
 from rest_framework.mixins import RetrieveModelMixin
 
