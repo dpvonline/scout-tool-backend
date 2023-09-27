@@ -251,7 +251,11 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         if request.data.get('name', None) is None:
             request.data['name'] = self.get_object().name
         request.data['event'] = self.get_object().event.id
-        request.data["price"] = float(request.data["price"].replace(",", "."))
+        if request.data.get("price"):
+            if isinstance(request.data["price"],str):
+                request.data["price"] = float(request.data["price"].replace(",", "."))
+            else:
+                request.data["price"] = float(request.data["price"])
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs) -> Response:
