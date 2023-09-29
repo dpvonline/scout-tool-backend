@@ -243,7 +243,7 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         if request.data.get('bookable_till', None) is None:
             request.data['bookable_till'] = event.start_date
 
-        request.data["price"] = float(request.data["price"].replace(",", "."))
+        request.data["price"] = float(str(request.data["price"]).replace(",", "."))
 
         return super().create(request, *args, **kwargs)
 

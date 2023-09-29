@@ -3,6 +3,8 @@ from food import models as food_models
 from django.contrib.auth.models import User
 from food.service.nutri_lib import Nutri
 from rest_framework.fields import CurrentUserDefault
+from keycloak_auth.helper import get_groups_of_user
+from keycloak_auth.models import KeycloakGroup
 
 from food import serializers as food_serializers
 from anmelde_tool.event import serializers as event_serializers
@@ -213,13 +215,20 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_allow_edit(self, obj):
         try:
-            my_user = self.context.get("request").user
-            status = (
-                food_models.Recipe.objects.filter(id=obj.id)
-                .filter(created_by__id=my_user.id)
+            request = self.context.get("request")
+            token = request.META.get("HTTP_AUTHORIZATION")
+            child_ids = get_groups_of_user(token, request.user.keycloak_id)
+            status_group = (
+                KeycloakGroup.objects.filter(keycloak_id__in=child_ids)
+                .filter(name__in=["DPV AK Digitales", "FoodInspi"])
                 .exists()
             )
-            return status
+            status_user = (
+                food_models.Recipe.objects.filter(id=obj.id)
+                .filter(created_by__id=request.user.id)
+                .exists()
+            )
+            return status_user or status_group
         except:
             return False
 
@@ -258,6 +267,7 @@ class RecipeDataSerializer(serializers.ModelSerializer):
             "sugar_g",
             "sodium_mg",
             "salt_g",
+            "meal_type",
         )
 
 
@@ -526,13 +536,20 @@ class MealDayReadSerializer(serializers.ModelSerializer):
 
     def get_allow_edit(self, obj):
         try:
-            my_user = self.context.get("request").user
-            status = (
-                food_models.MealEvent.objects.filter(id=obj.meal_event.id)
-                .filter(created_by__id=my_user.id)
+            request = self.context.get("request")
+            token = request.META.get("HTTP_AUTHORIZATION")
+            child_ids = get_groups_of_user(token, request.user.keycloak_id)
+            status_group = (
+                KeycloakGroup.objects.filter(keycloak_id__in=child_ids)
+                .filter(name__in=["DPV AK Digitales", "FoodInspi"])
                 .exists()
             )
-            return status
+            status_user = (
+                food_models.Recipe.objects.filter(id=obj.id)
+                .filter(created_by__id=request.user.id)
+                .exists()
+            )
+            return status_user or status_group
         except:
             return False
 
@@ -644,13 +661,20 @@ class MealEventReadSerializer(serializers.ModelSerializer):
 
     def get_allow_edit(self, obj):
         try:
-            my_user = self.context.get("request").user
-            status = (
-                food_models.MealEvent.objects.filter(id=obj.id)
-                .filter(created_by__id=my_user.id)
+            request = self.context.get("request")
+            token = request.META.get("HTTP_AUTHORIZATION")
+            child_ids = get_groups_of_user(token, request.user.keycloak_id)
+            status_group = (
+                KeycloakGroup.objects.filter(keycloak_id__in=child_ids)
+                .filter(name__in=["DPV AK Digitales", "FoodInspi"])
                 .exists()
             )
-            return status
+            status_user = (
+                food_models.Recipe.objects.filter(id=obj.id)
+                .filter(created_by__id=request.user.id)
+                .exists()
+            )
+            return status_user or status_group
         except:
             return False
 
