@@ -23,8 +23,8 @@ Windows
 # Load Example Data
 
 1) `python manage.py add_users`
-1) `python manage.py initialize_keycloak_groups`
-1) `python manage.py initialize_keycloak_scout_hierarchies`
+2) `python manage.py import_keycloak_members`
+3) `python manage.py sync_keycloak_groups`
 
 Mac, Linux:
 
