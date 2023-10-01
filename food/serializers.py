@@ -3,6 +3,9 @@ from food import models as food_models
 from django.contrib.auth.models import User
 from food.service.nutri_lib import Nutri
 from rest_framework.fields import CurrentUserDefault
+from food.service.agg_lib import Price
+from keycloak_auth.helper import get_groups_of_user
+from keycloak_auth.models import KeycloakGroup
 
 from food import serializers as food_serializers
 from anmelde_tool.event import serializers as event_serializers
@@ -170,8 +173,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     hints = food_serializers.HintSerializer(many=True, required=False)
     tags = food_serializers.TagSerializer(many=True, required=False)
     recipe_items = RecipeItemReadSerializer(many=True, read_only=True)
-    price_per_kg = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
     allow_edit = serializers.SerializerMethodField()
 
     class Meta:
@@ -187,8 +188,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             "nutri_points",
             "weight_g",
             "hints",
-            "price_per_kg",
-            "price",
             "recipe_items",
             "tags",
             "hints",
@@ -213,33 +212,29 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_allow_edit(self, obj):
         try:
-            my_user = self.context.get("request").user
-            status = (
-                food_models.Recipe.objects.filter(id=obj.id)
-                .filter(created_by__id=my_user.id)
+            request = self.context.get("request")
+            token = request.META.get("HTTP_AUTHORIZATION")
+            child_ids = get_groups_of_user(token, request.user.keycloak_id)
+            status_group = (
+                KeycloakGroup.objects.filter(keycloak_id__in=child_ids)
+                .filter(name__in=["DPV AK Digitales", "FoodInspi"])
                 .exists()
             )
-            return status
+            status_user = (
+                food_models.Recipe.objects.filter(id=obj.id)
+                .filter(created_by__id=request.user.id)
+                .exists()
+            )
+            return status_user or status_group
         except:
             return False
 
-    def get_price_per_kg(self, obj):
-        data = food_models.RecipeItem.objects.filter(recipe=obj)
-        sum_value = 0
-        count = 0.000000000001
-        for item in RecipeItemReadSerializer(data, many=True).data:
-            count = count + 1
-            sum_value = sum_value + item.get("price_per_kg")
-        return round(sum_value / count, 2)
+    def to_representation(self, instance):
+        data = super(RecipeSerializer, self).to_representation(instance)
 
-    def get_price(self, obj):
-        data = food_models.RecipeItem.objects.filter(recipe=obj)
-        sum_value = 0
-        count = 0.000000000001
-        for item in RecipeItemReadSerializer(data, many=True).data:
-            count = count + 1
-            sum_value = sum_value + (item.get("price_per_kg") * (obj.weight_g / 1000))
-        return round(sum_value / count, 2)
+        data['price_eur'] = Price.agg_recipe_sum(self, data, 'price')
+        data['price_per_kg'] = -100000000
+        return data
 
 
 class RecipeDataSerializer(serializers.ModelSerializer):
@@ -258,7 +253,13 @@ class RecipeDataSerializer(serializers.ModelSerializer):
             "sugar_g",
             "sodium_mg",
             "salt_g",
+            "meal_type",
         )
+
+    def to_representation(self, instance):
+        data = super(RecipeDataSerializer, self).to_representation(instance)
+        data['price_eur'] = -100000000
+        return data
 
 
 class RetailerSerializer(serializers.ModelSerializer):
@@ -363,10 +364,9 @@ class PriceReadSerializer(serializers.ModelSerializer):
 
 
 class MealItemReadSerializer(serializers.ModelSerializer):
-    recipe = RecipeDataSerializer(many=False, read_only=True)
+    recipe = RecipeSerializer(many=False, read_only=True)
     energy_kj = serializers.SerializerMethodField()
     nutri_points = serializers.SerializerMethodField()
-    price_eur = serializers.SerializerMethodField()
     weight_g = serializers.SerializerMethodField()
 
     class Meta:
@@ -378,7 +378,6 @@ class MealItemReadSerializer(serializers.ModelSerializer):
             "factor",
             "energy_kj",
             "nutri_points",
-            "price_eur",
             "weight_g",
         )
 
@@ -388,11 +387,13 @@ class MealItemReadSerializer(serializers.ModelSerializer):
     def get_nutri_points(self, obj):
         return round(obj.recipe.nutri_points * obj.factor, 1)
 
-    def get_price_eur(self, obj):
-        return round(1 * obj.factor, 2)
-
     def get_weight_g(self, obj):
         return round(obj.recipe.weight_g * obj.factor, 0)
+
+    def to_representation(self, instance):
+        data = super(MealItemReadSerializer, self).to_representation(instance)
+        data['price_eur'] = Price.agg_meal_items_sum(self, data, 'price')
+        return data
 
 
 class MealItemReadExtendedSerializer(serializers.ModelSerializer):
@@ -411,12 +412,6 @@ class MealItemSerializer(serializers.ModelSerializer):
 
 class MealReadSerializer(serializers.ModelSerializer):
     meal_items = serializers.SerializerMethodField()
-    energy_kj = serializers.SerializerMethodField()
-    nutri_points = serializers.SerializerMethodField()
-    nutri_class = serializers.SerializerMethodField()
-    price_eur = serializers.SerializerMethodField()
-    weight_g = serializers.SerializerMethodField()
-    day_part_energy_kj = serializers.SerializerMethodField()
 
     class Meta:
         model = food_models.Meal
@@ -428,68 +423,35 @@ class MealReadSerializer(serializers.ModelSerializer):
             "meal_type",
             "get_meal_type_display",
             "meal_items",
-            "energy_kj",
-            "nutri_points",
-            "price_eur",
-            "weight_g",
-            "nutri_class",
-            "day_part_energy_kj",
         )
 
     def get_meal_items(self, obj):
-        jjj = food_models.MealItem.objects.filter(meal=obj)
-        return MealItemReadSerializer(jjj, many=True).data
+        data = food_models.MealItem.objects.filter(meal=obj)
+        return MealItemReadSerializer(data, many=True).data
+    
 
-    def get_energy_kj(self, obj):
-        jjj = food_models.MealItem.objects.filter(meal=obj)
-        sum_value = 0
-        for item in MealItemReadSerializer(jjj, many=True).data:
-            sum_value = sum_value + item.get("energy_kj")
-        return round(sum_value, 0)
+    def to_representation(self, instance):
+        NutriClass = Nutri()
+        data = super(MealReadSerializer, self).to_representation(instance)
+        data['price_eur'] = Price.agg_meal_sum(self, data, 'price')
 
-    def get_day_part_energy_kj(self, obj):
-        jjj = food_models.MealItem.objects.filter(meal=obj)
-        sum_value = 0
-        for item in MealItemReadSerializer(jjj, many=True).data:
-            sum_value = sum_value + item.get("energy_kj")
-        return obj.day_part_factor and round(
-            sum_value / (11500 * obj.day_part_factor), 2
+        data['energy_kj'] = Price.agg_meal_sum(self, data, 'energy_kj')
+
+        data['day_part_energy_kj'] = instance.day_part_factor and round(
+            data['energy_kj'] / (11500 * instance.day_part_factor), 2
         )
 
-    def get_price_eur(self, obj):
-        data = food_models.MealItem.objects.filter(meal=obj)
-        sum_value = 0
-        for item in MealItemReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("price_eur")
-        return round(sum_value, 2)
+        data['weight_g'] = Price.agg_meal_sum(self, data, 'weight_g')
 
-    def get_weight_g(self, obj):
-        data = food_models.MealItem.objects.filter(meal=obj)
-        sum_value = 0
-        for item in MealItemReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("weight_g")
-        return round(sum_value, 0)
+        if data['weight_g'] == 0:
+            data['nutri_points'] = 0
+        else:
+            data['nutri_points'] = Price.agg_meal_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
 
-    def get_nutri_points(self, obj):
-        data = food_models.MealItem.objects.filter(meal=obj)
-        sum_value = 0
-        sum_weight = 0.001
-        for item in MealItemReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("nutri_points") * item.get("weight_g")
-            sum_weight = sum_weight + item.get("weight_g")
-        return round(sum_value / sum_weight, 1)
-
-    def get_nutri_class(self, obj):
-        NutriClass = Nutri()
-        data = food_models.MealItem.objects.filter(meal=obj)
-        sum_value = 0
-        sum_weight = 0.001
-        for item in MealItemReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("nutri_points") * item.get("weight_g")
-            sum_weight = sum_weight + item.get("weight_g")
-
-        nutri_class = NutriClass.get_nutri_class("solid", sum_value / sum_weight)
-        return round(nutri_class, 2)
+        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        return data
+    
+    
 
 
 class MealReadExtendedSerializer(serializers.ModelSerializer):
@@ -512,12 +474,6 @@ class MealSerializer(serializers.ModelSerializer):
 
 class MealDayReadSerializer(serializers.ModelSerializer):
     meals = serializers.SerializerMethodField()
-    energy_kj = serializers.SerializerMethodField()
-    price_eur = serializers.SerializerMethodField()
-    weight_g = serializers.SerializerMethodField()
-    nutri_points = serializers.SerializerMethodField()
-    nutri_class = serializers.SerializerMethodField()
-    day_factors = serializers.SerializerMethodField()
     allow_edit = serializers.SerializerMethodField()
 
     class Meta:
@@ -526,13 +482,20 @@ class MealDayReadSerializer(serializers.ModelSerializer):
 
     def get_allow_edit(self, obj):
         try:
-            my_user = self.context.get("request").user
-            status = (
-                food_models.MealEvent.objects.filter(id=obj.meal_event.id)
-                .filter(created_by__id=my_user.id)
+            request = self.context.get("request")
+            token = request.META.get("HTTP_AUTHORIZATION")
+            child_ids = get_groups_of_user(token, request.user.keycloak_id)
+            status_group = (
+                KeycloakGroup.objects.filter(keycloak_id__in=child_ids)
+                .filter(name__in=["DPV AK Digitales", "FoodInspi"])
                 .exists()
             )
-            return status
+            status_user = (
+                food_models.Recipe.objects.filter(id=obj.id)
+                .filter(created_by__id=request.user.id)
+                .exists()
+            )
+            return status_user or status_group
         except:
             return False
 
@@ -540,53 +503,25 @@ class MealDayReadSerializer(serializers.ModelSerializer):
         data = food_models.Meal.objects.filter(meal_day=obj)
         return MealReadSerializer(data, many=True).data
 
-    def get_energy_kj(self, obj):
-        jjj = food_models.Meal.objects.filter(meal_day=obj)
-        sum_energy_kj = 0
-        for item in MealReadSerializer(jjj, many=True).data:
-            sum_energy_kj = sum_energy_kj + item.get("energy_kj")
-        return round(sum_energy_kj, 0)
 
-    def get_price_eur(self, obj):
-        data = food_models.Meal.objects.filter(meal_day=obj)
-        sum_value = 0
-        for item in MealReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("price_eur")
-        return round(sum_value, 2)
-
-    def get_weight_g(self, obj):
-        data = food_models.Meal.objects.filter(meal_day=obj)
-        sum_value = 0
-        for item in MealReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("weight_g")
-        return round(sum_value, 0)
-
-    def get_nutri_points(self, obj):
-        data = food_models.Meal.objects.filter(meal_day=obj)
-        sum_value = 0
-        for item in MealReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("nutri_points") * item.get(
-                "day_part_factor"
-            )
-        return round(sum_value, 1)
-
-    def get_day_factors(self, obj):
-        data = food_models.Meal.objects.filter(meal_day=obj)
-        sum_value = 0
-        for item in MealReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("day_part_factor")
-        return round(sum_value, 2)
-
-    def get_nutri_class(self, obj):
+    def to_representation(self, instance):
         NutriClass = Nutri()
-        data = food_models.Meal.objects.filter(meal_day=obj)
-        sum_value = 0
-        for item in MealReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("nutri_points") * item.get(
-                "day_part_factor"
-            )
-        nutri_class = NutriClass.get_nutri_class("solid", sum_value)
-        return nutri_class
+        data = super(MealDayReadSerializer, self).to_representation(instance)
+        data['price_eur'] = Price.agg_meal_day_sum(self, data, 'price')
+
+        data['energy_kj'] = Price.agg_meal_day_sum(self, data, 'energy_kj')
+
+        data['day_factors'] = 1
+
+        data['weight_g'] = Price.agg_meal_day_sum(self, data, 'weight_g')
+    
+        if data['weight_g'] == 0:
+            data['nutri_points'] = 0
+        else:
+            data['nutri_points'] = Price.agg_meal_day_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
+
+        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        return data
 
 
 class MealDayReadExtendedSerializer(serializers.ModelSerializer):
@@ -600,6 +535,25 @@ class MealDayReadExtendedSerializer(serializers.ModelSerializer):
         data = food_models.Meal.objects.filter(meal_day=obj)
         return MealReadExtendedSerializer(data, many=True).data
 
+
+    def to_representation(self, instance):
+        NutriClass = Nutri()
+        data = super(MealDayReadExtendedSerializer, self).to_representation(instance)
+        data['price_eur'] = Price.agg_meal_day_sum(self, data, 'price')
+
+
+        data['energy_kj'] = Price.agg_meal_day_sum(self, data, 'energy_kj')
+        data['day_part_energy_kj'] = 1.34
+
+        data['weight_g'] = Price.agg_meal_day_sum(self, data, 'weight_g')
+        
+        if data['weight_g'] == 0:
+            data['nutri_points'] = 0
+        else:
+            data['nutri_points'] = Price.agg_meal_day_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
+
+        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        return data
 
 class MealDaySerializer(serializers.ModelSerializer):
     class Meta:
@@ -627,11 +581,6 @@ class MealEventSmallSerializer(serializers.ModelSerializer):
 class MealEventReadSerializer(serializers.ModelSerializer):
     event = event_serializers.EventFoodSerializer(many=False, read_only=True)
     meal_days = serializers.SerializerMethodField()
-    energy_kj = serializers.SerializerMethodField()
-    price_eur = serializers.SerializerMethodField()
-    weight_g = serializers.SerializerMethodField()
-    nutri_points = serializers.SerializerMethodField()
-    nutri_class = serializers.SerializerMethodField()
     allow_edit = serializers.SerializerMethodField()
 
     class Meta:
@@ -644,61 +593,40 @@ class MealEventReadSerializer(serializers.ModelSerializer):
 
     def get_allow_edit(self, obj):
         try:
-            my_user = self.context.get("request").user
-            status = (
-                food_models.MealEvent.objects.filter(id=obj.id)
-                .filter(created_by__id=my_user.id)
+            request = self.context.get("request")
+            token = request.META.get("HTTP_AUTHORIZATION")
+            child_ids = get_groups_of_user(token, request.user.keycloak_id)
+            status_group = (
+                KeycloakGroup.objects.filter(keycloak_id__in=child_ids)
+                .filter(name__in=["DPV AK Digitales", "FoodInspi"])
                 .exists()
             )
-            return status
+            status_user = (
+                food_models.Recipe.objects.filter(id=obj.id)
+                .filter(created_by__id=request.user.id)
+                .exists()
+            )
+            return status_user or status_group
         except:
             return False
-
-    def get_energy_kj(self, obj):
-        jjj = food_models.MealDay.objects.filter(meal_event=obj)
-        sum_energy_kj = 0
-        for item in MealDayReadSerializer(jjj, many=True).data:
-            sum_energy_kj = sum_energy_kj + item.get("energy_kj")
-        return round(sum_energy_kj, 0)
-
-    def get_price_eur(self, obj):
-        data = food_models.MealDay.objects.filter(meal_event=obj)
-        sum_value = 0
-        for item in MealDayReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("price_eur")
-        return round(sum_value, 2)
-
-    def get_weight_g(self, obj):
-        data = food_models.MealDay.objects.filter(meal_event=obj)
-        sum_value = 0
-        for item in MealDayReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("weight_g")
-        return round(sum_value, 0)
-
-    def get_nutri_points(self, obj):
-        data = food_models.MealDay.objects.filter(meal_event=obj)
-        sum_value = 0
-        for item in MealDayReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("nutri_points")
-        return round(sum_value, 1)
-
-    def get_day_factors(self, obj):
-        data = food_models.Meal.objects.filter(meal_day=obj)
-        sum_value = 0
-        for item in MealReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("day_part_factor")
-        return round(sum_value, 2)
-
-    def get_nutri_class(self, obj):
+        
+    def to_representation(self, instance):
         NutriClass = Nutri()
-        data = food_models.MealDay.objects.filter(meal_event=obj)
-        sum_value = 0
-        for item in MealDayReadSerializer(data, many=True).data:
-            sum_value = sum_value + item.get("nutri_points")
+        data = super(MealEventReadSerializer, self).to_representation(instance)
+        data['price_eur'] = Price.agg_meal_event_sum(self, data, 'price')
 
-        nutri_class = NutriClass.get_nutri_class("solid", sum_value)
-        return nutri_class
+        data['energy_kj'] = Price.agg_meal_event_sum(self, data, 'energy_kj')
+        data['day_part_energy_kj'] = -100000000
+    
+        data['weight_g'] = Price.agg_meal_event_sum(self, data, 'weight_g')
 
+        if data['weight_g'] == 0:
+            data['nutri_points'] = 0
+        else:
+            data['nutri_points'] = Price.agg_meal_event_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
+
+        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        return data
 
 class EventReadExtendedSerializer(serializers.ModelSerializer):
     event = event_serializers.EventFoodSerializer(many=False, read_only=True)
@@ -709,5 +637,15 @@ class EventReadExtendedSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_meal_days(self, obj):
-        jjj = food_models.MealDay.objects.filter(meal_event=obj)
-        return MealDayReadExtendedSerializer(jjj, many=True).data
+        data = food_models.MealDay.objects.filter(meal_event=obj)
+        return MealDayReadExtendedSerializer(data, many=True).data
+    
+    def to_representation(self, instance):
+        data = super(EventReadExtendedSerializer, self).to_representation(instance)
+        data['price_eur'] = -100000000
+        data['day_part_energy_kj'] = -100000000
+        data['energy_kj'] = -100000000
+        data['weight_g'] = -100000000
+        data['nutri_points'] = -100000000
+        data['nutri_class'] = -100000000
+        return data

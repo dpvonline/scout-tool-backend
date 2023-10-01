@@ -266,15 +266,22 @@ class MealEventViewSet(viewsets.ModelViewSet):
             id=request.data.get("event")
         ).first()
 
+        activity_factor_id = request.data.get('activity_factor')
+
+        activity_factor = food_models.PhysicalActivityLevel.objects.filter(id=activity_factor_id).first()
+
         new_meal_event = food_models.MealEvent.objects.create(
             event=selected_event,
             norm_portions=request.data.get("norm_portions"),
             description=request.data.get("description"),
-            # activity_factor = request.data.get('activity_factor'),
+            activity_factor = activity_factor,
             reserve_factor=request.data.get("reserve_factor"),
             is_public=request.data.get("is_public"),
             is_approved=request.data.get("is_approved"),
         )
+
+        new_meal_event.created_by.add(request.user.id)
+
         start_date = selected_event.start_date
         end_date = selected_event.end_date
 
@@ -284,7 +291,7 @@ class MealEventViewSet(viewsets.ModelViewSet):
             food_models.MealDay.objects.create(
                 date=single_date,
                 meal_event=new_meal_event,
-                # activity_facor = request.data.get('activity_factor'),
+                activity_factor = activity_factor,
             )
 
         return Response(
@@ -362,6 +369,7 @@ class MealTypeViewSet(viewsets.ViewSet):
     def list(self, request) -> Response:
         result = choice_to_json(food_models.MealType.choices)
         return Response(result, status=status.HTTP_200_OK)
+
 
 class RecipeStatusViewSet(viewsets.ViewSet):
     def list(self, request) -> Response:

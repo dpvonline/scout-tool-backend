@@ -285,7 +285,9 @@ class Recipe(TimeStampMixin, NutrientsMixin):
     nutri_points = models.FloatField(null=True, blank=True)
     weight_g = models.FloatField(default=1)
     hints = models.ManyToManyField(Hint, blank=True)
-    created_by = models.ManyToManyField(User, related_name="recipe_created_by", blank=True)
+    created_by = models.ManyToManyField(
+        User, related_name="recipe_created_by", blank=True
+    )
 
     def __str__(self):
         return str(self.name)
