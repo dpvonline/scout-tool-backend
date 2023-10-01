@@ -588,7 +588,7 @@ class MealEventReadSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_meal_days(self, obj):
-        jjj = food_models.MealDay.objects.filter(meal_event=obj)
+        jjj = food_models.MealDay.objects.filter(meal_event=obj).order_by('date')
         return MealDayReadSerializer(jjj, many=True).data
 
     def get_allow_edit(self, obj):
