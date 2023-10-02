@@ -65,7 +65,6 @@ class PriceViewSet(viewsets.ModelViewSet):
             )
             request.data["package"] = new_package.id
 
-        print(request.data)
         return super().create(request, *args, **kwargs)
 
 

@@ -12,48 +12,44 @@ def agg_func(obj, agg_field):
 
 def get_agg_recipe(recipes, agg_field):
     total = 0
-    for recipe_keys, recipe_values in recipes.items():
-        if recipe_keys == "recipe_items":
-            for recipe_item in recipe_values:
-                total += agg_func(recipe_item, agg_field)
+    recipe_items = recipes.get("recipe_items")
+    for recipe_item in recipe_items:
+        total += agg_func(recipe_item, agg_field)
     return total
 
 
 def get_agg_meal_items(meal_items, agg_field):
     total = 0
-    for meal_item_keys, meal_item_values in meal_items.items():
-        if meal_item_keys == "recipe":
-            total += get_agg_recipe(meal_item_values, agg_field)
+    recipe = meal_items.get("recipe")
+    factor = meal_items.get("factor")
+    total += get_agg_recipe(recipe, agg_field) * factor
     return total
 
 
 def get_agg_meal(meals, agg_field):
     total = 0
-    for meal_keys, meal_values in meals.items():
-        if meal_keys == "meal_items":
-            for meal_item in meal_values:
-                total += get_agg_meal_items(meal_item, agg_field)
+    meal_items = meals.get("meal_items")
+    for meal_item in meal_items:
+        total += get_agg_meal_items(meal_item, agg_field)
     return total
 
 def get_agg_day(meal_days, agg_field):
     total = 0
-    for meal_days_keys, meal_days_values in meal_days.items():
-        if meal_days_keys == "meals" and meal_days_values and meal_days_values[0]:
-            for meal_days_value in meal_days_values:
-                total += get_agg_meal(meal_days_value, agg_field)
+    meals = meal_days.get("meals")
+    for meal in meals:
+        total += get_agg_meal(meal, agg_field)
     return total
 
 
 def get_agg_meal_event(events, agg_field):
     total = 0
-    for event_keys, event_values in events.items():
-        if event_keys == "meal_days":
-            for meal_day in event_values:
-                total += get_agg_day(meal_day, agg_field)
+    event_values = events.get("meal_days")
+    for meal_day in event_values:
+        total += get_agg_day(meal_day, agg_field)
     return total
 
 
-class Price:
+class AggLib:
     def agg_meal_items_sum(self, meal_items, agg_field):
         return get_agg_meal_items(meal_items, agg_field)
 
@@ -68,3 +64,10 @@ class Price:
 
     def agg_meal_sum(self, meals, agg_field):
         return get_agg_meal(meals, agg_field)
+
+    def agg_day_factors(self, meal_days):
+        total = 0
+        meals = meal_days.get("meals")
+        for meal in meals:
+            total += meal.get("day_part_factor")
+        return total
