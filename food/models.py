@@ -466,7 +466,7 @@ class MealDay(TimeStampMixin):
     max_day_part_factor = models.FloatField(default=1)
 
     def __str__(self):
-        return f"{self.meal_event.event} {self.date}"
+        return f"{self.meal_event} {self.date}"
 
     def __repr__(self):
         return self.__str__()
