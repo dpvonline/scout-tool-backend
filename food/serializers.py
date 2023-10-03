@@ -423,6 +423,8 @@ class MealReadSerializer(serializers.ModelSerializer):
             "meal_type",
             "get_meal_type_display",
             "meal_items",
+            "time_start",
+            "time_end",
         )
 
     def get_meal_items(self, obj):
@@ -500,7 +502,7 @@ class MealDayReadSerializer(serializers.ModelSerializer):
             return False
 
     def get_meals(self, obj):
-        data = food_models.Meal.objects.filter(meal_day=obj)
+        data = food_models.Meal.objects.filter(meal_day=obj).order_by("time_start")
         return MealReadSerializer(data, many=True).data
 
 

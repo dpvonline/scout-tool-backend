@@ -27,6 +27,7 @@ router.register(
 router.register(r"my-recipe-read", views.MyRecipeReadViewSet, basename="my-recipe-read")
 router.register(r"recipe-item", views.RecipeItemViewSet, basename="recipe-item")
 router.register(r"recipe-clone", views.RecipeCloneViewSet, basename="recipe-clone")
+router.register(r"multiply-recipe-items", views.MultiplyRecipeItemsViewSet, basename="multiply-recipe-items")
 
 router.register(r"package", views.PackageViewSet)
 router.register(r"package-read", views.PackageReadViewSet)

@@ -13,17 +13,16 @@ from rest_framework.views import APIView
 from rest_framework.mixins import RetrieveModelMixin
 
 from copy import deepcopy
-from datetime import date
 from itertools import groupby
 from datetime import date, timedelta
-from datetime import datetime
+import datetime
 
 from food import models as food_models
 from food import serializers as food_serializers
 from anmelde_tool.event import models as event_models
 
 
-def get_formatted_date(date: str) -> datetime:
+def get_formatted_date(date: str) -> datetime.datetime:
     return datetime.strptime(date, "%Y-%m-%dT%H:%M")
 
 
@@ -120,6 +119,27 @@ class RecipeCloneViewSet(viewsets.ViewSet):
                 new.save()
             return Response(
                 food_serializers.RecipeSerializer(new_old_obj).data,
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response({"Bitte ID mitgeben"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MultiplyRecipeItemsViewSet(viewsets.ViewSet):
+    def create(self, request, *args, **kwargs) -> Response:
+        if request.data.get("id", None) is not None:
+            recipe_id = request.data.get("id")
+            recipe_obj = food_models.Recipe.objects.filter(id=recipe_id).first()
+
+            all_items = food_models.RecipeItem.objects.filter(recipe_id=recipe_id)
+
+            for item in all_items:
+                factor = float(str(request.data.get("factor")).replace(",", "."))
+                item.quantity = item.quantity * factor
+                item.save()
+
+            return Response(
+                food_serializers.RecipeSerializer(recipe_obj).data,
                 status=status.HTTP_201_CREATED,
             )
 
@@ -287,11 +307,95 @@ class MealEventViewSet(viewsets.ModelViewSet):
         day_count = (end_date.date() - start_date.date()).days + 1
 
         for single_date in (start_date + timedelta(n) for n in range(day_count)):
-            food_models.MealDay.objects.create(
+
+            tomorrow = single_date + timedelta(days=1)
+
+            tomorrow_with_time = datetime.datetime(
+                year=tomorrow.year, 
+                month=tomorrow.month,
+                day=tomorrow.day,
+            )
+
+            today_with_time = datetime.datetime(
+                year=single_date.year, 
+                month=single_date.month,
+                day=single_date.day,
+            )
+
+            hours_left = (tomorrow_with_time.timestamp() - start_date.timestamp()) / 3600
+            hours_until = (end_date.timestamp() - today_with_time.timestamp()) / 3600
+
+            print(hours_until)
+
+            if (hours_left < 24):
+                max_day_part_factor = hours_left / 24
+            elif (hours_until < 24):
+                max_day_part_factor = hours_until / 24
+            else:
+                max_day_part_factor = 1
+
+            current_meal_day = food_models.MealDay.objects.create(
                 date=single_date,
                 meal_event=new_meal_event,
                 activity_factor = activity_factor,
+                max_day_part_factor=max_day_part_factor,
             )
+            current_date = single_date.date()
+
+            start_date_ts = selected_event.start_date.timestamp()
+            end_date_ts = selected_event.end_date.timestamp()
+
+            food_models.Meal.objects.create(
+                name = "Snacks",
+                meal_day = current_meal_day,
+                day_part_factor = 0.10,
+                meal_type = "snack",
+                time_start = datetime.time(7,00),
+                time_end = datetime.time(22,00),
+            )
+
+            food_models.Meal.objects.create(
+                name = "Getränke",
+                meal_day = current_meal_day,
+                day_part_factor = 0.00,
+                meal_type = "snack",
+                time_start = datetime.time(7,00),
+                time_end = datetime.time(22,00),
+            )
+
+            dt_breakfast = datetime.datetime.combine(current_date, datetime.time(8,00)).timestamp()
+
+            if (start_date_ts < dt_breakfast < end_date_ts):
+                food_models.Meal.objects.create(
+                    name = "Frühstück",
+                    meal_day = current_meal_day,
+                    day_part_factor = 0.30,
+                    meal_type = "breakfast",
+                    time_start = datetime.time(8,00),
+                    time_end = datetime.time(9,00),
+                )
+
+            dt_lunch = datetime.datetime.combine(current_date, datetime.time(13,00)).timestamp()
+            if (start_date_ts < dt_lunch < end_date_ts):
+                food_models.Meal.objects.create(
+                    name = "Mittagessen",
+                    meal_day = current_meal_day,
+                    day_part_factor = 0.30,
+                    meal_type = "lunch_cold",
+                    time_start = datetime.time(13,00),
+                    time_end = datetime.time(14,00),
+                )
+
+            dt_dinner = datetime.datetime.combine(current_date, datetime.time(19,00)).timestamp()
+            if (start_date_ts < dt_dinner < end_date_ts):
+                food_models.Meal.objects.create(
+                    name = "Abendessen",
+                    meal_day = current_meal_day,
+                    day_part_factor = 0.30,
+                    meal_type = "lunch_warm",
+                    time_start = datetime.time(19,00),
+                    time_end = datetime.time(20,00),
+                )
 
         return Response(
             food_serializers.MealEventReadSerializer(new_meal_event).data,

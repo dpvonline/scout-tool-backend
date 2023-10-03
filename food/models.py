@@ -464,6 +464,7 @@ class MealDay(TimeStampMixin):
     )
     date = models.DateField(null=True)
     max_day_part_factor = models.FloatField(default=1)
+    is_public = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.meal_event} {self.date}"
@@ -479,6 +480,9 @@ class Meal(TimeStampMixin):
     meal_type = models.CharField(
         max_length=10, choices=MealType.choices, default=MealType.LUNCH_WARM
     )
+    time_start = models.TimeField(null=True, blank=True)
+    time_end = models.TimeField(null=True, blank=True)
+    is_public = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name}"
