@@ -366,7 +366,6 @@ class MealEventViewSet(viewsets.ModelViewSet):
             current_meal_day = food_models.MealDay.objects.create(
                 date=single_date,
                 meal_event=new_meal_event,
-                activity_factor=activity_factor,
                 max_day_part_factor=max_day_part_factor,
             )
             current_date = single_date.date()
