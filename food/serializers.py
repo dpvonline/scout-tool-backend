@@ -232,8 +232,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super(RecipeSerializer, self).to_representation(instance)
 
-        data['price_eur'] = AggLib.agg_recipe_sum(self, data, 'price')
-        data['price_per_kg'] = -100000000
+        data["price_eur"] = AggLib.agg_recipe_sum(self, data, "price")
         return data
 
 
@@ -258,7 +257,6 @@ class RecipeDataSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(RecipeDataSerializer, self).to_representation(instance)
-        data['price_eur'] = -100000000
         return data
 
 
@@ -392,7 +390,7 @@ class MealItemReadSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super(MealItemReadSerializer, self).to_representation(instance)
-        data['price_eur'] = AggLib.agg_meal_items_sum(self, data, 'price')
+        data["price_eur"] = AggLib.agg_meal_items_sum(self, data, "price")
         return data
 
 
@@ -410,8 +408,34 @@ class MealItemSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MealDaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = food_models.MealDay
+        fields = "__all__"
+
+class MealEventSmallSerializer(serializers.ModelSerializer):
+    event = event_serializers.EventFoodSerializer(many=False, read_only=True)
+    created_by = registration_serializers.CurrentUserSerializer(
+        many=True, read_only=True
+    )
+
+    class Meta:
+        model = food_models.MealEvent
+        fields = "__all__"
+
+class MealDayShortSerializer(serializers.ModelSerializer):
+    activity_factor = food_serializers.PhysicalActivityLevelSerializer(
+        many=False, read_only=True
+    )
+    meal_event = MealEventSmallSerializer(many=False, read_only=True)
+    class Meta:
+        model = food_models.MealDay
+        fields = "__all__"
+
+
 class MealReadSerializer(serializers.ModelSerializer):
     meal_items = serializers.SerializerMethodField()
+    meal_day = MealDayShortSerializer(many=False, read_only=True)
 
     class Meta:
         model = food_models.Meal
@@ -430,30 +454,30 @@ class MealReadSerializer(serializers.ModelSerializer):
     def get_meal_items(self, obj):
         data = food_models.MealItem.objects.filter(meal=obj)
         return MealItemReadSerializer(data, many=True).data
-    
 
     def to_representation(self, instance):
         NutriClass = Nutri()
         data = super(MealReadSerializer, self).to_representation(instance)
-        data['price_eur'] = AggLib.agg_meal_sum(self, data, 'price')
+        data["price_eur"] = AggLib.agg_meal_sum(self, data, "price")
 
-        data['energy_kj'] = AggLib.agg_meal_sum(self, data, 'energy_kj')
+        data["energy_kj"] = AggLib.agg_meal_sum(self, data, "energy_kj")
 
-        data['day_part_energy_kj'] = instance.day_part_factor and round(
-            data['energy_kj'] / (11500 * instance.day_part_factor), 2
+        data["day_part_energy_kj"] = instance.day_part_factor and round(
+            data["energy_kj"] / (11500 * instance.day_part_factor), 2
         )
 
-        data['weight_g'] = AggLib.agg_meal_sum(self, data, 'weight_g')
+        data["weight_g"] = AggLib.agg_meal_sum(self, data, "weight_g")
 
-        if data['weight_g'] == 0:
-            data['nutri_points'] = 0
+        if data["weight_g"] == 0:
+            data["nutri_points"] = 0
         else:
-            data['nutri_points'] = AggLib.agg_meal_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
+            data["nutri_points"] = (
+                AggLib.agg_meal_sum(self, data, ["weight_g", "nutri_points"])
+                / data["weight_g"]
+            )
 
-        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        data["nutri_class"] = NutriClass.get_nutri_class("solid", data["nutri_points"])
         return data
-    
-    
 
 
 class MealReadExtendedSerializer(serializers.ModelSerializer):
@@ -505,24 +529,28 @@ class MealDayReadSerializer(serializers.ModelSerializer):
         data = food_models.Meal.objects.filter(meal_day=obj).order_by("time_start")
         return MealReadSerializer(data, many=True).data
 
-
     def to_representation(self, instance):
         NutriClass = Nutri()
         data = super(MealDayReadSerializer, self).to_representation(instance)
-        data['price_eur'] = AggLib.agg_meal_day_sum(self, data, 'price')
+        data["price_eur"] = AggLib.agg_meal_day_sum(self, data, "price")
 
-        data['energy_kj'] = AggLib.agg_meal_day_sum(self, data, 'energy_kj')
+        data["energy_kj"] = AggLib.agg_meal_day_sum(self, data, "energy_kj")
 
-        data['day_factors'] = AggLib.agg_day_factors(self, data)
+        data["day_factors"] = AggLib.agg_day_factors(self, data)
 
-        data['weight_g'] = AggLib.agg_meal_day_sum(self, data, 'weight_g')
-    
-        if data['weight_g'] == 0:
-            data['nutri_points'] = 0
+        data["energy_kj_sum"] = round(float(data["max_day_part_factor"]) * 11595.15, 0)
+
+        data["weight_g"] = AggLib.agg_meal_day_sum(self, data, "weight_g")
+
+        if data["weight_g"] == 0:
+            data["nutri_points"] = 0
         else:
-            data['nutri_points'] = AggLib.agg_meal_day_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
+            data["nutri_points"] = (
+                AggLib.agg_meal_day_sum(self, data, ["weight_g", "nutri_points"])
+                / data["weight_g"]
+            )
 
-        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        data["nutri_class"] = NutriClass.get_nutri_class("solid", data["nutri_points"])
         return data
 
 
@@ -537,30 +565,25 @@ class MealDayReadExtendedSerializer(serializers.ModelSerializer):
         data = food_models.Meal.objects.filter(meal_day=obj)
         return MealReadExtendedSerializer(data, many=True).data
 
-
     def to_representation(self, instance):
         NutriClass = Nutri()
         data = super(MealDayReadExtendedSerializer, self).to_representation(instance)
-        data['price_eur'] = AggLib.agg_meal_day_sum(self, data, 'price')
+        data["price_eur"] = AggLib.agg_meal_day_sum(self, data, "price")
 
+        data["energy_kj"] = AggLib.agg_meal_day_sum(self, data, "energy_kj")
 
-        data['energy_kj'] = AggLib.agg_meal_day_sum(self, data, 'energy_kj')
-        data['day_part_energy_kj'] = 1.34
+        data["weight_g"] = AggLib.agg_meal_day_sum(self, data, "weight_g")
 
-        data['weight_g'] = AggLib.agg_meal_day_sum(self, data, 'weight_g')
-        
-        if data['weight_g'] == 0:
-            data['nutri_points'] = 0
+        if data["weight_g"] == 0:
+            data["nutri_points"] = 0
         else:
-            data['nutri_points'] = AggLib.agg_meal_day_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
+            data["nutri_points"] = (
+                AggLib.agg_meal_day_sum(self, data, ["weight_g", "nutri_points"])
+                / data["weight_g"]
+            )
 
-        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        data["nutri_class"] = NutriClass.get_nutri_class("solid", data["nutri_points"])
         return data
-
-class MealDaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = food_models.MealDay
-        fields = "__all__"
 
 
 class MealEventSerializer(serializers.ModelSerializer):
@@ -569,28 +592,33 @@ class MealEventSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class MealEventSmallSerializer(serializers.ModelSerializer):
-    event = event_serializers.EventFoodSerializer(many=False, read_only=True)
-    created_by = registration_serializers.CurrentUserSerializer(
-        many=True, read_only=True
-    )
-
-    class Meta:
-        model = food_models.MealEvent
-        fields = "__all__"
-
-
 class MealEventReadSerializer(serializers.ModelSerializer):
     event = event_serializers.EventFoodSerializer(many=False, read_only=True)
+    activity_factor = food_serializers.PhysicalActivityLevelSerializer(
+        many=False, read_only=True
+    )
     meal_days = serializers.SerializerMethodField()
     allow_edit = serializers.SerializerMethodField()
 
     class Meta:
         model = food_models.MealEvent
-        fields = "__all__"
+        fields = (
+            "id",
+            "event",
+            "description",
+            "norm_portions",
+            "activity_factor",
+            "reserve_factor",
+            "is_public",
+            "is_approved",
+            "created_by",
+            "allow_edit",
+            "meal_days",
+            "event",
+        )
 
     def get_meal_days(self, obj):
-        jjj = food_models.MealDay.objects.filter(meal_event=obj).order_by('date')
+        jjj = food_models.MealDay.objects.filter(meal_event=obj).order_by("date")
         return MealDayReadSerializer(jjj, many=True).data
 
     def get_allow_edit(self, obj):
@@ -611,24 +639,28 @@ class MealEventReadSerializer(serializers.ModelSerializer):
             return status_user or status_group
         except:
             return False
-        
+
     def to_representation(self, instance):
         NutriClass = Nutri()
         data = super(MealEventReadSerializer, self).to_representation(instance)
-        data['price_eur'] = AggLib.agg_meal_event_sum(self, data, 'price')
+        data["price_eur"] = AggLib.agg_meal_event_sum(self, data, "price")
 
-        data['energy_kj'] = AggLib.agg_meal_event_sum(self, data, 'energy_kj')
-        data['day_part_energy_kj'] = -100000000
-    
-        data['weight_g'] = AggLib.agg_meal_event_sum(self, data, 'weight_g')
+        data["energy_kj"] = AggLib.agg_meal_event_sum(self, data, "energy_kj")
+        data["energy_kj_sum"] = AggLib.agg_meal_event_energy_kj(self, data)
 
-        if data['weight_g'] == 0:
-            data['nutri_points'] = 0
+        data["weight_g"] = AggLib.agg_meal_event_sum(self, data, "weight_g")
+
+        if data["weight_g"] == 0:
+            data["nutri_points"] = 0
         else:
-            data['nutri_points'] = AggLib.agg_meal_event_sum(self, data, ['weight_g', 'nutri_points']) / data['weight_g']
+            data["nutri_points"] = (
+                AggLib.agg_meal_event_sum(self, data, ["weight_g", "nutri_points"])
+                / data["weight_g"]
+            )
 
-        data['nutri_class'] = NutriClass.get_nutri_class("solid", data['nutri_points'])
+        data["nutri_class"] = NutriClass.get_nutri_class("solid", data["nutri_points"])
         return data
+
 
 class EventReadExtendedSerializer(serializers.ModelSerializer):
     event = event_serializers.EventFoodSerializer(many=False, read_only=True)
@@ -641,13 +673,7 @@ class EventReadExtendedSerializer(serializers.ModelSerializer):
     def get_meal_days(self, obj):
         data = food_models.MealDay.objects.filter(meal_event=obj)
         return MealDayReadExtendedSerializer(data, many=True).data
-    
+
     def to_representation(self, instance):
         data = super(EventReadExtendedSerializer, self).to_representation(instance)
-        data['price_eur'] = -100000000
-        data['day_part_energy_kj'] = -100000000
-        data['energy_kj'] = -100000000
-        data['weight_g'] = -100000000
-        data['nutri_points'] = -100000000
-        data['nutri_class'] = -100000000
         return data

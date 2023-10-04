@@ -61,6 +61,7 @@ router.register(
 router.register(r"meal-day", views.MealDayViewSet)
 router.register(r"meal-day-read", views.MealDayReadViewSet)
 router.register(r"meal", views.MealViewSet)
+router.register(r"meal-clone", views.MealCloneViewSet, basename="meal-clone")
 router.register(r"meal-item", views.MealItemViewSet)
 
 # Choices

@@ -459,9 +459,6 @@ class MealEvent(TimeStampMixin):
 
 class MealDay(TimeStampMixin):
     meal_event = models.ForeignKey(MealEvent, on_delete=models.CASCADE, null=True)
-    activity_factor = models.ForeignKey(
-        PhysicalActivityLevel, on_delete=models.PROTECT, null=True, blank=True
-    )
     date = models.DateField(null=True)
     max_day_part_factor = models.FloatField(default=1)
     is_public = models.BooleanField(default=False)

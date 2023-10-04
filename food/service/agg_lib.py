@@ -71,3 +71,10 @@ class AggLib:
         for meal in meals:
             total += meal.get("day_part_factor")
         return total
+    
+    def agg_meal_event_energy_kj(self, meal_event):
+        total = 0
+        meal_days = meal_event.get("meal_days")
+        for meal_day in meal_days:
+            total += meal_day.get("max_day_part_factor")
+        return round(11595.15 * total, 2)

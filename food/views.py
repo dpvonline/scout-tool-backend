@@ -125,6 +125,30 @@ class RecipeCloneViewSet(viewsets.ViewSet):
         return Response({"Bitte ID mitgeben"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class MealCloneViewSet(viewsets.ViewSet):
+    def create(self, request, *args, **kwargs) -> Response:
+        if request.data.get("clone_meal_id", None) is not None and request.data.get("meal_id", None) is not None:
+            clone_meal_id = request.data.get("clone_meal_id")
+            meal_id = request.data.get("meal_id")
+            current_meal_obj = food_models.Meal.objects.filter(id=meal_id).first()
+
+            all_meal_items = food_models.MealItem.objects.filter(meal_id=clone_meal_id)
+
+
+            for meal_item in all_meal_items:
+                new_meal_item = deepcopy(meal_item)
+                new_meal_item.id = None
+                new_meal_item.meal = current_meal_obj
+                new_meal_item.save()
+
+            return Response(
+                food_serializers.MealReadSerializer(current_meal_obj).data,
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response({"Bitte ID mitgeben"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class MultiplyRecipeItemsViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs) -> Response:
         if request.data.get("id", None) is not None:
