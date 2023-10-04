@@ -127,13 +127,15 @@ class RecipeCloneViewSet(viewsets.ViewSet):
 
 class MealCloneViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs) -> Response:
-        if request.data.get("clone_meal_id", None) is not None and request.data.get("meal_id", None) is not None:
+        if (
+            request.data.get("clone_meal_id", None) is not None
+            and request.data.get("meal_id", None) is not None
+        ):
             clone_meal_id = request.data.get("clone_meal_id")
             meal_id = request.data.get("meal_id")
             current_meal_obj = food_models.Meal.objects.filter(id=meal_id).first()
 
             all_meal_items = food_models.MealItem.objects.filter(meal_id=clone_meal_id)
-
 
             for meal_item in all_meal_items:
                 new_meal_item = deepcopy(meal_item)
@@ -309,15 +311,17 @@ class MealEventViewSet(viewsets.ModelViewSet):
             id=request.data.get("event")
         ).first()
 
-        activity_factor_id = request.data.get('activity_factor')
+        activity_factor_id = request.data.get("activity_factor")
 
-        activity_factor = food_models.PhysicalActivityLevel.objects.filter(id=activity_factor_id).first()
+        activity_factor = food_models.PhysicalActivityLevel.objects.filter(
+            id=activity_factor_id
+        ).first()
 
         new_meal_event = food_models.MealEvent.objects.create(
             event=selected_event,
             norm_portions=request.data.get("norm_portions"),
             description=request.data.get("description"),
-            activity_factor = activity_factor,
+            activity_factor=activity_factor,
             reserve_factor=request.data.get("reserve_factor"),
             is_public=request.data.get("is_public"),
             is_approved=request.data.get("is_approved"),
@@ -331,29 +335,30 @@ class MealEventViewSet(viewsets.ModelViewSet):
         day_count = (end_date.date() - start_date.date()).days + 1
 
         for single_date in (start_date + timedelta(n) for n in range(day_count)):
-
             tomorrow = single_date + timedelta(days=1)
 
             tomorrow_with_time = datetime.datetime(
-                year=tomorrow.year, 
+                year=tomorrow.year,
                 month=tomorrow.month,
                 day=tomorrow.day,
             )
 
             today_with_time = datetime.datetime(
-                year=single_date.year, 
+                year=single_date.year,
                 month=single_date.month,
                 day=single_date.day,
             )
 
-            hours_left = (tomorrow_with_time.timestamp() - start_date.timestamp()) / 3600
+            hours_left = (
+                tomorrow_with_time.timestamp() - start_date.timestamp()
+            ) / 3600
             hours_until = (end_date.timestamp() - today_with_time.timestamp()) / 3600
 
             print(hours_until)
 
-            if (hours_left < 24):
+            if hours_left < 24:
                 max_day_part_factor = hours_left / 24
-            elif (hours_until < 24):
+            elif hours_until < 24:
                 max_day_part_factor = hours_until / 24
             else:
                 max_day_part_factor = 1
@@ -361,7 +366,7 @@ class MealEventViewSet(viewsets.ModelViewSet):
             current_meal_day = food_models.MealDay.objects.create(
                 date=single_date,
                 meal_event=new_meal_event,
-                activity_factor = activity_factor,
+                activity_factor=activity_factor,
                 max_day_part_factor=max_day_part_factor,
             )
             current_date = single_date.date()
@@ -370,55 +375,70 @@ class MealEventViewSet(viewsets.ModelViewSet):
             end_date_ts = selected_event.end_date.timestamp()
 
             food_models.Meal.objects.create(
-                name = "Snacks",
-                meal_day = current_meal_day,
-                day_part_factor = 0.10,
-                meal_type = "snack",
-                time_start = datetime.time(7,00),
-                time_end = datetime.time(22,00),
+                name="Snacks",
+                meal_day=current_meal_day,
+                day_part_factor=0.10,
+                meal_type="snack",
+                time_start=datetime.time(7, 00),
+                time_end=datetime.time(22, 00),
             )
 
             food_models.Meal.objects.create(
-                name = "Getränke",
-                meal_day = current_meal_day,
-                day_part_factor = 0.00,
-                meal_type = "snack",
-                time_start = datetime.time(7,00),
-                time_end = datetime.time(22,00),
+                name="Getränke",
+                meal_day=current_meal_day,
+                day_part_factor=0.00,
+                meal_type="snack",
+                time_start=datetime.time(7, 00),
+                time_end=datetime.time(22, 00),
             )
 
-            dt_breakfast = datetime.datetime.combine(current_date, datetime.time(8,00)).timestamp()
+            dt_breakfast = datetime.datetime.combine(
+                current_date, datetime.time(8, 00)
+            ).timestamp()
 
-            if (start_date_ts < dt_breakfast < end_date_ts):
+            if start_date_ts < dt_breakfast < end_date_ts:
                 food_models.Meal.objects.create(
-                    name = "Frühstück",
-                    meal_day = current_meal_day,
-                    day_part_factor = 0.30,
-                    meal_type = "breakfast",
-                    time_start = datetime.time(8,00),
-                    time_end = datetime.time(9,00),
+                    name="Frühstück",
+                    meal_day=current_meal_day,
+                    day_part_factor=0.30,
+                    meal_type="breakfast",
+                    time_start=datetime.time(8, 00),
+                    time_end=datetime.time(9, 00),
                 )
 
-            dt_lunch = datetime.datetime.combine(current_date, datetime.time(13,00)).timestamp()
-            if (start_date_ts < dt_lunch < end_date_ts):
+            dt_lunch = datetime.datetime.combine(
+                current_date, datetime.time(13, 00)
+            ).timestamp()
+            if start_date_ts < dt_lunch < end_date_ts:
                 food_models.Meal.objects.create(
-                    name = "Mittagessen",
-                    meal_day = current_meal_day,
-                    day_part_factor = 0.30,
-                    meal_type = "lunch_cold",
-                    time_start = datetime.time(13,00),
-                    time_end = datetime.time(14,00),
+                    name="Mittagessen",
+                    meal_day=current_meal_day,
+                    day_part_factor=0.30,
+                    meal_type="lunch_cold",
+                    time_start=datetime.time(13, 00),
+                    time_end=datetime.time(14, 00),
                 )
 
-            dt_dinner = datetime.datetime.combine(current_date, datetime.time(19,00)).timestamp()
-            if (start_date_ts < dt_dinner < end_date_ts):
+            dt_dinner = datetime.datetime.combine(
+                current_date, datetime.time(19, 00)
+            ).timestamp()
+            if start_date_ts < dt_dinner < end_date_ts:
                 food_models.Meal.objects.create(
-                    name = "Abendessen",
-                    meal_day = current_meal_day,
-                    day_part_factor = 0.30,
-                    meal_type = "lunch_warm",
-                    time_start = datetime.time(19,00),
-                    time_end = datetime.time(20,00),
+                    name="Abendessen",
+                    meal_day=current_meal_day,
+                    day_part_factor=0.30,
+                    meal_type="lunch_warm",
+                    time_start=datetime.time(19, 00),
+                    time_end=datetime.time(20, 00),
+                )
+
+                food_models.Meal.objects.create(
+                    name="Abendsnack",
+                    meal_day=current_meal_day,
+                    day_part_factor=0.10,
+                    meal_type="snack",
+                    time_start=datetime.time(21, 00),
+                    time_end=datetime.time(22, 00),
                 )
 
         return Response(
@@ -456,7 +476,9 @@ class PublicMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = food_serializers.MealEventReadSerializer
 
     def get_queryset(self) -> QuerySet:
-        return food_models.MealEvent.objects.filter(is_public=True)
+        return food_models.MealEvent.objects.filter(
+            Q(is_public=True) | Q(created_by__id=self.request.user.id)
+        )
 
 
 class ApprovedMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
