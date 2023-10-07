@@ -37,7 +37,7 @@ class HintViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PriceReadViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = food_models.Price.objects.all()
+    queryset = food_models.Price.objects.all().order_by("-created_at")
     serializer_class = food_serializers.PriceReadSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ["id", "package__portion__ingredient__id"]
@@ -295,7 +295,7 @@ class PortionViewSet(viewsets.ModelViewSet):
 
 
 class PortionReadViewSet(viewsets.ModelViewSet):
-    queryset = food_models.Portion.objects.all().order_by("rank").order_by("name")
+    queryset = food_models.Portion.objects.all().order_by("name").order_by("rank")
     serializer_class = food_serializers.PortionReadSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ["id", "name", "ingredient__id"]

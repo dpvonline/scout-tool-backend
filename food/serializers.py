@@ -358,7 +358,7 @@ class PriceReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = food_models.Price
-        fields = ("id", "price_eur", "retailer", "package", "price_per_kg")
+        fields = ("id", "price_eur", "retailer", "package", "price_per_kg", "created_at")
 
 
 class MealItemReadSerializer(serializers.ModelSerializer):

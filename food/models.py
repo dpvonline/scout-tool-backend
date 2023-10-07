@@ -413,6 +413,7 @@ class Price(TimeStampMixin):
         self.price_per_kg = round(
             self.price_eur / (self.package.weight_package_g / 1000), 2
         )
+        self.created_at = datetime.datetime.now()
         super(Price, self).save(*args, **kwargs)
 
     def __str__(self):
