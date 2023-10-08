@@ -261,6 +261,7 @@ class MealType(models.TextChoices):
     LUNCH_COLD = "lunch_cold", "Menu (kalt)"
     DESSERT = "dessert", "Nachtisch"
     SNACK = "snack", "Snack"
+    DRINK = "drink", "Getränk"
 
 
 class RecipeStatus(models.TextChoices):

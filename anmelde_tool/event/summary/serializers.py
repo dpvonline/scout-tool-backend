@@ -335,14 +335,7 @@ class TravelAttributeSummarySerializer(serializers.ModelSerializer):
 
 class AttributeSummarySerializer(serializers.ModelSerializer):
     field_type = serializers.CharField(source="get_field_type_display", read_only=True)
-    boolean_attribute_set = BooleanAttributeSummarySerializer(many=True, read_only=True)
-    date_time_attribute_set = DateTimeAttributeSummarySerializer(
-        many=True, read_only=True
-    )
-    integer_attribute_set = IntegerAttributeSummarySerializer(many=True, read_only=True)
-    float_attribute_set = FloatAttributeSummarySerializer(many=True, read_only=True)
-    string_attribute_set = StringAttributeSummarySerializer(many=True, read_only=True)
-    travel_attribute_set = TravelAttributeSummarySerializer(many=True, read_only=True)
+    attribute_set = serializers.SerializerMethodField()
 
     class Meta:
         model = AttributeModule
@@ -351,13 +344,28 @@ class AttributeSummarySerializer(serializers.ModelSerializer):
             "title",
             "text",
             "field_type",
-            "boolean_attribute_set",
-            "date_time_attribute_set",
-            "integer_attribute_set",
-            "float_attribute_set",
-            "string_attribute_set",
-            "travel_attribute_set",
+            "attribute_set",
         )
+
+    def get_attribute_set(self, attributeModule: AttributeModule) -> int:
+        if (attributeModule.field_type == "BoA"):
+            items = BooleanAttribute.objects.filter(attribute_module=attributeModule)
+            return BooleanAttributeSummarySerializer(items, many=True, read_only=True).data
+        elif (attributeModule.field_type == "TiA"):
+            items = DateTimeAttribute.objects.filter(attribute_module=attributeModule)
+            return DateTimeAttributeSummarySerializer(items, many=True, read_only=True).data
+        elif (attributeModule.field_type == "InA"):
+            items = IntegerAttribute.objects.filter(attribute_module=attributeModule)
+            return IntegerAttributeSummarySerializer(items, many=True, read_only=True).data
+        elif (attributeModule.field_type == "FlA"):
+            items = FloatAttribute.objects.filter(attribute_module=attributeModule)
+            return FloatAttributeSummarySerializer(items, many=True, read_only=True).data
+        elif (attributeModule.field_type == "StA"):
+            items = StringAttribute.objects.filter(attribute_module=attributeModule)
+            return StringAttributeSummarySerializer(items, many=True, read_only=True).data
+        elif (attributeModule.field_type == "TrA"):
+            items = TravelAttribute.objects.filter(attribute_module=attributeModule)
+            return TravelAttributeSummarySerializer(items, many=True, read_only=True).data
 
 
 class EventModuleSummarySerializer(serializers.ModelSerializer):
