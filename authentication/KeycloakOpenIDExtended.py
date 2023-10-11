@@ -4,6 +4,7 @@ from keycloak.exceptions import raise_error_from_response, KeycloakGetError, Key
 
 URL_ALL_USERS = "admin/realms/{realm-name}/users"
 URL_GROUP_USERS = "admin/realms/{realm-name}/groups/{group-id}/members"
+URL_USER_GROUPS = "admin/realms/{realm-name}/users/{id}/groups"
 
 
 class KeycloakOpenIDExtended(KeycloakOpenID):
@@ -38,7 +39,7 @@ class KeycloakOpenIDExtended(KeycloakOpenID):
         params_path = {"realm-name": self.realm_name, "id": user_id}
         self.connection.add_param_headers('Authorization', token)
         data_raw = self.connection.raw_get(
-            urls_patterns.URL_ADMIN_USER_GROUPS.format(**params_path), **params
+            URL_USER_GROUPS.format(**params_path), **params
         )
         return raise_error_from_response(data_raw, KeycloakGetError)
 

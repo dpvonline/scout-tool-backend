@@ -104,7 +104,7 @@ class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
                 q.put(group.parent)
 
         return Event.objects \
-            .filter((Q(invited_groups__in=parent_ids) | Q(invited_groups=None)), is_public=True) \
+            .filter((Q(invited_groups__in=parent_ids) | Q(invited_groups=None)) & Q(is_public=True)) \
             .distinct()
 
 
@@ -297,8 +297,9 @@ class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
 
         queryset = Event.objects.filter(
             Q(admin_group__keycloak_id__in=child_ids)
-            | Q(view_group__keycloak_id__in=child_ids)
+            | (Q(view_group__keycloak_id__in=child_ids) & Q(is_public=True))
             | Q(responsible_persons=self.request.user)
+            | (Q(invited_groups=None) & Q(is_public=True))
         ).distinct()
 
         return queryset

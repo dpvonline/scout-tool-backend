@@ -4,7 +4,7 @@ import logging
 from django.db.models import QuerySet
 from keycloak import KeycloakGetError, KeycloakAuthenticationError
 
-from backend.settings import keycloak_user
+from backend.settings import keycloak_user, keycloak_admin
 from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.models import KeycloakGroup
 
@@ -51,10 +51,10 @@ def check_group_admin_permission(group_id: str) -> bool:
     return False
 
 
-def get_groups_of_user(token,keycloak_id):
+def get_groups_of_user(token, keycloak_id):
+    # TODO: Replace back to keycloak_user
     try:
-        keycloak_groups = keycloak_user.get_user_groups(
-            token,
+        keycloak_groups = keycloak_admin.get_user_groups(
             keycloak_id,
             brief_representation=True
         )
