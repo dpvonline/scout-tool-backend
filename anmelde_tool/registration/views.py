@@ -149,9 +149,9 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 zip_code=zip_code,
                 gender=request.data.get("gender"),
                 scout_level="N",
-                created_by=self.request.user.id
             )
             person.save()
+            person.created_by.add(self.request.user.id)
 
         return super().create(request, *args, **kwargs)
 
