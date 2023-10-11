@@ -42,7 +42,7 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.registration import serializers as registration_serializers
-from anmelde_tool.registration.api_exceptions import ZipCodeNotFound
+from anmelde_tool.registration.api_exceptions import ZipCodeNotFound, PersonAlreadyRegistered
 from anmelde_tool.registration.models import (
     Registration,
     RegistrationParticipant,
@@ -90,6 +90,12 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         ).order_by("age")
 
     def create(self, request, *args, **kwargs) -> Response:
+        # TODO: Finn, add participant exist check and raise error if it does
+        person_exist = False
+
+        if person_exist:
+            raise PersonAlreadyRegistered()
+
         eat_habits_formatted = create_missing_eat_habits(request)
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
@@ -125,6 +131,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             request.data["booking_option"] = registration.event.bookingoption_set.first().id
 
         if request.data.get('allow_permanently'):
+            # TODO: Finn, add here person exist check and don't add person if it does
             person = auth_models.Person(
                 first_name=request.data.get('first_name'),
                 scout_name=request.data.get('scout_name'),
@@ -138,9 +145,9 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 zip_code=zip_code,
                 gender=request.data.get("gender"),
                 scout_level="N",
-                created_by=self.request.user.id
             )
             person.save()
+            person.created_by.add(self.request.user.id)
 
         return super().create(request, *args, **kwargs)
 
