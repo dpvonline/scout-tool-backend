@@ -15,7 +15,7 @@ from rest_framework.viewsets import GenericViewSet
 from anmelde_tool.registration.views import create_missing_eat_habits
 from backend.settings import env, keycloak_admin, keycloak_user
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 from basic.models import ScoutHierarchy, ZipCode, EatHabit
 from basic.permissions import IsStaffOrReadOnly
 from keycloak_auth.api_exceptions import NotAuthorized
@@ -546,4 +546,7 @@ class MyTribeVerifiedViewSet(viewsets.ViewSet):
                 status=status.HTTP_200_OK
             )
 
-        return Response({'status': 'Ok', 'verified': True}, status=status.HTTP_200_OK)
+        return Response(
+            {'status': 'Dein Stammesführer hat dich erfolgreich verifiziert', 'verified': True},
+            status=status.HTTP_200_OK
+        )

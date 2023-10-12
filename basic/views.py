@@ -6,23 +6,17 @@ from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.http import Http404, JsonResponse
-from django.contrib.auth.models import Group
 
 from basic import models as basic_models
-from messaging import models as messaging_models
-from authentication import models as authentication_models
-from keycloak_auth import models as keycloak_models
-
 from basic import serializers as basic_serializers
-from messaging import serializers as messaging_serializers
-from authentication import serializers as authentication_serializers
-from keycloak_auth import serializers as keycloak_serializers
-
 from basic.api_exceptions import TooManySearchResults, NoSearchResults, NoSearchValue
 from basic.choices import Gender, DescriptionType
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 from basic.permissions import IsStaffOrReadOnly
+from keycloak_auth import models as keycloak_models
+from keycloak_auth import serializers as keycloak_serializers
+from messaging import models as messaging_models
+from messaging import serializers as messaging_serializers
 
 
 class ScoutHierarchyViewSet(viewsets.ReadOnlyModelViewSet):

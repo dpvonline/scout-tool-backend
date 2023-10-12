@@ -16,6 +16,15 @@ def get_parent_scout_organisation(obj: basic_models.ScoutHierarchy, filter_level
 
     return ''
 
+def get_parent_scout_organisation_by_id(obj: basic_models.ScoutHierarchy, filter_id: int) -> str:
+    if isinstance(obj, basic_models.ScoutHierarchy):
+        iterator: basic_models.ScoutHierarchy = obj
+        while iterator is not None:
+            if iterator.level.id == filter_id:
+                return iterator.name
+            iterator = iterator.parent
+    return ''
+
 
 class ScoutHierarchySerializer(serializers.ModelSerializer):
     class Meta:
@@ -111,10 +120,11 @@ class ScoutHierarchyDetailedSerializer(serializers.ModelSerializer):
     ring = serializers.SerializerMethodField()
     bund = serializers.SerializerMethodField()
     stamm = serializers.SerializerMethodField()
+    display_name = serializers.SerializerMethodField()
 
     class Meta:
         model = basic_models.ScoutHierarchy
-        fields = ('id', 'name', 'abbreviation', 'level',
+        fields = ('id', 'name', 'display_name', 'abbreviation', 'level',
                   'zip_code', 'ring', 'bund', 'stamm')
 
     def get_ring(self, obj: basic_models.ScoutHierarchy) -> str:
@@ -125,6 +135,15 @@ class ScoutHierarchyDetailedSerializer(serializers.ModelSerializer):
 
     def get_stamm(self, obj: basic_models.ScoutHierarchy) -> str:
         return get_parent_scout_organisation(obj, 'Stamm')
+
+    def get_display_name(self, obj: basic_models.ScoutHierarchy) -> str:
+        display_parent_id = obj.level.id - 1
+
+        # handle Ringe as Bund
+        display_parent_id_2 = display_parent_id if display_parent_id != 4 else 3
+
+        display_parent_name = get_parent_scout_organisation_by_id(obj, display_parent_id_2)
+        return f"{obj.name} ({display_parent_name})"
 
 
 class DescriptionSerializer(serializers.ModelSerializer):

@@ -7,7 +7,7 @@ from rest_framework import status, viewsets, mixins
 from messaging.models import Message, IssueType, Issue
 from messaging.serializers import MessageSerializer, IssueReadSerializer, IssueTypeSerializer, IssueTypeReadSerializer, \
     IssueTypeReadShortSerializer, MessageReadSerializer, IssueSerializer
-from basic.helper import choice_to_json
+from basic.helper.choice_to_json import choice_to_json
 from .choices import MessagePriorityChoise, MessageStatusChoise
 from authentication.models import CustomUser
 
@@ -44,8 +44,7 @@ class IssueInitCreateViewSet(viewsets.ModelViewSet):
             issue_type_id=request.data.get('issue_type'),
             issue_subject=request.data.get('issue_subject'),
         )
-        print("request.data.get('created_by_name')")
-        print(request.data.get('created_by_name'))
+
         issue.save()
 
         message = Message(

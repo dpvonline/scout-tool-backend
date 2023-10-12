@@ -211,7 +211,7 @@ class EventModuleSummaryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         event_id = self.kwargs.get("event_pk", None)
-        return EventModule.objects.filter(event__id=event_id)
+        return EventModule.objects.filter(event__id=event_id).exclude(name__in=["Participants", "Introduction", "Summary"])
 
 
 class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -704,7 +704,7 @@ class MergeRegistrationsViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        print(data)
+
         reg_id_primary = data["reg_primary"]
         reg_id_secondary = data["reg_secondary"]
         reg_primary = Registration.objects.get(id=reg_id_primary)
