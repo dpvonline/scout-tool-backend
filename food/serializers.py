@@ -435,14 +435,12 @@ class MealDayShortSerializer(serializers.ModelSerializer):
 
 class MealReadSerializer(serializers.ModelSerializer):
     meal_items = serializers.SerializerMethodField()
-    meal_day = MealDayShortSerializer(many=False, read_only=True)
 
     class Meta:
         model = food_models.Meal
         fields = (
             "id",
             "name",
-            "meal_day",
             "day_part_factor",
             "meal_type",
             "get_meal_type_display",

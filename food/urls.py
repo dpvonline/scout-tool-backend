@@ -47,10 +47,16 @@ router.register(r"meal-event", views.MealEventViewSet)
 router.register(r"meal-event-read", views.MealEventReadViewSet)
 router.register(r"meal-event-read-small", views.MealEventSmallReadViewSet)
 router.register(
+    r"my-event-small-read", views.MyMealEventSmallReadViewSet, basename="my-event-small-read"
+)
+router.register(
     r"my-event-read", views.MyMealEventReadViewSet, basename="my-event-read"
 )
 router.register(
     r"public-event-read", views.PublicMealEventReadViewSet, basename="public-event-read"
+)
+router.register(
+    r"public-event-small-read", views.PublicMealEventSmallReadViewSet, basename="public-event-small-read"
 )
 router.register(
     r"approved-event-read",
@@ -58,6 +64,11 @@ router.register(
     basename="approved-event-read",
 )
 
+router.register(
+    r"approved-event-small-read",
+    views.ApprovedMealEventSmallReadViewSet,
+    basename="approved-event-small-read",
+)
 router.register(r"meal-day", views.MealDayViewSet)
 router.register(r"meal-day-read", views.MealDayReadViewSet)
 router.register(r"meal", views.MealViewSet)
