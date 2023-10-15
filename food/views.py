@@ -470,6 +470,14 @@ class MyMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
             created_by__id=self.request.user.id
         ).exclude(created_by=None)
 
+class MyMealEventSmallReadViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = food_serializers.MealEventSmallSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return food_models.MealEvent.objects.filter(
+            created_by__id=self.request.user.id
+        ).exclude(created_by=None)
+
 
 class PublicMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = food_serializers.MealEventReadSerializer
@@ -479,9 +487,23 @@ class PublicMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
             Q(is_public=True) | Q(created_by__id=self.request.user.id)
         )
 
+class PublicMealEventSmallReadViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = food_serializers.MealEventSmallSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return food_models.MealEvent.objects.filter(
+            Q(is_public=True) | Q(created_by__id=self.request.user.id)
+        )
+
 
 class ApprovedMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = food_serializers.MealEventReadSerializer
+
+    def get_queryset(self) -> QuerySet:
+        return food_models.MealEvent.objects.filter(is_approved=True, is_public=True)
+
+class ApprovedMealEventSmallReadViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = food_serializers.MealEventSmallSerializer
 
     def get_queryset(self) -> QuerySet:
         return food_models.MealEvent.objects.filter(is_approved=True, is_public=True)
