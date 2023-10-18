@@ -59,6 +59,7 @@ class Event(basic_models.TimeStampMixin):
         blank=True,
         null=True
     )
+    view_allow_subgroup = models.BooleanField(default=False)
     inviting_group = models.ForeignKey(
         keycloak_models.KeycloakGroup,
         on_delete=models.SET_NULL,
@@ -89,7 +90,6 @@ class Event(basic_models.TimeStampMixin):
         null=True,
         blank=True
     )
-
     def __str__(self):
         return f"{self.name}"
 

@@ -190,6 +190,8 @@ class EventReadSerializer(serializers.ModelSerializer):
     theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
     booking_options = serializers.SerializerMethodField()
     existing_register = serializers.SerializerMethodField()
+    can_view_leader = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -208,7 +210,6 @@ class EventReadSerializer(serializers.ModelSerializer):
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data
 
-
     def get_existing_register(self, obj: event_models.Event) -> Registration:
         registration = Registration.objects \
             .filter(event=obj.id, responsible_persons=self.context['request'].user)
@@ -224,6 +225,13 @@ class EventReadSerializer(serializers.ModelSerializer):
     def get_responsible_persons(self,obj):
         return [user.get_display_name() for user in obj.responsible_persons.all()]
 
+    def get_can_view_leader(self, obj: event_models.Event) -> [bool, event_permissions.LeadershipRole]:
+        if not obj.view_allow_subgroup:
+            return False
+        return event_permissions.check_leader_permission(obj, self.context['request'].user)
+
+    def get_can_edit(self, obj: event_models.Event) -> event_permissions.EventRole:
+        return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):
@@ -237,13 +245,15 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         model = event_models.Event
         fields = '__all__'
 
-    def get_can_view(self, obj: event_models.Event) -> bool:
+    def get_can_view(self, obj: event_models.Event) -> event_permissions.EventRole:
         return event_permissions.check_event_permission(obj, self.context['request'])
 
-    def get_can_view_leader(self, obj: event_models.Event) -> bool:
+    def get_can_view_leader(self, obj: event_models.Event) -> [bool, event_permissions.LeadershipRole]:
+        if not obj.view_allow_subgroup:
+            return False
         return event_permissions.check_leader_permission(obj, self.context['request'].user)
 
-    def get_can_edit(self, obj: event_models.Event) -> bool:
+    def get_can_edit(self, obj: event_models.Event) -> event_permissions.EventRole:
         return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
 
     def get_status(self, obj: event_models.Event) -> str:
@@ -257,11 +267,13 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         else:
             return 'error'
 
+
 class RegistrationReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
         fields = '__all__'
+
 
 class MyInvitationsSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
