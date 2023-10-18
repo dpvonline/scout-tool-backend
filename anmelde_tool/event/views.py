@@ -300,6 +300,7 @@ class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
             | (Q(view_group__keycloak_id__in=child_ids) & Q(is_public=True))
             | Q(responsible_persons=self.request.user)
             | (Q(invited_groups=None) & Q(is_public=True))
+            | Q(view_allow_subgroup=True)
         ).distinct()
 
         return queryset
