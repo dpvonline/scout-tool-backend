@@ -493,7 +493,7 @@ class PublicMealEventSmallReadViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self) -> QuerySet:
         return food_models.MealEvent.objects.filter(
             Q(is_public=True) | Q(created_by__id=self.request.user.id)
-        )
+        ).distinct()
 
 
 class ApprovedMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
