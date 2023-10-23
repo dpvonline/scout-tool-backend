@@ -358,7 +358,14 @@ class PriceReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = food_models.Price
-        fields = ("id", "price_eur", "retailer", "package", "price_per_kg", "created_at")
+        fields = (
+            "id",
+            "price_eur",
+            "retailer",
+            "package",
+            "price_per_kg",
+            "created_at",
+        )
 
 
 class MealItemReadSerializer(serializers.ModelSerializer):
@@ -413,6 +420,7 @@ class MealDaySerializer(serializers.ModelSerializer):
         model = food_models.MealDay
         fields = "__all__"
 
+
 class MealEventSmallSerializer(serializers.ModelSerializer):
     event = event_serializers.EventFoodSerializer(many=False, read_only=True)
     created_by = registration_serializers.CurrentUserSerializer(
@@ -423,11 +431,13 @@ class MealEventSmallSerializer(serializers.ModelSerializer):
         model = food_models.MealEvent
         fields = "__all__"
 
+
 class MealDayShortSerializer(serializers.ModelSerializer):
     activity_factor = food_serializers.PhysicalActivityLevelSerializer(
         many=False, read_only=True
     )
     meal_event = MealEventSmallSerializer(many=False, read_only=True)
+
     class Meta:
         model = food_models.MealDay
         fields = "__all__"
@@ -630,7 +640,7 @@ class MealEventReadSerializer(serializers.ModelSerializer):
                 .exists()
             )
             status_user = (
-                food_models.Recipe.objects.filter(id=obj.id)
+                food_models.MealEvent.objects.filter(id=obj.id)
                 .filter(created_by__id=request.user.id)
                 .exists()
             )
