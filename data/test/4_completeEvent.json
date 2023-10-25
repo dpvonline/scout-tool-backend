@@ -13,8 +13,7 @@
       "contact_email": "test@test.de",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -31,8 +30,7 @@
       "contact_email": "p@p.de",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -49,8 +47,7 @@
       "contact_email": "",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -67,8 +64,7 @@
       "contact_email": "",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -85,8 +81,7 @@
       "contact_email": "",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -103,8 +98,7 @@
       "contact_email": "test@test.de",
       "contact_phone": "",
       "per_person_fee": null,
-      "fix_fee": null,
-      "tags": []
+      "fix_fee": null
     }
   },
   {
@@ -127,9 +121,9 @@
       "registration_start": "2023-06-20T23:00:00Z",
       "last_possible_update": "2023-06-28T15:00:00Z",
       "is_public": true,
-      "view_group": "7afe257a-42a0-40f2-8540-ea9613b669db",
-      "admin_group": "49beaead-17a9-421b-9fea-ad486d26ef13",
-      "inviting_group": "49beaead-17a9-421b-9fea-ad486d26ef13",
+      "view_group": null,
+      "admin_group": null,
+      "inviting_group": null,
       "registration_level": 5,
       "theme": 3,
       "email_set": 1,
@@ -137,7 +131,6 @@
         1
       ],
       "invited_groups": [
-        "2fb07c05-a61f-42e8-958d-326474289267"
       ]
     }
   },
@@ -374,8 +367,7 @@
       "event": "e26041ac-5c4e-4482-aac4-ecf33e905727",
       "max_participants": 0,
       "start_date": null,
-      "end_date": null,
-      "tags": []
+      "end_date": null
     }
   },
   {
