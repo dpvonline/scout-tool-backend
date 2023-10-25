@@ -42,7 +42,7 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.registration import serializers as registration_serializers
-from anmelde_tool.registration.api_exceptions import ZipCodeNotFound
+from anmelde_tool.registration.api_exceptions import ZipCodeNotFound, ParticipantAlreadyExists
 from anmelde_tool.registration.models import (
     Registration,
     RegistrationParticipant,
@@ -89,7 +89,18 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             registration=registration_id
         ).order_by("age")
 
+    def check_for_double_participants(self, request, event_id):
+        if RegistrationParticipant.objects.filter(
+                first_name=request.data.get("first_name"),
+                last_name=request.data.get("last_name"),
+                birthday=request.data.get("birthday"),
+                registration__event=event_id).exists():
+            raise ParticipantAlreadyExists()
+
     def create(self, request, *args, **kwargs) -> Response:
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        self.check_for_double_participants(request, event_id)
         eat_habits_formatted = create_missing_eat_habits(request)
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
@@ -106,8 +117,6 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             if not zip_code:
                 raise ZipCodeNotFound()
             request.data["zip_code"] = zip_code.id
-
-        registration: Registration = self.participant_initialization(request)
 
         if request.data.get("age"):
             request.data["birthday"] = timezone.now() - relativedelta(
@@ -147,6 +156,9 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        self.check_for_double_participants(request, event_id)
         eat_habits_formatted = create_missing_eat_habits(request)
 
         zip_code = None
