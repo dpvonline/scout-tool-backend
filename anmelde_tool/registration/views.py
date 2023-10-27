@@ -97,8 +97,10 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
 
+        zip_code_string = request.data.get("zip_code")
+        zip_code_data = int(zip_code_string)
+
         zip_code = None
-        zip_code_data = request.data.get("zip_code")
         if zip_code_data:
             zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
             if not zip_code:
