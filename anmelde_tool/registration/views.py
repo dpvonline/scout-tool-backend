@@ -106,15 +106,15 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 raise ZipCodeNotFound()
             request.data["zip_code"] = zip_code.id
 
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        self.check_for_double_participants(request, event_id)
-
         eat_habits_formatted = create_missing_eat_habits(request)
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data["eat_habit"] = eat_habits_formatted
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
+
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        self.check_for_double_participants(request, event_id)
 
         if request.data.get("age"):
             request.data["birthday"] = timezone.now() - relativedelta(
@@ -161,15 +161,16 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 raise ZipCodeNotFound()
             request.data["zip_code"] = zip_code.id
 
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        self.check_for_double_participants(request, event_id)
         eat_habits_formatted = create_missing_eat_habits(request)
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data["eat_habit"] = eat_habits_formatted
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
+
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        # self.check_for_double_participants(request, event_id)
 
         request.data["generated"] = False
         return super().update(request, *args, **kwargs)
