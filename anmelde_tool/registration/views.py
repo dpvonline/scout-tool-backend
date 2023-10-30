@@ -123,8 +123,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         request.data["registration"] = registration.id
 
         if (
-            request.data.get("first_name") is None
-            and request.data.get("last_name") is None
+                request.data.get("first_name") is None
+                and request.data.get("last_name") is None
         ):
             max_num = self.get_queryset().count()
             request.data["first_name"] = "Teilnehmer"
@@ -206,8 +206,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             if registration.event.registration_start > timezone.now():
                 raise event_api_exceptions.TooEarly
             elif (
-                self.action != "destroy"
-                and registration.event.last_possible_update < timezone.now()
+                    self.action != "destroy"
+                    and registration.event.last_possible_update < timezone.now()
             ):
                 raise event_api_exceptions.TooLate
 
