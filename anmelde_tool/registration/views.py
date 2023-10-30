@@ -98,23 +98,23 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             raise ParticipantAlreadyExists()
 
     def create(self, request, *args, **kwargs) -> Response:
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        self.check_for_double_participants(request, event_id)
-        eat_habits_formatted = create_missing_eat_habits(request)
-
-        if eat_habits_formatted and len(eat_habits_formatted) > 0:
-            request.data["eat_habit"] = eat_habits_formatted
-        elif "eat_habit" in request.data:
-            del request.data["eat_habit"]
-
-        zip_code = None
         zip_code_data = request.data.get("zip_code")
+        zip_code = None
         if zip_code_data:
             zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
             if not zip_code:
                 raise ZipCodeNotFound()
             request.data["zip_code"] = zip_code.id
+
+        eat_habits_formatted = create_missing_eat_habits(request)
+        if eat_habits_formatted and len(eat_habits_formatted) > 0:
+            request.data["eat_habit"] = eat_habits_formatted
+        elif "eat_habit" in request.data:
+            del request.data["eat_habit"]
+
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        self.check_for_double_participants(request, event_id)
 
         if request.data.get("age"):
             request.data["birthday"] = timezone.now() - relativedelta(
@@ -123,8 +123,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         request.data["registration"] = registration.id
 
         if (
-            request.data.get("first_name") is None
-            and request.data.get("last_name") is None
+                request.data.get("first_name") is None
+                and request.data.get("last_name") is None
         ):
             max_num = self.get_queryset().count()
             request.data["first_name"] = "Teilnehmer"
@@ -147,19 +147,13 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 zip_code=zip_code,
                 gender=request.data.get("gender"),
                 scout_level="N",
-                created_by=self.request.user.id
             )
             person.save()
+            person.created_by.add(self.request.user.id)
 
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        self.check_for_double_participants(request, event_id)
-        eat_habits_formatted = create_missing_eat_habits(request)
-
-        zip_code = None
         zip_code_data = request.data.get("zip_code")
         if zip_code_data:
             zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
@@ -167,10 +161,16 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 raise ZipCodeNotFound()
             request.data["zip_code"] = zip_code.id
 
+        eat_habits_formatted = create_missing_eat_habits(request)
+
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data["eat_habit"] = eat_habits_formatted
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
+
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        # self.check_for_double_participants(request, event_id)
 
         request.data["generated"] = False
         return super().update(request, *args, **kwargs)
@@ -207,8 +207,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             if registration.event.registration_start > timezone.now():
                 raise event_api_exceptions.TooEarly
             elif (
-                self.action != "destroy"
-                and registration.event.last_possible_update < timezone.now()
+                    self.action != "destroy"
+                    and registration.event.last_possible_update < timezone.now()
             ):
                 raise event_api_exceptions.TooLate
 

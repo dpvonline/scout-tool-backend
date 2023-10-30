@@ -8,7 +8,11 @@ from authentication.choices import BundesPostTextChoice, EmailNotificationType
 from authentication.models import CustomUser, Person, RequestGroupAccess
 from basic.choices import Gender
 from basic.models import ScoutHierarchy
-from basic.serializers import ZipCodeDetailedSerializer, EatHabitSerializer, ScoutHierarchyDetailedSerializer
+from basic.serializers import (
+    ZipCodeDetailedSerializer,
+    EatHabitSerializer,
+    ScoutHierarchyDetailedSerializer,
+)
 from keycloak_auth.models import KeycloakGroup
 
 User: CustomUser = get_user_model()
@@ -19,11 +23,12 @@ class UserScoutHierarchySerializer(serializers.ModelSerializer):
     Serializer of the ScoutHierarchy model as extension for the UserExtended serializers
     including a serializer for `bund` where the name is picked up by iterating through the parents
     """
+
     bund = serializers.SerializerMethodField()
 
     class Meta:
         model = ScoutHierarchy
-        fields = ('id', 'name', 'parent', 'zip_code', 'bund')
+        fields = ("id", "name", "parent", "zip_code", "bund")
 
     @staticmethod
     def get_bund(obj: ScoutHierarchy) -> str:
@@ -34,7 +39,7 @@ class UserScoutHierarchySerializer(serializers.ModelSerializer):
         """
         iterator: ScoutHierarchy = obj
         while iterator is not None:
-            if iterator.level.name == 'Bund':
+            if iterator.level.name == "Bund":
                 return iterator.name
             iterator = iterator.parent
 
@@ -43,13 +48,14 @@ class UserShortSerializer(serializers.ModelSerializer):
     """
     Serializer for the User model containing only name and mobile number
     """
+
     scout_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
-            'mobile_number',
-            'scout_name',
+            "mobile_number",
+            "scout_name",
         )
 
     def get_scout_name(self, user: CustomUser) -> str:
@@ -65,31 +71,33 @@ class UserRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'email',
-            'username',
-            'scout_name',
-            'scout_group',
-            'first_name',
-            'last_name'
+            "email",
+            "username",
+            "scout_name",
+            "scout_group",
+            "first_name",
+            "last_name",
         )
 
     def get_scout_group(self, user: CustomUser) -> dict | None:
-        if hasattr(user, 'person') and user.person.scout_group:
-            return UserScoutHierarchySerializer(user.person.scout_group, many=False, read_only=True).data
+        if hasattr(user, "person") and user.person.scout_group:
+            return UserScoutHierarchySerializer(
+                user.person.scout_group, many=False, read_only=True
+            ).data
         return None
 
     def get_first_name(self, user: CustomUser) -> str | None:
-        if hasattr(user, 'person'):
+        if hasattr(user, "person"):
             return user.person.scout_name
         return None
 
     def get_scout_name(self, user: CustomUser) -> str | None:
-        if hasattr(user, 'person'):
+        if hasattr(user, "person"):
             return user.person.first_name
         return None
 
     def get_last_name(self, user: CustomUser) -> str | None:
-        if hasattr(user, 'person'):
+        if hasattr(user, "person"):
             return user.person.last_name
         return None
 
@@ -99,15 +107,16 @@ class ResponsiblePersonSerializer(serializers.ModelSerializer):
     Serializer for the User model for searching users
     and selecting them as responsible person in events/registrations
     """
+
     email = serializers.SerializerMethodField()
     stamm = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
         fields = (
-            'scout_name',
-            'email',
-            'stamm',
+            "scout_name",
+            "email",
+            "stamm",
         )
 
     @staticmethod
@@ -127,7 +136,7 @@ class ResponsiblePersonSerializer(serializers.ModelSerializer):
         """
         if obj.scout_group:
             return obj.scout_group.name
-        return ''
+        return ""
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -137,7 +146,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = '__all__'
+        fields = "__all__"
 
 
 class EmailSettingsSerializer(serializers.ModelSerializer):
@@ -148,32 +157,32 @@ class EmailSettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email_notification', 'sms_notification')
+        fields = ("email_notification", "sms_notification")
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = (
-            'first_name',
-            'last_name',
-            'scout_name',
-            'scout_group',
-            'phone_number',
-            'birthday',
-            'address',
-            'address_supplement',
-            'zip_code',
-            'gender',
-            'scout_level',
-            'leader',
-            'bundespost',
-            'email',
-            'email_notification',
-            'sms_notification',
-            'dsgvo_confirmed',
-            'username',
-            'password'
+            "first_name",
+            "last_name",
+            "scout_name",
+            "scout_group",
+            "phone_number",
+            "birthday",
+            "address",
+            "address_supplement",
+            "zip_code",
+            "gender",
+            "scout_level",
+            "leader",
+            "bundespost",
+            "email",
+            "email_notification",
+            "sms_notification",
+            "dsgvo_confirmed",
+            "username",
+            "password",
         )
 
     username = serializers.CharField(required=True)
@@ -181,47 +190,46 @@ class RegisterSerializer(serializers.ModelSerializer):
     dsgvo_confirmed = serializers.BooleanField(required=True)
     email_notification = serializers.CharField(max_length=10, required=False)
     sms_notification = serializers.BooleanField(required=False)
-    zip_code = serializers.CharField(required=True)
 
 
 class PersonSerializer(serializers.ModelSerializer):
     zip_code = ZipCodeDetailedSerializer(many=False, required=False, read_only=True)
-    scout_group = ScoutHierarchyDetailedSerializer(many=False, required=False, read_only=True)
-    bundespost = serializers.CharField(source='get_bundespost_display')
-    gender = serializers.CharField(source='get_gender_display')
-    scout_level = serializers.CharField(source='get_scout_level_display')
-    leader = serializers.CharField(source='get_leader_display')
+    scout_group = ScoutHierarchyDetailedSerializer(
+        many=False, required=False, read_only=True
+    )
+    bundespost = serializers.CharField(source="get_bundespost_display")
+    gender = serializers.CharField(source="get_gender_display")
+    scout_level = serializers.CharField(source="get_scout_level_display")
+    leader = serializers.CharField(source="get_leader_display")
     eat_habits = EatHabitSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Person
         fields = (
-            'id',
-            'scout_name',
-            'first_name',
-            'last_name',
-            'address',
-            'address_supplement',
-            'zip_code',
-            'scout_group',
-            'phone_number',
-            'email',
-            'bundespost',
-            'birthday',
-            'gender',
-            'eat_habits',
-            'leader',
-            'scout_level',
+            "id",
+            "scout_name",
+            "first_name",
+            "last_name",
+            "address",
+            "address_supplement",
+            "zip_code",
+            "scout_group",
+            "phone_number",
+            "email",
+            "bundespost",
+            "birthday",
+            "gender",
+            "eat_habits",
+            "leader",
+            "scout_level",
         )
 
 
 class MemberUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = (
-            'username',
-            'email'
-        )
+        fields = ("username", "email")
+
 
 def get_display_name_user(obj: Person):
     result = []
@@ -232,38 +240,41 @@ def get_display_name_user(obj: Person):
     if obj.last_name:
         result.append(obj.last_name)
 
-    return ' '.join(result)
+    return " ".join(result)
+
 
 class MemberSerializer(serializers.ModelSerializer):
     zip_code = ZipCodeDetailedSerializer(many=False, required=False, read_only=True)
-    scout_group = ScoutHierarchyDetailedSerializer(many=False, required=False, read_only=True)
-    bundespost = serializers.CharField(source='get_bundespost_display')
-    gender = serializers.CharField(source='get_gender_display')
-    scout_level = serializers.CharField(source='get_scout_level_display')
-    leader = serializers.CharField(source='get_leader_display')
+    scout_group = ScoutHierarchyDetailedSerializer(
+        many=False, required=False, read_only=True
+    )
+    bundespost = serializers.CharField(source="get_bundespost_display")
+    gender = serializers.CharField(source="get_gender_display")
+    scout_level = serializers.CharField(source="get_scout_level_display")
+    leader = serializers.CharField(source="get_leader_display")
     user = MemberUserSerializer(many=False)
     display_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
         fields = (
-            'id',
-            'scout_name',
-            'first_name',
-            'last_name',
-            'address',
-            'address_supplement',
-            'zip_code',
-            'scout_group',
-            'phone_number',
-            'email',
-            'bundespost',
-            'birthday',
-            'gender',
-            'leader',
-            'scout_level',
-            'user',
-            'display_name'
+            "id",
+            "scout_name",
+            "first_name",
+            "last_name",
+            "address",
+            "address_supplement",
+            "zip_code",
+            "scout_group",
+            "phone_number",
+            "email",
+            "bundespost",
+            "birthday",
+            "gender",
+            "leader",
+            "scout_level",
+            "user",
+            "display_name",
         )
 
     def get_display_name(self, obj: User):
@@ -273,7 +284,9 @@ class MemberSerializer(serializers.ModelSerializer):
 class EditPersonSerializer(serializers.Serializer):
     email = serializers.CharField(required=False)
     dsgvo_confirmed = serializers.BooleanField(required=False)
-    email_notification = serializers.ChoiceField(required=False, choices=EmailNotificationType.choices)
+    email_notification = serializers.ChoiceField(
+        required=False, choices=EmailNotificationType.choices
+    )
     sms_notification = serializers.BooleanField(required=False)
     scout_name = serializers.CharField(required=False)
     first_name = serializers.CharField(required=False)
@@ -284,45 +297,54 @@ class EditPersonSerializer(serializers.Serializer):
     zip_code = serializers.IntegerField(required=False)
     scout_group = serializers.IntegerField(required=False)
     phone_number = serializers.CharField(required=False)
-    bundespost = serializers.ChoiceField(required=False, choices=BundesPostTextChoice.choices)
+    bundespost = serializers.ChoiceField(
+        required=False, choices=BundesPostTextChoice.choices
+    )
     gender = serializers.ChoiceField(required=False, choices=Gender.choices)
-    eat_habits = serializers.ListSerializer(child=serializers.CharField(), required=False)
+    eat_habits = serializers.ListSerializer(
+        child=serializers.CharField(), required=False
+    )
     leader = serializers.ChoiceField(required=False, choices=LeaderTypes.choices)
-    scout_level = serializers.ChoiceField(required=False, choices=ScoutLevelTypes.choices)
+    scout_level = serializers.ChoiceField(
+        required=False, choices=ScoutLevelTypes.choices
+    )
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = (
-            'password',
-            'keycloak_id',
-            'username'
-        )
-        extra_kwargs = {'email': {'validators': [EmailValidator, ]}}
+        exclude = ("password", "keycloak_id", "username")
+        extra_kwargs = {
+            "email": {
+                "validators": [
+                    EmailValidator,
+                ]
+            }
+        }
 
 
 class FullUserSerializer(serializers.ModelSerializer):
     """
     Serializer for the UserExtended model for Get/list/Retrieve requests
     """
+
     person = PersonSerializer(many=False)
-    email_notification = serializers.CharField(source='get_email_notification_display')
+    email_notification = serializers.CharField(source="get_email_notification_display")
 
     class Meta:
         model = User
         fields = (
-            'dsgvo_confirmed',
-            'email_notification',
-            'sms_notification',
-            'person',
-            'username',
+            "dsgvo_confirmed",
+            "email_notification",
+            "sms_notification",
+            "person",
+            "username",
         )
 
     def to_representation(self, obj):
         """Move fields from person to user representation."""
         representation = super().to_representation(obj)
-        person_representation = representation.pop('person')
+        person_representation = representation.pop("person")
         for key in person_representation:
             representation[key] = person_representation[key]
 
@@ -332,7 +354,7 @@ class FullUserSerializer(serializers.ModelSerializer):
 class RequestGroupAccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestGroupAccess
-        fields = ('user',)
+        fields = ("user",)
 
 
 class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
@@ -341,11 +363,7 @@ class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = KeycloakGroup
-        fields = (
-            'name',
-            'id',
-            'parent'
-        )
+        fields = ("name", "id", "parent")
 
     def get_parent(self, obj: KeycloakGroup):
         if obj.parent is not None:
@@ -360,18 +378,18 @@ class GroupRequestGroupAccessSerializer(serializers.ModelSerializer):
 class StatusRequestGroupAccessPutSerializer(serializers.ModelSerializer):
     class Meta:
         model = RequestGroupAccess
-        fields = '__all__'
+        fields = "__all__"
 
 
 class StatusRequestGroupGetAccessSerializer(serializers.ModelSerializer):
     user = UserRequestSerializer(many=False, read_only=True)
-    status = serializers.CharField(source='get_status_display')
+    status = serializers.CharField(source="get_status_display")
     checked_by = UserRequestSerializer(many=False, read_only=True)
     group = GroupRequestGroupAccessSerializer(many=False, read_only=True)
 
     class Meta:
         model = RequestGroupAccess
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CheckUsernameSerializer(serializers.Serializer):  # noqa
