@@ -98,25 +98,23 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             raise ParticipantAlreadyExists()
 
     def create(self, request, *args, **kwargs) -> Response:
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        self.check_for_double_participants(request, event_id)
-        eat_habits_formatted = create_missing_eat_habits(request)
-
-        if eat_habits_formatted and len(eat_habits_formatted) > 0:
-            request.data["eat_habit"] = eat_habits_formatted
-        elif "eat_habit" in request.data:
-            del request.data["eat_habit"]
-
-        zip_code_string = request.data.get("zip_code")
-        zip_code_data = int(zip_code_string)
-
+        zip_code_data = request.data.get("zip_code")
         zip_code = None
         if zip_code_data:
             zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
             if not zip_code:
                 raise ZipCodeNotFound()
             request.data["zip_code"] = zip_code.id
+
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        self.check_for_double_participants(request, event_id)
+
+        eat_habits_formatted = create_missing_eat_habits(request)
+        if eat_habits_formatted and len(eat_habits_formatted) > 0:
+            request.data["eat_habit"] = eat_habits_formatted
+        elif "eat_habit" in request.data:
+            del request.data["eat_habit"]
 
         if request.data.get("age"):
             request.data["birthday"] = timezone.now() - relativedelta(
@@ -156,18 +154,17 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        self.check_for_double_participants(request, event_id)
-        eat_habits_formatted = create_missing_eat_habits(request)
-
-        zip_code = None
         zip_code_data = request.data.get("zip_code")
         if zip_code_data:
             zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
             if not zip_code:
                 raise ZipCodeNotFound()
             request.data["zip_code"] = zip_code.id
+
+        registration: Registration = self.participant_initialization(request)
+        event_id = registration.event.id
+        self.check_for_double_participants(request, event_id)
+        eat_habits_formatted = create_missing_eat_habits(request)
 
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data["eat_habit"] = eat_habits_formatted
