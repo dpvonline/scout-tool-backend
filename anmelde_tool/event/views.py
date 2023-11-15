@@ -16,7 +16,7 @@ from basic import models as basic_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event.models import StandardEventTemplate, Event, EventModule, EventLocation
-from anmelde_tool.registration.api_exceptions import ZipCodeNotFound
+from basic.helper.get_zipcode import get_zipcode_pk
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
 
@@ -49,25 +49,12 @@ class EventLocationViewSet(viewsets.ModelViewSet):
     queryset = EventLocation.objects.all()
     serializer_class = event_serializers.EventLocationSerializer
 
-
     def create(self, request, *args, **kwargs) -> Response:
-        zip_code = None
-        zip_code_data = request.data.get('zip_code')
-        if zip_code_data:
-            zip_code = basic_models.ZipCode.objects.filter(zip_code=zip_code_data).first()
-            if not zip_code:
-                raise ZipCodeNotFound()
-            request.data['zip_code'] = zip_code.id
+        get_zipcode_pk(request)
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        zip_code = None
-        zip_code_data = request.data.get('zip_code')
-        if zip_code_data:
-            zip_code = basic_models.ZipCode.objects.filter(zip_code=zip_code_data).first()
-            if not zip_code:
-                raise ZipCodeNotFound()
-            request.data['zip_code'] = zip_code.id
+        get_zipcode_pk(request)
         return super().update(request, *args, **kwargs)
 
 
@@ -252,7 +239,7 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
             request.data['name'] = self.get_object().name
         request.data['event'] = self.get_object().event.id
         if request.data.get("price"):
-            if isinstance(request.data["price"],str):
+            if isinstance(request.data["price"], str):
                 request.data["price"] = float(request.data["price"].replace(",", "."))
             else:
                 request.data["price"] = float(request.data["price"])

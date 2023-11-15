@@ -16,6 +16,7 @@ from anmelde_tool.registration.views import create_missing_eat_habits
 from backend.settings import env, keycloak_admin, keycloak_user
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.helper.choice_to_json import choice_to_json
+from basic.helper.get_zipcode import get_zipcode_pk
 from basic.models import ScoutHierarchy, ZipCode, EatHabit
 from basic.permissions import IsStaffOrReadOnly
 from keycloak_auth.api_exceptions import NotAuthorized
@@ -238,6 +239,7 @@ class BundesPostViewSet(viewsets.ViewSet):
 
 class RegisterViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
+        get_zipcode_pk(request)
         serializers = RegisterSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
         try:

@@ -42,7 +42,7 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import get_registration, custom_get_or_404
 from anmelde_tool.registration import serializers as registration_serializers
-from anmelde_tool.registration.api_exceptions import ZipCodeNotFound, ParticipantAlreadyExists
+from anmelde_tool.registration.api_exceptions import ParticipantAlreadyExists
 from anmelde_tool.registration.models import (
     Registration,
     RegistrationParticipant,
@@ -50,6 +50,7 @@ from anmelde_tool.registration.models import (
 )
 from authentication import models as auth_models
 from basic import models as basic_models
+from basic.helper.get_zipcode import get_zipcode_pk
 from basic.models import ZipCode
 
 User = get_user_model()
@@ -98,13 +99,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             raise ParticipantAlreadyExists()
 
     def create(self, request, *args, **kwargs) -> Response:
-        zip_code_data = request.data.get("zip_code")
-        zip_code = None
-        if zip_code_data:
-            zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
-            if not zip_code:
-                raise ZipCodeNotFound()
-            request.data["zip_code"] = zip_code.id
+        zip_code = get_zipcode_pk(request)
 
         eat_habits_formatted = create_missing_eat_habits(request)
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
@@ -154,12 +149,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        zip_code_data = request.data.get("zip_code")
-        if zip_code_data:
-            zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
-            if not zip_code:
-                raise ZipCodeNotFound()
-            request.data["zip_code"] = zip_code.id
+        get_zipcode_pk(request)
 
         eat_habits_formatted = create_missing_eat_habits(request)
 
