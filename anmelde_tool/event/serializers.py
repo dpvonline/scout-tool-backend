@@ -12,6 +12,7 @@ from anmelde_tool.registration.models import Registration
 from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
 from keycloak_auth import serializers as keycloak_serializers
+from authentication import serializers as authentication_serializers
 from anmelde_tool.event.summary import serializers as summary_serializers
 
 User = get_user_model()
@@ -184,7 +185,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     email_set = email_services_serializers.StandardEmailRegistrationSetSerializer(many=False, read_only=True)
     inviting_group = keycloak_serializers.GroupShortSerializer(many=False, read_only=True)
     limited_registration_hierarchy = UserScoutHierarchySerializer(many=False, read_only=True)
-    responsible_persons = serializers.SerializerMethodField()
+    responsible_persons = authentication_serializers.MemberUserSerializer(many=True, read_only=True)
     registration_level = basic_serializers.ScoutOrgaLevelSerializer(many=False, read_only=True)
     theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
     booking_options = serializers.SerializerMethodField()

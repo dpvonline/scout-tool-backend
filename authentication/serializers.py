@@ -228,7 +228,7 @@ class PersonSerializer(serializers.ModelSerializer):
 class MemberUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("username", "email")
+        fields = ('id', 'email', 'username')
 
 
 def get_display_name_user(obj: Person):
