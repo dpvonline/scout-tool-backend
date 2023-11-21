@@ -107,9 +107,6 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
 
-        zip_code_string = request.data.get("zip_code")
-        zip_code_data = int(zip_code_string)
-
         registration: Registration = self.participant_initialization(request)
         event_id = registration.event.id
         self.check_for_double_participants(request, event_id)
