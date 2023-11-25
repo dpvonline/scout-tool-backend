@@ -24,7 +24,7 @@ class LeadershipRole(str, Enum):
 
 
 class EventRole(str, Enum):
-    NONE = "None",
+    NONE = None,
     VIEW_ROLE = "View",
     ADMIN_ROLE = "Admin",
 
