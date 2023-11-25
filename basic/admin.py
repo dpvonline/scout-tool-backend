@@ -33,7 +33,7 @@ class TagAdmin(admin.ModelAdmin):
 class ScoutHierarchyAdmin(admin.ModelAdmin):
     list_display = ('name', 'level', 'zip_code', 'parent')
     list_filter = ('level',)
-    search_fields = ('name', 'zip_code__zip_code', 'zip_code__city', 'abbreviation')
+    search_fields = ('name', 'zip_code__zip_code', 'zip_code__city', 'abbreviation', 'id', 'keycloak__id', 'keycloak__keycloak_id')
     ordering = ('name',)
     autocomplete_fields = ('keycloak',)
 
