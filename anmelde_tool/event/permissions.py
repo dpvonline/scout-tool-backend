@@ -18,7 +18,7 @@ UPDATE_METHODS = ('UPDATE', 'PATCH')
 User = get_user_model()
 
 class LeadershipRole(str, Enum):
-    NONE = "None",
+    NONE = None,
     RING_LEADER = "Ringführung",
     BUND_LEADER = "Bundesführung",
 
