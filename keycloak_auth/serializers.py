@@ -212,6 +212,7 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'scout_name',
             'stamm_bund',
             'display_name',
+            'email'
         )
 
     def get_id(self, obj: User):
