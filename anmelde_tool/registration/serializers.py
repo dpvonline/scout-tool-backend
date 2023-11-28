@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
+from django.db.models import Sum, Count, F, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -236,6 +237,7 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     attributes = serializers.SerializerMethodField()
+    summary = serializers.SerializerMethodField()
 
     class Meta:
         model = Registration
@@ -247,7 +249,8 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
             'price',
             'participant_count',
             'registrationparticipant_set',
-            'attributes'
+            'attributes',
+            'summary'
         )
 
     def get_participant_count(self, registration: Registration) -> int:
@@ -290,6 +293,25 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
         return [*boolean_serializer.data, *string_serializer.data, *integer_serializer.data, *float_serializer.data,
                 *time_serializer.data, *travel_serializer.data]
 
+    def get_summary(self, registration: Registration) -> dict:
+        return {
+            "eat_habits": registration.registrationparticipant_set.values(
+                eat_habits=Coalesce(F("eat_habit__name"), Value("Ohne Essgewohnheit"))
+            )
+            .annotate(sum=Count("*"))
+            .order_by('-sum'),
+
+            "booking_options": registration.registrationparticipant_set.values(
+                booking_options=F("booking_option__name")
+            )
+            .annotate(sum=Count("booking_option__name"))
+            .annotate(price=Sum("booking_option__price")),
+
+            "genders": registration.registrationparticipant_set.values(
+                genders=F("gender")
+            )
+            .annotate(sum=Count("gender"))
+        }
 
 
 class RegistrationRatingSerializer(serializers.ModelSerializer):
