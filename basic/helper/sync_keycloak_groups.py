@@ -51,7 +51,7 @@ class SyncKeycloakGroups:
                         path=scout_hierarchy.keycloak_group_name,
                         search_in_subgroups=True
                     )
-                except KeycloakGetError:
+                except (KeycloakGetError, KeyError):
                     pass
                 if keycloak_group:
                     django_keycloak_group = KeycloakGroup.objects.get(keycloak_id=keycloak_group['id'])
