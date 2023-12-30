@@ -82,8 +82,9 @@ class SyncKeycloakGroups:
         name = self.generate_name(keycloak_group)
         self.groups[name] = True
 
-        for sub_group in group['subGroups']:
-            self.get_subgroup(sub_group, keycloak_group)
+        if 'subGroups' in group:
+            for sub_group in group['subGroups']:
+                self.get_subgroup(sub_group, keycloak_group)
 
     def generate_name(self, group: KeycloakGroup):
         parents = []
