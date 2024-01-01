@@ -57,12 +57,13 @@ def check_leader_permission(event_id: [str, Event], user: User) -> LeadershipRol
     if event.view_allow_subgroup:
         perm_name = 'dpv_bundesfuehrungen'
         perm_name_dpbm = 'dpbm_ringfuehrungen'
-        if event.invited_groups.filter(name__in=["DPV", "DPBM"]).exists():
+        if event.invited_groups.filter(name__in=["DPV"]).exists():
             bufu_group = custom_get_or_404(RequiredGroupNotFound(perm_name), Group, name=perm_name)
             if get_keycloak_permission(user, bufu_group):
                 return LeadershipRole.BUND_LEADER
-            ring_group = custom_get_or_404(RequiredGroupNotFound(perm_name_dpbm), Group, name=perm_name_dpbm)
-            if get_keycloak_permission(user, ring_group):
+        if event.invited_groups.filter(name__in=["DPBM"]).exists():
+            ring_group = Group.objects.filter(name=perm_name_dpbm).first()
+            if ring_group and get_keycloak_permission(user, ring_group):
                 return LeadershipRole.RING_LEADER
     return LeadershipRole.NONE
 

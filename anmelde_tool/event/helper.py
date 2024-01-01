@@ -44,16 +44,19 @@ def filter_registration_by_leadership(request, event_id: str, registrations: Que
     leader_ship = event_permissions.check_leader_permission(event, user)
     event_role = event_permissions.check_event_permission(event, request)
     if event_role == event_permissions.EventRole.NONE and leader_ship != event_permissions.LeadershipRole.NONE:
-        orga = get_bund_or_ring(
+        scout_orga = get_bund_or_ring(
             user.person.scout_group,
             leader_ship == event_permissions.LeadershipRole.BUND_LEADER
         )
 
+        if not scout_orga:
+            return Registration.objects.none()
+
         registrations = registrations.filter(
-            Q(scout_organisation=orga)
-            | Q(scout_organisation__parent=orga)
-            | Q(scout_organisation__parent__parent=orga)
-            | Q(scout_organisation__parent__parent__parent=orga))
+            Q(scout_organisation=scout_orga)
+            | Q(scout_organisation__parent=scout_orga)
+            | Q(scout_organisation__parent__parent=scout_orga)
+            | Q(scout_organisation__parent__parent__parent=scout_orga))
     return registrations
 
 

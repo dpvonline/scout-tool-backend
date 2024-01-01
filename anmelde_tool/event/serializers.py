@@ -89,7 +89,9 @@ class EventModuleSerializer(serializers.ModelSerializer):
 
     def get_attribute_modules(self, module: event_models.EventModule):
         queryset = module.attributemodule_set
-        result = summary_serializers.AttributeSummarySerializer(queryset, many=True).data
+        result = summary_serializers.AttributeSummarySerializer(
+            queryset, many=True, context={'request': self.context['request']}
+        ).data
         return result
 
 
@@ -219,8 +221,8 @@ class EventReadSerializer(serializers.ModelSerializer):
         return None
 
     def get_eventmodule_set(self, obj: event_models.Event) -> Registration:
-        eventModules = EventModule.objects.filter(event = obj.id).order_by('ordering')
-        return EventReadModuleSerializer(eventModules, many=True, read_only=True).data
+        event_modules = EventModule.objects.filter(event = obj.id).order_by('ordering')
+        return EventReadModuleSerializer(event_modules, many=True, read_only=True).data
 
     def get_responsible_persons(self,obj):
         return [user.get_display_name() for user in obj.responsible_persons.all()]
