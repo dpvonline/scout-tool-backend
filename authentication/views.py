@@ -1,4 +1,6 @@
 import re
+import openpyxl
+import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -11,6 +13,14 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
+from basic.api_exceptions import TooManySearchResults, NoSearchResults
+from anmelde_tool.event import permissions as event_permissions
+from authentication import serializers as auth_serializer
+from django.forms.models import model_to_dict
 
 from anmelde_tool.registration.views import create_missing_eat_habits
 from backend.settings import env, keycloak_admin, keycloak_user
@@ -28,6 +38,7 @@ from keycloak_auth.helper import (
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import FullGroupSerializer
 from .choices import BundesPostTextChoice
+from basic.choices import Gender
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import (
     GroupSerializer,
@@ -43,10 +54,37 @@ from .serializers import (
     CheckEmailSerializer,
     CheckPasswordSerializer,
     MemberSerializer,
+    MemberCreateSerializer,
 )
 from .signals import save_keycloak_user, save_keycloak_person
+from anmelde_tool.event import models as event_models
+from anmelde_tool.registration.models import RegistrationParticipant
+from authentication import models as auth_models
 
 User: CustomUser = get_user_model()
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 50
+
+
+def clean_str(input):
+    if type(input) != str:
+        return input
+    if input.strip() == "-":
+        return None
+    return input.strip()
+
+
+def search_user(request, users):
+    search_param = request.GET.get("search")
+    if search_param:
+        users = users.filter(
+            Q(first_name__icontains=search_param)
+            | Q(last_name__icontains=search_param)
+            | Q(scout_name__icontains=search_param)
+        )
+    return users
 
 
 class PersonalData(viewsets.ViewSet):
@@ -400,8 +438,11 @@ class MyDecidableRequestGroupAccessViewSet(
             )
 
 
-class UserGroupViewSet(mixins.ListModelMixin, GenericViewSet):
+class UserGroupViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = FullGroupSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
 
     def get_queryset(self):
         token = self.request.META.get("HTTP_AUTHORIZATION")
@@ -537,6 +578,7 @@ class CheckPassword(viewsets.ViewSet):
 class MyMembersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = MemberSerializer
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         token = self.request.META.get("HTTP_AUTHORIZATION")
@@ -552,9 +594,11 @@ class MyMembersViewSet(viewsets.ModelViewSet):
         except KeycloakGetError:
             raise NotAuthorized()
 
-        user = Person.objects.filter(scout_group=scout_group).select_related(
-            "user", "scout_group", "zip_code"
-        )
+        users = Person.objects.filter(
+            Q(scout_group=scout_group) | Q(created_by=self.request.user)
+        ).select_related("user", "scout_group", "zip_code")
+
+        user = search_user(self.request, users)
         return user
 
     def get_serializer_class(self):
@@ -562,6 +606,136 @@ class MyMembersViewSet(viewsets.ModelViewSet):
             return EditPersonSerializer
         else:
             return MemberSerializer
+
+
+class MyMembersUploadViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = MemberSerializer
+
+    def create(self, request, *args, **kwargs) -> Response:
+        token = self.request.META.get("HTTP_AUTHORIZATION")
+        scout_group = self.request.user.person.scout_group
+
+        if not scout_group or not scout_group.keycloak:
+            return Response(
+                {"status": "Du hast keinen gültigen Stamm", "verified": False},
+                status=status.HTTP_200_OK,
+            )
+
+        group_id = scout_group.keycloak.keycloak_id
+
+        try:
+            keycloak_user.get_group_users(token, group_id)
+        except KeycloakGetError:
+            raise NotAuthorized()
+
+        file = request.FILES["file"]
+        if not file.name.endswith(".xlsx"):
+            return Response(
+                {"status": "Falsches Dateiformat", "verified": False},
+                status=status.HTTP_200_OK,
+            )
+
+        wb = openpyxl.load_workbook(file, read_only=True)
+        first_sheet = wb.get_sheet_names()[0]
+        ws = wb.get_sheet_by_name(first_sheet)
+        data = []
+        success_count = 0
+        data_count = 0
+        report = []
+        response_data = []
+
+        for row in ws.iter_rows(min_row=4, max_col=11, max_row=154):
+            if clean_str(row[2].value) == "" or not row[2].value:
+                continue
+            data_line = {}
+            data_line["scout_name"] = clean_str(row[1].value)  # B
+            data_line["first_name"] = clean_str(row[2].value)  # C
+            data_line["last_name"] = clean_str(row[3].value)  # D
+            data_line["address"] = clean_str(row[4].value)  # E
+            data_line["zip_code"] = clean_str(str(int(row[5].value)))  # F
+            data_line["gender"] = clean_str(row[6].value)  # G
+            data_line["birthday"] = clean_str(row[7].value)  # H
+            data_line["eat_habit_1"] = clean_str(row[8].value)  # I
+            data_line["eat_habit_2"] = clean_str(row[9].value)  # J
+            data_line["eat_habit_3"] = clean_str(row[10].value)  # K
+            data.append(data_line)
+            data_count += 1
+
+        for item in data:
+            if Person.objects.filter(
+                first_name=item["first_name"],
+                last_name=item["last_name"],
+                birthday=item["birthday"],
+            ).exists():
+                report.append(
+                    f"{item['first_name']} {item['last_name']} {item['birthday'].date()} ist bereits vorhanden"
+                )
+                continue
+
+            person_obj = Person.objects.create(
+                scout_name=item["scout_name"],
+                first_name=item["first_name"],
+                last_name=item["last_name"],
+                address=item["address"],
+                birthday=item["birthday"],
+            )
+            # handle created_by
+            person_obj.created_by.add(request.user)
+
+            # handle scout_group
+            person_obj.scout_group = request.user.person.scout_group
+            person_obj.save()
+
+            # handle gender
+            for gender in Gender.choices:
+                if data_line["gender"] == gender[1]:
+                    person_obj.gender = gender[0]
+                    person_obj.save()
+
+            # handle eat_habits
+            eat_habit_list = []
+            if item["eat_habit_1"]:
+                eat_habit_list.append(item["eat_habit_1"])
+            if item["eat_habit_2"]:
+                eat_habit_list.append(item["eat_habit_2"])
+            if item["eat_habit_3"]:
+                eat_habit_list.append(item["eat_habit_3"])
+
+            if eat_habit_list:
+                for eat_habit in eat_habit_list:
+                    try:
+                        eat_habit = get_object_or_404(EatHabit, name__iexact=eat_habit)
+                        person_obj.eat_habits.add(eat_habit)
+                        person_obj.save()
+                    except:
+                        pass
+
+            # handle zip_code
+            zip_code = ZipCode.objects.filter(zip_code=item["zip_code"]).first()
+            person_obj.zip_code = zip_code
+            person_obj.save()
+
+            dict_model = model_to_dict(
+                person_obj, fields=[field.name for field in person_obj._meta.fields]
+            )
+
+            dict_model["birthday"] = dict_model["birthday"].date()
+            success_count += 1
+            response_data.append(dict_model)
+
+        serializer = MemberCreateSerializer(data=response_data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(
+            {
+                "status": serializer.data,
+                "report": report,
+                "success_count": success_count,
+                "total_count": len(data),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class MyTribeVerifiedViewSet(viewsets.ViewSet):
@@ -596,3 +770,38 @@ class MyTribeVerifiedViewSet(viewsets.ViewSet):
             },
             status=status.HTTP_200_OK,
         )
+        return Response({"status": "Ok", "verified": True}, status=status.HTTP_200_OK)
+
+
+class AddablePersons(viewsets.ModelViewSet):
+    serializer_class = auth_serializer.MemberSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+
+    def get_queryset(self):
+        token = self.request.META.get("HTTP_AUTHORIZATION")
+        scout_group = self.request.user.person.scout_group
+
+        if not scout_group or not scout_group.keycloak:
+            return auth_models.Person.objects.none()
+
+        group_id = scout_group.keycloak.keycloak_id
+
+        try:
+            keycloak_user.get_group_users(token, group_id)
+        except KeycloakGetError:
+            raise NotAuthorized()
+
+        registration_id = self.request.query_params.get("registration_id", None)
+
+        users = auth_models.Person.objects.filter(
+            Q(scout_group=scout_group) | Q(created_by=self.request.user)
+        ).select_related("user", "scout_group", "zip_code")
+
+
+        # todo: filter for already registered persons
+        # registered_person = RegistrationParticipant.objects.all().values_list(
+        #     "person", flat=True
+        # )
+
+        return search_user(self.request, users)

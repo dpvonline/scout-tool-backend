@@ -18,6 +18,23 @@ from keycloak_auth.models import KeycloakGroup
 User: CustomUser = get_user_model()
 
 
+def check_user_validity(obj: dict) -> bool:
+    """
+    @param obj: dict containing all fields of the Personal-Data dataset
+    @return: True if the user is valid, False otherwise
+    """
+    return bool(
+        obj["address"]
+        and obj["birthday"]
+        and obj["email"]
+        and obj["first_name"]
+        and obj["last_name"]
+        and obj["scout_group"]
+        and obj["zip_code"]
+        and obj["username"]
+    )
+
+
 class UserScoutHierarchySerializer(serializers.ModelSerializer):
     """
     Serializer of the ScoutHierarchy model as extension for the UserExtended serializers
@@ -248,12 +265,18 @@ class MemberSerializer(serializers.ModelSerializer):
     scout_group = ScoutHierarchyDetailedSerializer(
         many=False, required=False, read_only=True
     )
+    eat_habits = EatHabitSerializer(many=True, required=False, read_only=True)
+    scout_group = ScoutHierarchyDetailedSerializer(
+        many=False, required=False, read_only=True
+    )
+    created_by = MemberUserSerializer(many=True)
     bundespost = serializers.CharField(source="get_bundespost_display")
     gender = serializers.CharField(source="get_gender_display")
     scout_level = serializers.CharField(source="get_scout_level_display")
     leader = serializers.CharField(source="get_leader_display")
     user = MemberUserSerializer(many=False)
     display_name = serializers.SerializerMethodField()
+    access = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
@@ -275,10 +298,38 @@ class MemberSerializer(serializers.ModelSerializer):
             "scout_level",
             "user",
             "display_name",
+            "created_by",
+            "display_name",
+            "access",
+            "eat_habits",
         )
 
-    def get_display_name(self, obj: User):
+    def get_display_name(self, obj: Person):
         return get_display_name_user(obj)
+
+    def get_access(self, obj: Person):
+        request = self.context.get("request")
+        return "none" if request.user not in obj.created_by.all() else "owner"
+
+
+class MemberCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Person
+        fields = (
+            "scout_name",
+            "first_name",
+            "last_name",
+            "address",
+            "address_supplement",
+            "zip_code",
+            "scout_group",
+            "phone_number",
+            "birthday",
+            "gender",
+            "created_by",
+            "eat_habits",
+            "edited_last",
+        )
 
 
 class EditPersonSerializer(serializers.Serializer):
@@ -347,6 +398,8 @@ class FullUserSerializer(serializers.ModelSerializer):
         person_representation = representation.pop("person")
         for key in person_representation:
             representation[key] = person_representation[key]
+
+        representation["is_valid"] = check_user_validity(representation)
 
         return representation
 

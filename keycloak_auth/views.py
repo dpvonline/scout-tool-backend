@@ -3,13 +3,18 @@ from django.db.models import Q
 from keycloak import KeycloakGetError, KeycloakAuthenticationError
 from rest_framework import viewsets, status, mixins
 from rest_framework.generics import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
+from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from notifications.signals import notify
 from basic.helper.choice_to_json import choice_to_json
 
+from anmelde_tool.event import permissions as event_permissions
 from authentication.choices import RequestGroupAccessChoices
 from authentication.models import CustomUser, RequestGroupAccess
 from authentication.serializers import FullUserSerializer, RequestGroupAccessSerializer, \
@@ -27,6 +32,10 @@ from keycloak_auth.serializers import UserListSerializer, CreateGroupSerializer,
     SearchResultUserSerializer, GroupShortSerializer
 
 User: CustomUser = get_user_model()
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 50
+
 
 
 def get_group_id(kwargs):
@@ -180,9 +189,11 @@ class ShortGroupsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GroupShortSerializer
 
 
-class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+class GroupMembersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = UserListSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
@@ -192,8 +203,9 @@ class GroupMembersViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
         except KeycloakGetError:
             raise NotAuthorized()
         ids = [val['id'] for val in group_members if val['enabled']]
-        user = User.objects.filter(keycloak_id__in=ids)
-        return user
+        users = User.objects.filter(keycloak_id__in=ids)
+        queryset = search_user(self.request, users)
+        return queryset
 
     def get_serializer_class(self):
         serializer = {
@@ -283,9 +295,11 @@ class GroupParentViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
+class AllMembersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = PartialUserSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
 
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
@@ -298,8 +312,12 @@ class AllMembersViewSet(viewsets.ReadOnlyModelViewSet):
         # ids = [val['id'] for val in group_members if val['enabled']]
 
         users = User.objects.all().select_related('person', 'person__scout_group', 'person__zip_code')
+        queryset = search_user(self.request, users)
+        response_len = queryset.count()
+        if response_len > 20:
+            raise TooManySearchResults
 
-        return search_user(self.request, users)
+        return search_user(self.request, queryset)
 
 
 class InviteMemberViewSet(mixins.CreateModelMixin, GenericViewSet):
