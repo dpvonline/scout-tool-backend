@@ -39,6 +39,8 @@ class TotalRegistrationsViewSet(TotalParticipantsViewSet):
 
 
 class LastRegistrationsViewSet(TotalParticipantsViewSet):
+    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
+
     def list(self, request, *args, **kwargs) -> Response:
         registrations: QuerySet[Registration] = self.get_queryset()
         registrations = registrations.annotate(count=Count('registrationparticipant')).order_by('-created_at')
@@ -50,6 +52,8 @@ class LastRegistrationsViewSet(TotalParticipantsViewSet):
 
 
 class LargestRegistrationsViewSet(TotalParticipantsViewSet):
+    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
+
     def list(self, request, *args, **kwargs) -> Response:
         registrations: QuerySet[Registration] = self.get_queryset()
         registrations = registrations.annotate(count=Count('registrationparticipant')).order_by('-count')
@@ -60,6 +64,8 @@ class LargestRegistrationsViewSet(TotalParticipantsViewSet):
 
 
 class BookingOptionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
+    
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
         return event_models.BookingOption.objects.filter(event=event_id)
