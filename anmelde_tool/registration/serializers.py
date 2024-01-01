@@ -108,6 +108,7 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
         many=False, read_only=True)
     zip_code = basic_serializers.ZipCodeSerializer(many=False, read_only=True)
     display_name = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
 
     class Meta:
         model = RegistrationParticipant
@@ -129,6 +130,11 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
             'eat_habit',
             'booking_option',
         )
+
+    def get_age(self, obj):
+        if obj.birthday:
+            return timezone.now().year - obj.birthday.year
+        return None
 
     def get_display_name(self, obj):
         return_list = []
@@ -189,13 +195,12 @@ class RegistrationParticipantPutSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSummarySerializer(serializers.ModelSerializer):
-    registrationparticipant_set = RegistrationParticipantReadSerializer(
-        many=True, read_only=True)
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     status = serializers.SerializerMethodField()
     scout_organisation = UserScoutHierarchySerializer()
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
+    registrationparticipant_set = serializers.SerializerMethodField()
     event = event_serializers.EventRegistrationSerializer()
 
     class Meta:
@@ -211,6 +216,10 @@ class RegistrationSummarySerializer(serializers.ModelSerializer):
             'registrationparticipant_set',
             'status',
         )
+
+    def get_registrationparticipant_set(self, registration: Registration) -> int:
+        items = registration.registrationparticipant_set.all().order_by('first_name')
+        return RegistrationParticipantReadSerializer(items, many=True).data
 
     def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()
@@ -232,12 +241,11 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
     responsible_persons = CurrentUserSerializer(many=True, read_only=True)
     scout_organisation = UserScoutHierarchySerializer()
     event = event_serializers.EventReadSerializer()
-    registrationparticipant_set = RegistrationParticipantReadSerializer(
-        many=True, read_only=True)
     participant_count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     attributes = serializers.SerializerMethodField()
     summary = serializers.SerializerMethodField()
+    registrationparticipant_set = serializers.SerializerMethodField()
 
     class Meta:
         model = Registration
@@ -252,6 +260,10 @@ class RegistrationReadSerializer(serializers.ModelSerializer):
             'attributes',
             'summary'
         )
+
+    def get_registrationparticipant_set(self, registration: Registration) -> int:
+        items = registration.registrationparticipant_set.all().order_by('first_name')
+        return RegistrationParticipantReadSerializer(items, many=True).data
 
     def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()

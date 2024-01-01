@@ -12,6 +12,8 @@ router.register(r'my-own-requests', views.MyOwnRequestGroupAccessViewSet, basena
 
 router.register(r'my-groups', views.UserGroupViewSet, basename='my-groups')
 router.register(r'my-members', views.MyMembersViewSet, basename='my-members')
+router.register(r'my-members-addable', views.AddablePersons, basename='my-members')
+router.register(r'my-members-upload', views.MyMembersUploadViewSet, basename='my-members')
 router.register(r'my-permissions', views.UserPermissionViewSet, basename='my-permissions')
 router.register(r'my-tribe-verified', views.MyTribeVerifiedViewSet, basename='my-tribe-verified')
 
