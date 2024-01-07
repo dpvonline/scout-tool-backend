@@ -18,20 +18,19 @@ from keycloak_auth.models import KeycloakGroup
 User: CustomUser = get_user_model()
 
 
-def check_user_validity(obj: dict) -> bool:
+def check_user_validity(obj: Person) -> bool:
     """
     @param obj: dict containing all fields of the Personal-Data dataset
     @return: True if the user is valid, False otherwise
     """
     return bool(
-        obj["address"]
-        and obj["birthday"]
-        and obj["email"]
-        and obj["first_name"]
-        and obj["last_name"]
-        and obj["scout_group"]
-        and obj["zip_code"]
-        and obj["username"]
+        obj.address
+        and obj.birthday
+        and obj.email
+        and obj.first_name
+        and obj.last_name
+        and obj.scout_group
+        and obj.zip_code
     )
 
 
@@ -381,6 +380,7 @@ class FullUserSerializer(serializers.ModelSerializer):
 
     person = PersonSerializer(many=False)
     email_notification = serializers.CharField(source="get_email_notification_display")
+    is_valid = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -390,7 +390,12 @@ class FullUserSerializer(serializers.ModelSerializer):
             "sms_notification",
             "person",
             "username",
+            "is_valid"
         )
+
+    @staticmethod
+    def get_is_valid(obj: User) -> bool:
+        return check_user_validity(obj.person)
 
     def to_representation(self, obj):
         """Move fields from person to user representation."""
@@ -398,8 +403,6 @@ class FullUserSerializer(serializers.ModelSerializer):
         person_representation = representation.pop("person")
         for key in person_representation:
             representation[key] = person_representation[key]
-
-        representation["is_valid"] = check_user_validity(representation)
 
         return representation
 
