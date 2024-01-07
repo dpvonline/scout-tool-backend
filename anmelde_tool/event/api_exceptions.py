@@ -13,11 +13,6 @@ class NotResponsible(APIException):
     default_detail = 'Dein Stamm ist registriert, aber du hast leider keine Befugnisse die Registrierung zu bearbeiten.'
     default_code = 'already_registered'
 
-class PersonAlreadyExists(APIException):
-    status_code = 403
-    default_detail = 'Diese Person ist in dieser Regestrierung bereits vorhanden.'
-    default_code = 'already_registered'
-
 
 class SingleAlreadyRegistered(APIException):
     status_code = 403

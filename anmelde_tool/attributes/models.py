@@ -14,7 +14,7 @@ class AttributeModule(models.Model):
     """
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=1000, null=True)
-    text = models.CharField(max_length=10000, null=True)
+    text = models.TextField(max_length=10000, null=True)
     is_required = models.BooleanField(default=False)
     min_length = models.IntegerField(default=0)
     max_length = models.IntegerField(default=0)
