@@ -1,30 +1,26 @@
 import re
-import openpyxl
-import datetime
 
+import openpyxl
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
+from django.forms.models import model_to_dict
 from django_filters.rest_framework import DjangoFilterBackend
 from keycloak import KeycloakGetError, KeycloakAuthenticationError
 from rest_framework import status, viewsets, mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.pagination import PageNumberPagination
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from rest_framework.pagination import PageNumberPagination
-from basic.api_exceptions import TooManySearchResults, NoSearchResults
-from anmelde_tool.event import permissions as event_permissions
-from authentication import serializers as auth_serializer
-from django.forms.models import model_to_dict
 
 from anmelde_tool.registration.views import create_missing_eat_habits
+from authentication import models as auth_models
+from authentication import serializers as auth_serializer
 from backend.settings import env, keycloak_admin, keycloak_user
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
+from basic.choices import Gender
 from basic.helper.choice_to_json import choice_to_json
 from basic.helper.get_zipcode import get_zipcode_pk
 from basic.models import ScoutHierarchy, ZipCode, EatHabit
@@ -38,7 +34,6 @@ from keycloak_auth.helper import (
 from keycloak_auth.models import KeycloakGroup
 from keycloak_auth.serializers import FullGroupSerializer
 from .choices import BundesPostTextChoice
-from basic.choices import Gender
 from .models import EmailNotificationType, CustomUser, Person, RequestGroupAccess
 from .serializers import (
     GroupSerializer,
@@ -57,9 +52,6 @@ from .serializers import (
     MemberCreateSerializer,
 )
 from .signals import save_keycloak_user, save_keycloak_person
-from anmelde_tool.event import models as event_models
-from anmelde_tool.registration.models import RegistrationParticipant
-from authentication import models as auth_models
 
 User: CustomUser = get_user_model()
 
@@ -192,13 +184,17 @@ class ResponsiblePersonViewSet(viewsets.ModelViewSet):
     ]
 
     def list(self, request, *args, **kwargs) -> Response:
-        queryset = User.objects.all()
+
         search_param = request.GET.get("search")
-        queryset = queryset.filter(
-            Q(scout_name__icontains=search_param)
-            | Q(user__email__icontains=search_param)
-            | Q(scout_organisation__name__icontains=search_param)
-        )
+        if search_param:
+            queryset = User.objects.filter(
+                Q(scout_name__icontains=search_param)
+                | Q(user__email__icontains=search_param)
+                | Q(scout_organisation__name__icontains=search_param)
+            )
+        else:
+            queryset = User.objects.all()
+
         response_len = queryset.count()
         if response_len > 10:
             raise TooManySearchResults
@@ -589,14 +585,21 @@ class MyMembersViewSet(viewsets.ModelViewSet):
 
         group_id = scout_group.keycloak.keycloak_id
 
+
+        all_users = True
         try:
             keycloak_user.get_group_users(token, group_id)
         except KeycloakGetError:
-            raise NotAuthorized()
+            all_users = False
 
-        users = Person.objects.filter(
-            Q(scout_group=scout_group) | Q(created_by=self.request.user)
-        ).select_related("user", "scout_group", "zip_code")
+        if all_users:
+            users = Person.objects.filter(
+                Q(scout_group=scout_group) | Q(created_by=self.request.user)
+            ).select_related("user", "scout_group", "zip_code")
+        else:
+            users = Person.objects.filter(
+                created_by=self.request.user
+            ).select_related("user", "scout_group", "zip_code")
 
         user = search_user(self.request, users)
         return user
@@ -623,11 +626,6 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
             )
 
         group_id = scout_group.keycloak.keycloak_id
-
-        try:
-            keycloak_user.get_group_users(token, group_id)
-        except KeycloakGetError:
-            raise NotAuthorized()
 
         file = request.FILES["file"]
         if not file.name.endswith(".xlsx"):

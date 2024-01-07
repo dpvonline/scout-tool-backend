@@ -24,9 +24,7 @@ def check_user_validity(obj: Person) -> bool:
     @return: True if the user is valid, False otherwise
     """
     return bool(
-        obj.address
-        and obj.birthday
-        and obj.email
+        obj.email
         and obj.first_name
         and obj.last_name
         and obj.scout_group
