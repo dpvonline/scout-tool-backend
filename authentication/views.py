@@ -785,17 +785,22 @@ class AddablePersons(viewsets.ModelViewSet):
 
         group_id = scout_group.keycloak.keycloak_id
 
+        all_users = True
         try:
             keycloak_user.get_group_users(token, group_id)
         except KeycloakGetError:
-            raise NotAuthorized()
+            all_users = False
+
+        if all_users:
+            users = Person.objects.filter(
+                Q(scout_group=scout_group) | Q(created_by=self.request.user)
+            ).select_related("user", "scout_group", "zip_code")
+        else:
+            users = Person.objects.filter(
+                created_by=self.request.user
+            ).select_related("user", "scout_group", "zip_code")
 
         registration_id = self.request.query_params.get("registration_id", None)
-
-        users = auth_models.Person.objects.filter(
-            Q(scout_group=scout_group) | Q(created_by=self.request.user)
-        ).select_related("user", "scout_group", "zip_code")
-
 
         # todo: filter for already registered persons
         # registered_person = RegistrationParticipant.objects.all().values_list(
