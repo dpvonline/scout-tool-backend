@@ -99,24 +99,18 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             registration=registration_id
         ).order_by("birthday")
 
-    def check_for_double_participants(self, request, event_id):
+    @staticmethod
+    def check_for_double_participants(request, event_id):
         if RegistrationParticipant.objects.filter(
-            first_name=request.data.get("first_name"),
-            last_name=request.data.get("last_name"),
-            birthday=request.data.get("birthday"),
-            registration__event=event_id,
+                first_name=request.data.get("first_name"),
+                last_name=request.data.get("last_name"),
+                birthday=request.data.get("birthday"),
+                registration__event=event_id,
         ).exists():
             raise ParticipantAlreadyExists()
 
     def create(self, request, *args, **kwargs) -> Response:
         zip_code = get_zipcode_pk(request)
-
-        if auth_models.Person.objects.filter(
-            first_name=request.data["first_name"],
-            last_name=request.data["last_name"],
-            birthday=request.data["birthday"],
-        ).exists():
-            raise event_api_exceptions.PersonAlreadyExists
 
         eat_habits_formatted = create_missing_eat_habits(request)
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
@@ -124,31 +118,11 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
 
-        scout_group_id = None
-        scout_group_data = request.data.get("scout_group")
-        if scout_group_data and type(scout_group_data) == dict:
-            scout_group_id = scout_group_data.get("id")
-        elif scout_group_data and type(scout_group_data) != dict:
-            scout_group_id = scout_group_data
+        if zip_code:
+            scout_group_id = zip_code.id
         else:
             scout_group_id = request.user.person.scout_group
-
-        request.data["scout_group"] = scout_group_id
-
-        zip_code = None
-        zip_code_data = request.data.get("zip_code")
-        if type(zip_code_data) == dict:
-            zip_code_data = zip_code_data.get("zip_code")
-
-        if zip_code_data:
-            zip_code = ZipCode.objects.filter(zip_code=zip_code_data).first()
-            if not zip_code:
-                raise ZipCodeNotFound()
-            request.data["zip_code"] = zip_code.id
-
-        if not request.data["zip_code"]:
-            # fallback to user zip code
-            request.data["zip_code"] = request.user.person.zip_code.id
+            request.data["zip_code"] = scout_group_id
 
         gender_str = "N"
 
@@ -173,8 +147,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         request.data["registration"] = registration.id
 
         if (
-            request.data.get("first_name") is None
-            and request.data.get("last_name") is None
+                request.data.get("first_name") is None
+                and request.data.get("last_name") is None
         ):
             max_num = self.get_queryset().count()
             request.data["first_name"] = "Teilnehmer"
@@ -185,7 +159,11 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 "booking_option"
             ] = registration.event.bookingoption_set.first().id
 
-        if request.data.get("allow_permanently"):
+        if request.data.get("allow_permanently") and not auth_models.Person.objects.filter(
+                first_name=request.data["first_name"],
+                last_name=request.data["last_name"],
+                birthday=request.data["birthday"],
+        ).exists():
             person = auth_models.Person(
                 first_name=request.data.get("first_name"),
                 scout_name=request.data.get("scout_name"),
@@ -253,8 +231,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             if registration.event.registration_start > timezone.now():
                 raise event_api_exceptions.TooEarly
             elif (
-                self.action != "destroy"
-                and registration.event.last_possible_update < timezone.now()
+                    self.action != "destroy"
+                    and registration.event.last_possible_update < timezone.now()
             ):
                 raise event_api_exceptions.TooLate
 
