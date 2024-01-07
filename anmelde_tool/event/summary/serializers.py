@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
-from django.db.models import Sum, Count, F
+from django.db.models import Sum, Count, F, QuerySet, Q
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -12,10 +12,13 @@ from anmelde_tool.attributes.models import (
     FloatAttribute,
     StringAttribute,
     TravelAttribute,
+    AbstractAttribute
 )
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import serializers as event_serializer
+from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.cash import serializers as cash_serializers
+from anmelde_tool.event.helper import get_bund_or_ring
 from anmelde_tool.registration import serializers as registration_serializers
 from anmelde_tool.registration.models import Registration, RegistrationParticipant
 from anmelde_tool.registration.serializers import RegistrationGetSerializer
@@ -204,7 +207,7 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
         many=True, read_only=True
     )
     participant_count = serializers.SerializerMethodField()
-    payement = serializers.SerializerMethodField()
+    payment = serializers.SerializerMethodField()
     scout_organisation = basic_serializers.ScoutHierarchyDetailedSerializer(
         many=False, read_only=True
     )
@@ -222,7 +225,7 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
             "scout_organisation",
             "responsible_persons",
             "participant_count",
-            "payement",
+            "payment",
             "created_at",
             "updated_at",
             "booking_options",
@@ -233,7 +236,7 @@ class RegistrationCashSummarySerializer(serializers.ModelSerializer):
     def get_participant_count(self, registration: Registration) -> int:
         return registration.registrationparticipant_set.count()
 
-    def get_payement(self, registration: Registration) -> dict:
+    def get_payment(self, registration: Registration) -> dict:
         total_price = (
             registration.registrationparticipant_set.aggregate(
                 sum=Sum("booking_option__price")
@@ -347,24 +350,56 @@ class AttributeSummarySerializer(serializers.ModelSerializer):
             "attribute_set",
         )
 
-    def get_attribute_set(self, attributeModule: AttributeModule) -> int:
-        if (attributeModule.field_type == "BoA"):
-            items = BooleanAttribute.objects.filter(attribute_module=attributeModule)
+    def filter_attributes_by_leadership(self,
+                                        request,
+                                        event: event_models.Event,
+                                        attributes: QuerySet[AbstractAttribute]
+                                        ) -> QuerySet[AbstractAttribute]:
+        user = request.user
+        leader_ship = event_permissions.check_leader_permission(event, user)
+        event_role = event_permissions.check_event_permission(event, request)
+        if event_role == event_permissions.EventRole.NONE and leader_ship != event_permissions.LeadershipRole.NONE:
+            scout_orga = get_bund_or_ring(
+                user.person.scout_group,
+                leader_ship == event_permissions.LeadershipRole.BUND_LEADER
+            )
+
+            if not scout_orga:
+                return BooleanAttribute.objects.none()
+
+            attributes = attributes.filter(
+                Q(registration__scout_organisation=scout_orga)
+                | Q(registration__scout_organisation__parent=scout_orga)
+                | Q(registration__scout_organisation__parent__parent=scout_orga)
+                | Q(registration__scout_organisation__parent__parent__parent=scout_orga))
+        return attributes
+    def get_attribute_set(self, attribute_module: AttributeModule) -> int:
+        event = attribute_module.event_module.event
+        request = self.context['request']
+
+        if attribute_module.field_type == "BoA":
+            items = BooleanAttribute.objects.filter(attribute_module=attribute_module)
+            items = self.filter_attributes_by_leadership(request,event,items)
             return BooleanAttributeSummarySerializer(items, many=True, read_only=True).data
-        elif (attributeModule.field_type == "TiA"):
-            items = DateTimeAttribute.objects.filter(attribute_module=attributeModule)
+        elif attribute_module.field_type == "TiA":
+            items = DateTimeAttribute.objects.filter(attribute_module=attribute_module)
+            items = self.filter_attributes_by_leadership(request, event, items)
             return DateTimeAttributeSummarySerializer(items, many=True, read_only=True).data
-        elif (attributeModule.field_type == "InA"):
-            items = IntegerAttribute.objects.filter(attribute_module=attributeModule)
+        elif attribute_module.field_type == "InA":
+            items = IntegerAttribute.objects.filter(attribute_module=attribute_module)
+            items = self.filter_attributes_by_leadership(request, event, items)
             return IntegerAttributeSummarySerializer(items, many=True, read_only=True).data
-        elif (attributeModule.field_type == "FlA"):
-            items = FloatAttribute.objects.filter(attribute_module=attributeModule)
+        elif attribute_module.field_type == "FlA":
+            items = FloatAttribute.objects.filter(attribute_module=attribute_module)
+            items = self.filter_attributes_by_leadership(request, event, items)
             return FloatAttributeSummarySerializer(items, many=True, read_only=True).data
-        elif (attributeModule.field_type == "StA"):
-            items = StringAttribute.objects.filter(attribute_module=attributeModule)
+        elif attribute_module.field_type == "StA":
+            items = StringAttribute.objects.filter(attribute_module=attribute_module)
+            items = self.filter_attributes_by_leadership(request, event, items)
             return StringAttributeSummarySerializer(items, many=True, read_only=True).data
-        elif (attributeModule.field_type == "TrA"):
-            items = TravelAttribute.objects.filter(attribute_module=attributeModule)
+        elif attribute_module.field_type == "TrA":
+            items = TravelAttribute.objects.filter(attribute_module=attribute_module)
+            items = self.filter_attributes_by_leadership(request, event, items)
             return TravelAttributeSummarySerializer(items, many=True, read_only=True).data
 
 
@@ -377,5 +412,5 @@ class EventModuleSummarySerializer(serializers.ModelSerializer):
 
     def get_attribute_modules(self, module: event_models.EventModule):
         queryset = module.attributemodule_set
-        result = AttributeSummarySerializer(queryset, many=True).data
+        result = AttributeSummarySerializer(queryset, many=True, context={'request': self.context['request']}).data
         return result

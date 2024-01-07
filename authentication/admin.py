@@ -28,3 +28,4 @@ class PersonAdmin(admin.ModelAdmin):
 class RequestGroupAccessAdmin(admin.ModelAdmin):
     autocomplete_fields = ('user', 'group')
     list_display = ('user', 'group', 'status', 'checked_by')
+    ordering = ('created_at',)
