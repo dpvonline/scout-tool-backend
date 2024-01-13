@@ -5,18 +5,14 @@ from datetime import timezone
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
-from backend.settings import env, keycloak_admin, keycloak_user
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import mixins, viewsets, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from django.db.models import QuerySet, Q
-from basic.api_exceptions import ZipCodeNotFound
 
-from basic.choices import Gender
 from anmelde_tool.attributes.choices import TravelType
 from anmelde_tool.attributes.models import (
     AttributeModule,
@@ -55,8 +51,9 @@ from anmelde_tool.registration.models import (
 )
 from authentication import models as auth_models
 from basic import models as basic_models
-from basic.helper.get_zipcode import get_zipcode_pk
-from basic.models import ZipCode
+from basic.choices import Gender
+from basic.helper.get_property_ids import get_zipcode, get_scout_group
+from basic.models import ZipCode, ScoutHierarchy
 
 User = get_user_model()
 
@@ -118,18 +115,10 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             del request.data["eat_habit"]
 
         # handle case where scout_group is not given
-        if request.data.get("scout_group"):
-            scout_group_id = request.data.get("scout_group")
-        else:
-            scout_group_id = request.user.person.scout_group
+        scout_group: ScoutHierarchy = get_scout_group(request)
 
         # handle zip_code
-        zip_code_id = get_zipcode_pk(request)
-        if not zip_code_id:
-            zip_code_id = request.user.person.scout_group.zip_code.id
-
-        request.data['zip_code'] = zip_code_id
-        zip_code_obj = ZipCode.objects.filter(id=zip_code_id).first()
+        zip_code: ZipCode | None = get_zipcode(request)
 
         # handle gender
         gender_str = "N"
@@ -171,6 +160,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 first_name=request.data["first_name"],
                 last_name=request.data["last_name"],
                 birthday=request.data["birthday"],
+                scout_group=scout_group
         ).exists():
             person = auth_models.Person(
                 first_name=request.data.get("first_name"),
@@ -178,10 +168,10 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 last_name=request.data.get("last_name"),
                 address=request.data.get("address"),
                 address_supplement=request.data.get("address_supplement"),
-                scout_group=scout_group_id,
+                scout_group=scout_group,
                 phone_number=request.data.get("phone_number"),
                 email=request.data.get("email"),
-                zip_code=zip_code_obj,
+                zip_code=zip_code,
                 gender=gender_str,
                 scout_level="N",
             )
@@ -191,8 +181,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        zip_code_id = get_zipcode_pk(request)
-        request.data['zip_code'] = zip_code_id
+        get_zipcode(request)
 
         eat_habits_formatted = create_missing_eat_habits(request)
 
@@ -201,9 +190,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
 
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        # self.check_for_double_participants(request, event_id)
+        self.participant_initialization(request)
 
         request.data["generated"] = False
         return super().update(request, *args, **kwargs)

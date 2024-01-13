@@ -22,10 +22,9 @@ from backend.settings import env, keycloak_admin, keycloak_user
 from basic.api_exceptions import TooManySearchResults, NoSearchResults
 from basic.choices import Gender
 from basic.helper.choice_to_json import choice_to_json
-from basic.helper.get_zipcode import get_zipcode_pk
+from basic.helper.get_property_ids import get_zipcode
 from basic.models import ScoutHierarchy, ZipCode, EatHabit
 from basic.permissions import IsStaffOrReadOnly
-from keycloak_auth.api_exceptions import NotAuthorized
 from keycloak_auth.helper import (
     REGEX_GROUP,
     check_group_admin_permission,
@@ -122,16 +121,16 @@ class PersonalData(viewsets.ViewSet):
         person_edited = False
         scout_group_id = request.data.get("scout_group")
         if scout_group_id and (
-            request.user.person.scout_group is None
-            or scout_group_id != request.user.person.scout_group.id
+                request.user.person.scout_group is None
+                or scout_group_id != request.user.person.scout_group.id
         ):
             scout_group = get_object_or_404(ScoutHierarchy, id=scout_group_id)
             request.user.person.scout_group = scout_group
             person_edited = True
         zip_code_no = request.data.get("zip_code")
         if zip_code_no and (
-            request.user.person.zip_code is None
-            or zip_code_no != request.user.person.zip_code.id
+                request.user.person.zip_code is None
+                or zip_code_no != request.user.person.zip_code.id
         ):
             zip_code = get_object_or_404(ZipCode, zip_code=zip_code_no)
             request.user.person.zip_code = zip_code
@@ -273,7 +272,7 @@ class BundesPostViewSet(viewsets.ViewSet):
 
 class RegisterViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
-        request.data['zip_code'] = get_zipcode_pk(request)
+        request.data['zip_code'] = get_zipcode(request)
         zip_code_obj = ZipCode.objects.get(id=request.data.get("zip_code"))
         serializers = RegisterSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
@@ -577,7 +576,6 @@ class MyMembersViewSet(viewsets.ModelViewSet):
 
         group_id = scout_group.keycloak.keycloak_id
 
-
         all_users = True
         try:
             keycloak_user.get_group_users(token, group_id)
@@ -609,15 +607,13 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
 
     def create(self, request, *args, **kwargs) -> Response:
         token = self.request.META.get("HTTP_AUTHORIZATION")
-        scout_group = self.request.user.person.scout_group
+        scout_group = request.user.person.scout_group
 
         if not scout_group or not scout_group.keycloak:
             return Response(
                 {"status": "Du hast keinen gültigen Stamm", "verified": False},
                 status=status.HTTP_200_OK,
             )
-
-        group_id = scout_group.keycloak.keycloak_id
 
         file = request.FILES["file"]
         if not file.name.endswith(".xlsx"):
@@ -654,14 +650,24 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
 
         for item in data:
             if Person.objects.filter(
-                first_name=item["first_name"],
-                last_name=item["last_name"],
-                birthday=item["birthday"],
+                    first_name=item["first_name"],
+                    last_name=item["last_name"],
+                    birthday=item["birthday"],
+                    scout_group=scout_group
             ).exists():
                 report.append(
                     f"{item['first_name']} {item['last_name']} {item['birthday'].date()} ist bereits vorhanden"
                 )
                 continue
+
+            gender_value = None
+            # handle gender
+            for gender in Gender.choices:
+                if data_line["gender"] == gender[1]:
+                    gender_value = gender[0]
+
+            # handle zip_code
+            zip_code = ZipCode.objects.filter(zip_code=item["zip_code"]).first()
 
             person_obj = Person.objects.create(
                 scout_name=item["scout_name"],
@@ -669,19 +675,12 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
                 last_name=item["last_name"],
                 address=item["address"],
                 birthday=item["birthday"],
+                gender=gender_value,
+                scout_group=scout_group,
+                zip_code=zip_code
             )
             # handle created_by
             person_obj.created_by.add(request.user)
-
-            # handle scout_group
-            person_obj.scout_group = request.user.person.scout_group
-            person_obj.save()
-
-            # handle gender
-            for gender in Gender.choices:
-                if data_line["gender"] == gender[1]:
-                    person_obj.gender = gender[0]
-                    person_obj.save()
 
             # handle eat_habits
             eat_habit_list = []
@@ -700,11 +699,6 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
                         person_obj.save()
                     except:
                         pass
-
-            # handle zip_code
-            zip_code = ZipCode.objects.filter(zip_code=item["zip_code"]).first()
-            person_obj.zip_code = zip_code
-            person_obj.save()
 
             dict_model = model_to_dict(
                 person_obj, fields=[field.name for field in person_obj._meta.fields]
@@ -760,7 +754,6 @@ class MyTribeVerifiedViewSet(viewsets.ViewSet):
             },
             status=status.HTTP_200_OK,
         )
-        return Response({"status": "Ok", "verified": True}, status=status.HTTP_200_OK)
 
 
 class AddablePersons(viewsets.ModelViewSet):
