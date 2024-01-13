@@ -273,7 +273,8 @@ class BundesPostViewSet(viewsets.ViewSet):
 
 class RegisterViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
-        get_zipcode_pk(request)
+        request.data['zip_code'] = get_zipcode_pk(request)
+        zip_code_obj = ZipCode.objects.get(id=request.data.get("zip_code"))
         serializers = RegisterSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
         try:
@@ -344,15 +345,6 @@ class RegisterViewSet(viewsets.ViewSet):
 
         if new_keycloak_user_id and new_django_user:
             try:
-                zip_code = None
-                if serializers.data.get("zip_code"):
-                    zip_code_raw = serializers.data.get("zip_code")
-                    zip_code_queryset = ZipCode.objects.filter(
-                        zip_code__icontains=zip_code_raw
-                    )
-                    if zip_code_queryset.count() > 0:
-                        zip_code = zip_code_queryset.first()
-
                 Person.objects.create(
                     user=new_django_user,
                     scout_name=serializers.data.get("scout_name", ""),
@@ -360,7 +352,7 @@ class RegisterViewSet(viewsets.ViewSet):
                     last_name=serializers.data.get("last_name", ""),
                     address=serializers.data.get("address", ""),
                     address_supplement=serializers.data.get("address_supplement", ""),
-                    zip_code=zip_code,
+                    zip_code=zip_code_obj,
                     scout_group=scout_organisation,
                     phone_number=serializers.data.get("phone_number", ""),
                     email=serializers.data.get("email"),

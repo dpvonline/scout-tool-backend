@@ -110,20 +110,28 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             raise ParticipantAlreadyExists()
 
     def create(self, request, *args, **kwargs) -> Response:
-        zip_code = get_zipcode_pk(request)
-
+        # handle eat_habit
         eat_habits_formatted = create_missing_eat_habits(request)
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data["eat_habit"] = eat_habits_formatted
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
 
-        if zip_code:
-            scout_group_id = zip_code.id
+        # handle case where scout_group is not given
+        if request.data.get("scout_group"):
+            scout_group_id = request.data.get("scout_group")
         else:
             scout_group_id = request.user.person.scout_group
-            request.data["zip_code"] = scout_group_id
 
+        # handle zip_code
+        zip_code_id = get_zipcode_pk(request)
+        if not zip_code_id:
+            zip_code_id = request.user.person.scout_group.zip_code.id
+
+        request.data['zip_code'] = zip_code_id
+        zip_code_obj = ZipCode.objects.filter(id=zip_code_id).first()
+
+        # handle gender
         gender_str = "N"
 
         #  map gender string to choice class value
@@ -173,7 +181,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
                 scout_group=scout_group_id,
                 phone_number=request.data.get("phone_number"),
                 email=request.data.get("email"),
-                zip_code=zip_code,
+                zip_code=zip_code_obj,
                 gender=gender_str,
                 scout_level="N",
             )
@@ -183,7 +191,8 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        get_zipcode_pk(request)
+        zip_code_id = get_zipcode_pk(request)
+        request.data['zip_code'] = zip_code_id
 
         eat_habits_formatted = create_missing_eat_habits(request)
 
