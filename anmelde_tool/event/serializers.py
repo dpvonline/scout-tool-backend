@@ -89,7 +89,9 @@ class EventModuleSerializer(serializers.ModelSerializer):
 
     def get_attribute_modules(self, module: event_models.EventModule):
         queryset = module.attributemodule_set
-        result = summary_serializers.AttributeSummarySerializer(queryset, many=True).data
+        result = summary_serializers.AttributeSummarySerializer(
+            queryset, many=True, context={'request': self.context['request']}
+        ).data
         return result
 
 
@@ -190,6 +192,8 @@ class EventReadSerializer(serializers.ModelSerializer):
     theme = basic_serializers.FrontendThemeSerializer(many=False, read_only=True)
     booking_options = serializers.SerializerMethodField()
     existing_register = serializers.SerializerMethodField()
+    can_view_leader = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -208,7 +212,6 @@ class EventReadSerializer(serializers.ModelSerializer):
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)
         return BookingOptionSerializer(booking_options, many=True).data
 
-
     def get_existing_register(self, obj: event_models.Event) -> Registration:
         registration = Registration.objects \
             .filter(event=obj.id, responsible_persons=self.context['request'].user)
@@ -218,12 +221,19 @@ class EventReadSerializer(serializers.ModelSerializer):
         return None
 
     def get_eventmodule_set(self, obj: event_models.Event) -> Registration:
-        eventModules = EventModule.objects.filter(event = obj.id).order_by('ordering')
-        return EventReadModuleSerializer(eventModules, many=True, read_only=True).data
+        event_modules = EventModule.objects.filter(event = obj.id).order_by('ordering')
+        return EventReadModuleSerializer(event_modules, many=True, read_only=True).data
 
     def get_responsible_persons(self,obj):
         return [user.get_display_name() for user in obj.responsible_persons.all()]
 
+    def get_can_view_leader(self, obj: event_models.Event) -> [bool, event_permissions.LeadershipRole]:
+        if not obj.view_allow_subgroup:
+            return False
+        return event_permissions.check_leader_permission(obj, self.context['request'].user)
+
+    def get_can_edit(self, obj: event_models.Event) -> event_permissions.EventRole:
+        return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):
@@ -237,13 +247,15 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         model = event_models.Event
         fields = '__all__'
 
-    def get_can_view(self, obj: event_models.Event) -> bool:
+    def get_can_view(self, obj: event_models.Event) -> event_permissions.EventRole:
         return event_permissions.check_event_permission(obj, self.context['request'])
 
-    def get_can_view_leader(self, obj: event_models.Event) -> bool:
+    def get_can_view_leader(self, obj: event_models.Event) -> [bool, event_permissions.LeadershipRole]:
+        if not obj.view_allow_subgroup:
+            return False
         return event_permissions.check_leader_permission(obj, self.context['request'].user)
 
-    def get_can_edit(self, obj: event_models.Event) -> bool:
+    def get_can_edit(self, obj: event_models.Event) -> event_permissions.EventRole:
         return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
 
     def get_status(self, obj: event_models.Event) -> str:
@@ -257,17 +269,20 @@ class EventOverviewSerializer(serializers.ModelSerializer):
         else:
             return 'error'
 
+
 class RegistrationReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Registration
         fields = '__all__'
 
+
 class MyInvitationsSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
     booking_options = serializers.SerializerMethodField()
     location = EventLocationShortSerializer(many=False, read_only=True)
     existing_register = serializers.SerializerMethodField()
+    expired_since = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -287,20 +302,26 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
             'registration_start',
             'last_possible_update',
             'booking_options',
-            'existing_register'
+            'existing_register',
+            'expired_since'
         )
 
     def get_status(self, obj: event_models.Event) -> str:
-        registration = Registration.objects \
-            .filter(event=obj.id, responsible_persons=self.context['request'].user) \
-            .exists()
-
-        if obj.registration_deadline > timezone.now():
+        if obj.registration_start > timezone.now():
+            return 'upcoming'
+        elif obj.registration_deadline > timezone.now():
             return 'pending'
-        elif obj.registration_deadline <= timezone.now():
+        elif obj.registration_deadline <= timezone.now() < obj.last_possible_update:
+            return 'just_editable'
+        elif obj.registration_deadline <= timezone.now() < obj.end_date:
             return 'expired'
+        elif obj.end_date <= timezone.now():
+            return 'archived'
         else:
             return 'error'
+
+    def get_expired_since(self, obj: event_models.Event) -> int:
+        return (timezone.now() - obj.registration_deadline).days
 
     def get_booking_options(self, obj: event_models.Event) -> list:
         booking_options = event_models.BookingOption.objects.filter(event=obj.id)

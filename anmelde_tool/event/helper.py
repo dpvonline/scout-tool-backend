@@ -24,10 +24,13 @@ def is_valid_uuid(val):
     except ValueError:
         return False
 
-def get_bund(obj: basic_models.ScoutHierarchy) -> [basic_models.ScoutHierarchy | None]:
+def get_bund_or_ring(obj: basic_models.ScoutHierarchy, get_bund = True) -> [basic_models.ScoutHierarchy | None]:
+    level_id = 3
+    if not get_bund:
+        level_id = 4
     iterator: basic_models.ScoutHierarchy = obj
     while iterator is not None:
-        if iterator.level.id == 3:
+        if iterator.level.id == level_id:
             return iterator
         iterator = iterator.parent
 
@@ -38,15 +41,22 @@ def filter_registration_by_leadership(request, event_id: str, registrations: Que
         -> QuerySet[Registration]:
     event: event_models.Event = get_event(event_id)
     user = request.user
-    if not event_permissions.check_event_permission(event, request) \
-            and event_permissions.check_leader_permission(event, user):
-        bund = get_bund(user.userextended.scout_organisation)
+    leader_ship = event_permissions.check_leader_permission(event, user)
+    event_role = event_permissions.check_event_permission(event, request)
+    if event_role == event_permissions.EventRole.NONE and leader_ship != event_permissions.LeadershipRole.NONE:
+        scout_orga = get_bund_or_ring(
+            user.person.scout_group,
+            leader_ship == event_permissions.LeadershipRole.BUND_LEADER
+        )
+
+        if not scout_orga:
+            return Registration.objects.none()
 
         registrations = registrations.filter(
-            Q(scout_organisation=bund)
-            | Q(scout_organisation__parent=bund)
-            | Q(scout_organisation__parent__parent=bund)
-            | Q(scout_organisation__parent__parent__parent=bund))
+            Q(scout_organisation=scout_orga)
+            | Q(scout_organisation__parent=scout_orga)
+            | Q(scout_organisation__parent__parent=scout_orga)
+            | Q(scout_organisation__parent__parent__parent=scout_orga))
     return registrations
 
 

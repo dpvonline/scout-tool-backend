@@ -9,6 +9,7 @@ from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import mixins, viewsets, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -50,10 +51,15 @@ from anmelde_tool.registration.models import (
 )
 from authentication import models as auth_models
 from basic import models as basic_models
-from basic.helper.get_zipcode import get_zipcode_pk
-from basic.models import ZipCode
+from basic.choices import Gender
+from basic.helper.get_property_ids import get_zipcode, get_scout_group
+from basic.models import ZipCode, ScoutHierarchy
 
 User = get_user_model()
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 50
 
 
 def create_missing_eat_habits(request) -> [str]:
@@ -88,24 +94,44 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         registration_id = self.kwargs.get("registration_pk", None)
         return RegistrationParticipant.objects.filter(
             registration=registration_id
-        ).order_by("age")
+        ).order_by("birthday")
 
-    def check_for_double_participants(self, request, event_id):
+    @staticmethod
+    def check_for_double_participants(request, event_id):
         if RegistrationParticipant.objects.filter(
                 first_name=request.data.get("first_name"),
                 last_name=request.data.get("last_name"),
                 birthday=request.data.get("birthday"),
-                registration__event=event_id).exists():
+                registration__event=event_id,
+        ).exists():
             raise ParticipantAlreadyExists()
 
     def create(self, request, *args, **kwargs) -> Response:
-        zip_code = get_zipcode_pk(request)
-
+        # handle eat_habit
         eat_habits_formatted = create_missing_eat_habits(request)
         if eat_habits_formatted and len(eat_habits_formatted) > 0:
             request.data["eat_habit"] = eat_habits_formatted
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
+
+        # handle case where scout_group is not given
+        scout_group: ScoutHierarchy = get_scout_group(request)
+
+        # handle zip_code
+        zip_code: ZipCode | None = get_zipcode(request)
+
+        # handle gender
+        gender_str = "N"
+
+        #  map gender string to choice class value
+        if len(request.data.get("gender")) > 1:
+            for gender in Gender.choices:
+                if request.data.get("gender") == gender[1]:
+                    gender_str = gender[0]
+        else:
+            gender_str = request.data.get("gender")
+
+        request.data["gender"] = gender_str
 
         registration: Registration = self.participant_initialization(request)
         event_id = registration.event.id
@@ -126,21 +152,27 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
             request.data["last_name"] = max_num + 1
 
         if request.data.get("booking_option") is None:
-            request.data["booking_option"] = registration.event.bookingoption_set.first().id
+            request.data[
+                "booking_option"
+            ] = registration.event.bookingoption_set.first().id
 
-        if request.data.get('allow_permanently'):
+        if request.data.get("allow_permanently") and not auth_models.Person.objects.filter(
+                first_name=request.data["first_name"],
+                last_name=request.data["last_name"],
+                birthday=request.data["birthday"],
+                scout_group=scout_group
+        ).exists():
             person = auth_models.Person(
-                first_name=request.data.get('first_name'),
-                scout_name=request.data.get('scout_name'),
-                last_name=request.data.get('last_name'),
-                address=request.data.get('address'),
-                birthday=request.data.get('birthday'),
-                address_supplement=request.data.get('address_supplement'),
-                scout_group=request.data.get('scout_group'),
-                phone_number=request.data.get('phone_number'),
-                email=request.data.get('email'),
+                first_name=request.data.get("first_name"),
+                scout_name=request.data.get("scout_name"),
+                last_name=request.data.get("last_name"),
+                address=request.data.get("address"),
+                address_supplement=request.data.get("address_supplement"),
+                scout_group=scout_group,
+                phone_number=request.data.get("phone_number"),
+                email=request.data.get("email"),
                 zip_code=zip_code,
-                gender=request.data.get("gender"),
+                gender=gender_str,
                 scout_level="N",
             )
             person.save()
@@ -149,7 +181,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        get_zipcode_pk(request)
+        get_zipcode(request)
 
         eat_habits_formatted = create_missing_eat_habits(request)
 
@@ -158,9 +190,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         elif "eat_habit" in request.data:
             del request.data["eat_habit"]
 
-        registration: Registration = self.participant_initialization(request)
-        event_id = registration.event.id
-        # self.check_for_double_participants(request, event_id)
+        self.participant_initialization(request)
 
         request.data["generated"] = False
         return super().update(request, *args, **kwargs)
@@ -348,7 +378,7 @@ class RegistrationViewSet(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     permission_classes = [event_permissions.IsRegistrationResponsiblePerson]
     queryset = Registration.objects.all()
@@ -366,7 +396,7 @@ class RegistrationViewSet(
         scout_organisation = custom_get_or_404(
             event_api_exceptions.SomethingNotFound(err_msg),
             basic_models.ScoutHierarchy,
-            id=scout_organisation_id
+            id=scout_organisation_id,
         )
         registration: Registration = Registration(
             scout_organisation=scout_organisation,

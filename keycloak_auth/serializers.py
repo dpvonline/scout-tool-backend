@@ -61,6 +61,8 @@ class UserListSerializer(serializers.ModelSerializer):
             'id',
             'keycloak_id',
             'person'
+            'username',
+            'email',
         )
 
     def get_id(self, obj: KeycloakGroup):
@@ -211,7 +213,8 @@ class PartialUserSerializer(serializers.ModelSerializer):
             'keycloak_id',
             'scout_name',
             'stamm_bund',
-            'display_name'
+            'display_name',
+            'email',
         )
 
     def get_id(self, obj: User):

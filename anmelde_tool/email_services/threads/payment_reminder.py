@@ -36,7 +36,7 @@ def payment_reminder_mail(evend_id: str, email_type: EmailType):
         booking_options = get_booking_options(serializer.data['booking_options'])
         scout_organisation = get_scout_organisation_text(registration)
 
-        if serializer.data['payement']['open'] <= 0:
+        if serializer.data['payment']['open'] <= 0:
             continue
 
         for person in registration.responsible_persons.all():
@@ -50,9 +50,9 @@ def payment_reminder_mail(evend_id: str, email_type: EmailType):
                 # 'unsubscribe': person.userextended.id,
                 'participant_count': serializer.data['participant_count'],
                 'booking_options': booking_options,
-                'sum': serializer.data['payement']['price'],
-                'received_sum': serializer.data['payement']['paid'],
-                'open_sum': serializer.data['payement']['open'],
+                'sum': serializer.data['payment']['price'],
+                'received_sum': serializer.data['payment']['paid'],
+                'open_sum': serializer.data['payment']['open'],
                 'payment_id': serializer.data['ref_id'],
                 'scout_organisation': scout_organisation,
                 'event_name': event_name,
@@ -93,7 +93,7 @@ def single_payment_reminder_mail(registration_id: str, email_type: EmailType):
     booking_options = get_booking_options(serializer.data['booking_options'])
     scout_organisation = get_scout_organisation_text(registration)
 
-    if serializer.data['payement']['open'] <= 0:
+    if serializer.data['payment']['open'] <= 0:
         return
 
     for person in registration.responsible_persons.all():
@@ -107,9 +107,9 @@ def single_payment_reminder_mail(registration_id: str, email_type: EmailType):
             # 'unsubscribe': person.id,
             'participant_count': serializer.data['participant_count'],
             'booking_options': booking_options,
-            'sum': serializer.data['payement']['price'],
-            'received_sum': serializer.data['payement']['paid'],
-            'open_sum': serializer.data['payement']['open'],
+            'sum': serializer.data['payment']['price'],
+            'received_sum': serializer.data['payment']['paid'],
+            'open_sum': serializer.data['payment']['open'],
             'payment_id': serializer.data['ref_id'],
             'scout_organisation': scout_organisation,
             'event_name': event_name,

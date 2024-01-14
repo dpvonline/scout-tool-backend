@@ -12,11 +12,10 @@ from anmelde_tool.attributes.models import AttributeModule
 from anmelde_tool.event import api_exceptions as event_api_exceptions
 from anmelde_tool.event import helper as event_helper
 from anmelde_tool.event import models as event_models
-from basic import models as basic_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event.models import StandardEventTemplate, Event, EventModule, EventLocation
-from basic.helper.get_zipcode import get_zipcode_pk
+from basic.helper.get_property_ids import get_zipcode
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
 
@@ -50,11 +49,11 @@ class EventLocationViewSet(viewsets.ModelViewSet):
     serializer_class = event_serializers.EventLocationSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
-        get_zipcode_pk(request)
+        get_zipcode(request)
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs) -> Response:
-        get_zipcode_pk(request)
+        get_zipcode(request)
         return super().update(request, *args, **kwargs)
 
 
@@ -77,6 +76,7 @@ class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         child_ids = get_groups_of_user(token, self.request.user.keycloak_id)
+        child_ids += [self.request.user.person.scout_group.keycloak.keycloak_id]
         child_groups = KeycloakGroup.objects.filter(keycloak_id__in=child_ids).prefetch_related('parent')
 
         q = Queue()
@@ -287,6 +287,7 @@ class EventOverviewViewSet(viewsets.ReadOnlyModelViewSet):
             | (Q(view_group__keycloak_id__in=child_ids) & Q(is_public=True))
             | Q(responsible_persons=self.request.user)
             | (Q(invited_groups=None) & Q(is_public=True))
+            | Q(view_allow_subgroup=True)
         ).distinct()
 
         return queryset

@@ -22,7 +22,7 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.helper import (
     filter_registration_by_leadership,
-    get_bund,
+    get_bund_or_ring,
     to_snake_case,
     get_event,
     age_range,
@@ -54,17 +54,18 @@ class WorkshopEventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
             registration__event__id=event_id
         )
 
-        if not event_permissions.check_event_permission(
-            event, self.request
-        ) and event_permissions.check_leader_permission(event, self.request.user):
-            bund = get_bund(self.request.user.userextended.scout_organisation)
+        leader_ship = event_permissions.check_leader_permission(event, self.request.user)
+        event_role = event_permissions.check_event_permission(event, self.request)
+        if event_role == event_permissions.EventRole.NONE and leader_ship != event_permissions.LeadershipRole.NONE:
+            orga = get_bund_or_ring(
+                self.request.user.userextended.scout_organisation,
+                leader_ship == event_permissions.LeadershipRole.BUND_LEADER
+            )
             workshops = workshops.filter(
-                Q(registration__scout_organisation__parent=bund)
-                | Q(registration__scout_organisation__parent__parent=bund)
-                | Q(registration__scout_organisation__parent__parent__parent=bund)
-                | Q(
-                    registration__scout_organisation__parent__parent__parent__parent=bund
-                )
+                Q(registration__scout_organisation__parent=orga)
+                | Q(registration__scout_organisation__parent__parent=orga)
+                | Q(registration__scout_organisation__parent__parent__parent=orga)
+                | Q(registration__scout_organisation__parent__parent__parent__parent=orga)
             )
         return workshops
 
@@ -122,7 +123,7 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         ordering: str = self.request.query_params.get("ordering", None)
         order_desc: bool = (
-            self.request.query_params.get("order-desc", "false") == "true"
+                self.request.query_params.get("order-desc", "false") == "true"
         )
         camel_case = to_snake_case(ordering, order_desc, self.ordering_fields)
 
@@ -190,7 +191,7 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
 
         ordering: str = self.request.query_params.get("ordering", None)
         order_desc: bool = (
-            self.request.query_params.get("order-desc", "false") == "true"
+                self.request.query_params.get("order-desc", "false") == "true"
         )
         camel_case = to_snake_case(
             ordering, order_desc, self.ordering_fields, "last_name"
@@ -199,25 +200,24 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         check_case = ("-" if order_desc else "") + "scout_organisation"
         if camel_case == check_case:
             camel_case = (
-                "-" if order_desc else ""
-            ) + "registration__scout_organisation__name"
+                             "-" if order_desc else ""
+                         ) + "registration__scout_organisation__name"
 
         return participants.order_by(camel_case)
 
 
 class EventModuleSummaryViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [event_permissions.IsSubEventResponsiblePerson]
+    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
     serializer_class = EventModuleSummarySerializer
 
     def get_queryset(self):
         event_id = self.kwargs.get("event_pk", None)
-        return EventModule.objects.filter(event__id=event_id).exclude(name__in=["Participants", "Introduction", "Summary"])
+        return EventModule.objects.filter(event__id=event_id).exclude(
+            name__in=["Participants", "Introduction", "Summary"])
 
 
 class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = [
-        event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson
-    ]
+    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
 
     def list(self, request, *args, **kwargs) -> Response:
         participants: QuerySet[RegistrationParticipant] = self.get_queryset()
@@ -291,7 +291,7 @@ class EventLeaderTypesSummaryViewSet(EventFoodSummaryViewSet):
         return Response(result, status=status.HTTP_200_OK)
 
     def get_leder_type_count(
-        self, leader_type, participants: QuerySet[RegistrationParticipant]
+            self, leader_type, participants: QuerySet[RegistrationParticipant]
     ):
         return participants.filter(leader=leader_type).count()
 
@@ -525,7 +525,8 @@ class EventAlcoholAgeGroupsSummaryViewSet(EventFoodSummaryViewSet):
 class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, *args, **kwargs) -> Response:
         registrations: QuerySet[Registration] = self.get_queryset()
-
+        event_id = self.kwargs.get("event_pk", None)
+        registrations = filter_registration_by_leadership(request, event_id, registrations)
         total = registrations.aggregate(
             sum=Sum("registrationparticipant__booking_option__price")
         )["sum"]
@@ -551,7 +552,7 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class CashSummaryListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = [event_permissions.IsSubEventResponsiblePerson]
+    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
     serializer_class = summary_serializers.RegistrationCashSummarySerializer
 
     def list(self, request, *args, **kwargs) -> Response:
@@ -565,9 +566,9 @@ class CashSummaryListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         if paid is not None:
             for item in serializer.data:
-                if item["payement"].get("open") <= 0 and (paid == "true"):
+                if item["payment"].get("open") <= 0 and (paid == "true"):
                     returnData.append(item)
-                if item["payement"].get("open") > 0 and (paid == "false"):
+                if item["payment"].get("open") > 0 and (paid == "false"):
                     returnData.append(item)
         else:
             returnData = serializer.data
@@ -578,15 +579,17 @@ class CashSummaryListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_id = self.kwargs.get("event_pk", None)
         search = self.request.query_params.get("search", None)
 
-        if search is not None:
-            return (
-                registration_models.Registration.objects.filter(event_id=event_id)
-                .filter(Q(scout_organisation__name__icontains=search))
-                .order_by("scout_organisation__name")
-            )
-        return registration_models.Registration.objects.filter(
-            event_id=event_id
-        ).order_by("scout_organisation__name")
+        registrations = registration_models.Registration.objects.filter(event_id=event_id)
+
+        if search:
+            registrations = registrations.filter(scout_organisation__name__icontains=search)
+
+        registrations = filter_registration_by_leadership(
+            request=self.request,
+            event_id=event_id,
+            registrations=registrations
+        )
+        return registrations.order_by("scout_organisation__name")
 
 
 class CashDetailViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -637,7 +640,7 @@ class EmailRegistrationResponsiblePersonsViewSet(
 
         confirmed: bool = self.request.query_params.get("confirmed", "true") == "true"
         unconfirmed: bool = (
-            self.request.query_params.get("unconfirmed", "true") == "true"
+                self.request.query_params.get("unconfirmed", "true") == "true"
         )
         # all_participants: bool = self.request.query_params.get('all-participants', False)
 
@@ -732,6 +735,5 @@ class MergeRegistrationsViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet
         # delete secondary registration
         if data['delete_secondary']:
             reg_secondary.delete()
-    
 
         return Response({"id": reg_primary.event.id}, status=status.HTTP_200_OK)

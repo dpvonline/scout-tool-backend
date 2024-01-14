@@ -47,7 +47,7 @@ class InvoiceGenerator(AbstractGenerator):
             person_2: User = None
             if registration.responsible_persons.count() > 1:
                 person_2 = registration.responsible_persons.all()[1]
-            payment = serialized.get('payement', None)
+            payment = serialized.get('payment', None)
             price = payment.get('price', 0) if payment else 0
 
             all_participants = get_participants_by_registration(registration)
