@@ -19,7 +19,7 @@ from anmelde_tool.registration.views import create_missing_eat_habits
 from authentication import models as auth_models
 from authentication import serializers as auth_serializer
 from backend.settings import env, keycloak_admin, keycloak_user
-from basic.api_exceptions import TooManySearchResults, NoSearchResults
+from basic.api_exceptions import TooManySearchResults, NoSearchResults, ZipCodeNotFound
 from basic.choices import Gender
 from basic.helper.choice_to_json import choice_to_json
 from basic.helper.get_property_ids import get_zipcode
@@ -132,7 +132,9 @@ class PersonalData(viewsets.ViewSet):
                 request.user.person.zip_code is None
                 or zip_code_no != request.user.person.zip_code.id
         ):
-            zip_code = get_object_or_404(ZipCode, zip_code=zip_code_no)
+            zip_code = ZipCode.objects.filter(zip_code=zip_code_no).first()
+            if not zip_code:
+                raise ZipCodeNotFound()
             request.user.person.zip_code = zip_code
             person_edited = True
 
