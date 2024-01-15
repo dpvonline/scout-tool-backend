@@ -274,8 +274,7 @@ class BundesPostViewSet(viewsets.ViewSet):
 
 class RegisterViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
-        request.data['zip_code'] = get_zipcode(request)
-        zip_code_obj = ZipCode.objects.get(id=request.data.get("zip_code"))
+        zip_code_obj = get_zipcode(request)
         serializers = RegisterSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
         try:
