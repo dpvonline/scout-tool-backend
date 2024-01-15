@@ -76,7 +76,8 @@ class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         token = self.request.META.get('HTTP_AUTHORIZATION')
         child_ids = get_groups_of_user(token, self.request.user.keycloak_id)
-        child_ids += [self.request.user.person.scout_group.keycloak.keycloak_id]
+        if self.request.user.person.scout_group and self.request.user.person.scout_group.keycloak:
+            child_ids += [self.request.user.person.scout_group.keycloak.keycloak_id]
         child_groups = KeycloakGroup.objects.filter(keycloak_id__in=child_ids).prefetch_related('parent')
 
         q = Queue()
