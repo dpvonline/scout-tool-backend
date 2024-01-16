@@ -8,6 +8,7 @@ from anmelde_tool.email_services import serializers as email_services_serializer
 from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.models import EventModule
+from anmelde_tool.event.permissions import LeadershipRole
 from anmelde_tool.registration.models import Registration
 from authentication.serializers import UserScoutHierarchySerializer
 from basic import serializers as basic_serializers
@@ -194,6 +195,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     existing_register = serializers.SerializerMethodField()
     can_view_leader = serializers.SerializerMethodField()
     can_edit = serializers.SerializerMethodField()
+    can_view = serializers.SerializerMethodField()
 
     class Meta:
         model = event_models.Event
@@ -229,11 +231,14 @@ class EventReadSerializer(serializers.ModelSerializer):
 
     def get_can_view_leader(self, obj: event_models.Event) -> [bool, event_permissions.LeadershipRole]:
         if not obj.view_allow_subgroup:
-            return False
+            return LeadershipRole.NONE
         return event_permissions.check_leader_permission(obj, self.context['request'].user)
 
     def get_can_edit(self, obj: event_models.Event) -> event_permissions.EventRole:
         return event_permissions.check_event_permission(obj, self.context['request'], admin_only=True)
+
+    def get_can_view(self, obj: event_models.Event) -> event_permissions.EventRole:
+        return event_permissions.check_event_permission(obj, self.context['request'])
 
 
 class EventOverviewSerializer(serializers.ModelSerializer):
@@ -252,7 +257,7 @@ class EventOverviewSerializer(serializers.ModelSerializer):
 
     def get_can_view_leader(self, obj: event_models.Event) -> [bool, event_permissions.LeadershipRole]:
         if not obj.view_allow_subgroup:
-            return False
+            return LeadershipRole.NONE
         return event_permissions.check_leader_permission(obj, self.context['request'].user)
 
     def get_can_edit(self, obj: event_models.Event) -> event_permissions.EventRole:
@@ -331,6 +336,6 @@ class MyInvitationsSerializer(serializers.ModelSerializer):
         registration = Registration.objects \
             .filter(event=obj.id, responsible_persons=self.context['request'].user)
 
-        if (registration):
+        if registration:
             return RegistrationReadSerializer(registration.first(), many=False, read_only=True).data
         return None
