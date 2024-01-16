@@ -34,8 +34,9 @@ class KeycloakGroup(models.Model):
         return f'{self.__generate_tree_name()}'
 
     def __str__(self):
-        return self.name
-
+        if self.parent:
+            return f"{self.name} ({self.parent.name})"
+        return f"{self.name}"
 
 class ExternalLinks(models.Model):
     id = models.AutoField(primary_key=True)

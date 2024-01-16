@@ -60,7 +60,7 @@ class UserListSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'keycloak_id',
-            'person'
+            'person',
             'username',
             'email',
         )

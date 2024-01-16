@@ -373,13 +373,21 @@ class AttributeSummarySerializer(serializers.ModelSerializer):
                 | Q(registration__scout_organisation__parent__parent=scout_orga)
                 | Q(registration__scout_organisation__parent__parent__parent=scout_orga))
         return attributes
-    def get_attribute_set(self, attribute_module: AttributeModule) -> int:
-        event = attribute_module.event_module.event
+
+    def get_attribute_set(self, attribute_module: AttributeModule) -> []:
         request = self.context['request']
+        if attribute_module.event_module and attribute_module.event_module.event:
+            event = attribute_module.event_module.event
+        elif (request.parser_context
+              and request.parser_context.get("kwargs")
+              and request.parser_context["kwargs"].get("event_pk")):
+            event = request.parser_context["kwargs"]["event_pk"]
+        else:
+            return []
 
         if attribute_module.field_type == "BoA":
             items = BooleanAttribute.objects.filter(attribute_module=attribute_module)
-            items = self.filter_attributes_by_leadership(request,event,items)
+            items = self.filter_attributes_by_leadership(request, event, items)
             return BooleanAttributeSummarySerializer(items, many=True, read_only=True).data
         elif attribute_module.field_type == "TiA":
             items = DateTimeAttribute.objects.filter(attribute_module=attribute_module)
