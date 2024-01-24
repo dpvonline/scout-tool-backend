@@ -1,9 +1,11 @@
-from email import message
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status, viewsets, mixins
+from rest_framework import status, viewsets
 
+from backend.settings import keycloak_user
 from messaging.models import Message, IssueType, Issue
 from messaging.serializers import MessageSerializer, IssueReadSerializer, IssueTypeSerializer, IssueTypeReadSerializer, \
     IssueTypeReadShortSerializer, MessageReadSerializer, IssueSerializer
@@ -14,14 +16,34 @@ from authentication.models import CustomUser
 
 # Issue
 class IssueReadViewSet(viewsets.ModelViewSet):
-    queryset = Issue.objects.all().order_by('-created_at')
+    permission_classes = [IsAuthenticated]
     serializer_class = IssueReadSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Issue.objects.all().order_by('-created_at')
+        else:
+            token = self.request.META.get('HTTP_AUTHORIZATION')
+            keycloak_groups = keycloak_user.get_user_groups(token, self.request.user.keycloak_id)
+            print(keycloak_groups)
+            ids = [val['id'] for val in keycloak_groups]
+            print(ids)
+            return Issue.objects.filter(
+                Q(created_by=self.request.user)
+                | Q(issue_type__responsable_groups__keycloak_id__in=ids)
+            ).order_by('-created_at')
+
 
 class IssueViewSet(viewsets.ModelViewSet):
-    queryset = Issue.objects.all().order_by('-created_at')
+    permission_classes = [IsAuthenticated]
     serializer_class = IssueSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Issue.objects.all().order_by('-created_at')
+        else:
+            return Issue.objects.filter(created_by=self.request.user).order_by('-created_at')
 
 
 class IssueInitCreateViewSet(viewsets.ModelViewSet):
@@ -60,17 +82,18 @@ class IssueInitCreateViewSet(viewsets.ModelViewSet):
 # Message
 
 class MessageReadViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Message.objects.all().order_by('-created_at')
     serializer_class = MessageReadSerializer
 
 
 class MessageViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Message.objects.all().order_by('-created_at')
     serializer_class = MessageSerializer
 
     def create(self, request, *args, **kwargs) -> Response:
         request.data['created_by'] = request.user.id
-
         return super().create(request, *args, **kwargs)
 
 
@@ -93,9 +116,9 @@ class IssueTypeReadShortViewSet(viewsets.ModelViewSet):
 
 # Prio
 
-class MessagePriorityChoiseViewSet(viewsets.ViewSet):
+class MessagePriorityChoiceViewSet(viewsets.ViewSet):
     """
-    Viewset for message prioities
+    Viewset for message priorities
     """
 
     # pylint: disable=no-self-use
@@ -110,7 +133,7 @@ class MessagePriorityChoiseViewSet(viewsets.ViewSet):
 
 # Status
 
-class MessageStatusChoiseViewSet(viewsets.ViewSet):
+class MessageStatusChoiceViewSet(viewsets.ViewSet):
     """
     Viewset for message statues
     """
