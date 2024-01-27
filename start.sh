@@ -8,7 +8,7 @@ python manage.py migrate
 echo "Apply test user"
 python manage.py add_users
 echo "Load main data"
-python manage.py loaddata data/main/*.json
+#python manage.py loaddata data/main/*.json
 echo "Load test data"
 #python manage.py loaddata data/test/*.json
 echo "Load food inspi data"

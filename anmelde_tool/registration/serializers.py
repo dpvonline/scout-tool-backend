@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Count, F, Value
 from django.db.models.functions import Coalesce
@@ -20,6 +21,7 @@ User = get_user_model()
 
 class CurrentUserSerializer(serializers.ModelSerializer):
     phone_number = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
@@ -33,7 +35,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             # 'scout_organisation',
             # 'dsgvo_confirmed'
         )
-        
+
     def get_phone_number(self, obj: User):
         if hasattr(obj, 'person'):
             return obj.person.phone_number
@@ -131,9 +133,9 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
             'booking_option',
         )
 
-    def get_age(self, obj):
+    def get_age(self, obj: RegistrationParticipant):
         if obj.birthday:
-            return timezone.now().year - obj.birthday.year
+            return relativedelta(obj.registration.event.start_date.date(), obj.birthday.date()).years
         return None
 
     def get_display_name(self, obj):
