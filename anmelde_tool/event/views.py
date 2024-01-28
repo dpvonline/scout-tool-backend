@@ -214,7 +214,17 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         event_id = self.kwargs.get("event_pk", None)
         if not event_helper.is_valid_uuid(event_id):
             raise event_api_exceptions.NoUUID(event_id)
-        return event_models.BookingOption.objects.filter(event=event_id)
+        
+        is_leader = # hagi muss mir helfen
+        today = event_helper.get_today()
+        
+        bookingitem = event_models.BookingOption.objects.filter(event=event_id)
+
+        # handle bookable range
+        bookingitem = bookingitem.filter(Q(bookable_from__gte=today) | Q(bookable_from__isnull=True) | is_leader)
+        bookingitem = bookingitem.filter(Q(bookable_till__lte=today) | Q(bookable_from__isnull=True) | is_leader)
+
+        return bookingitem
 
     def create(self, request, *args, **kwargs) -> Response:
         if request.data.get('name', None) is None:
