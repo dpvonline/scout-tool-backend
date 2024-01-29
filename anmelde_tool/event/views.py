@@ -220,14 +220,20 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         is_leader = check_leader_permission(event_id, self.request.user) != EventRole.NONE
         today = timezone.now()
 
+        print('is_leader')
+        print(is_leader)
+
         # handle bookable range
-        booking_item = event_models.BookingOption.objects.filter(
-            Q(event=event_id)
-            & (Q(is_leader)
-               | (Q(bookable_from__gte=today) | Q(bookable_from__isnull=True))
-               | (Q(bookable_till__lte=today) | Q(bookable_till__isnull=True))
-               )
-        )
+        if is_leader:
+            booking_item = event_models.BookingOption.objects.filter(event=event_id)
+        else:
+            booking_item = event_models.BookingOption.objects.filter(
+                (Q(event=event_id))
+                & (
+                (Q(bookable_from__lte=today) | Q(bookable_from__isnull=True))
+                & (Q(bookable_till__gte=today) | Q(bookable_till__isnull=True))
+                )
+            )
         return booking_item
 
     def create(self, request, *args, **kwargs) -> Response:
