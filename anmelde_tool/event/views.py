@@ -16,7 +16,7 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event.models import StandardEventTemplate, Event, EventModule, EventLocation
-from anmelde_tool.event.permissions import check_leader_permission, EventRole
+from anmelde_tool.event.permissions import EventRole, check_event_permission
 from basic.helper.get_property_ids import get_zipcode
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
@@ -217,22 +217,19 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         if not event_helper.is_valid_uuid(event_id):
             raise event_api_exceptions.NoUUID(event_id)
 
-        is_leader = check_leader_permission(event_id, self.request.user) != EventRole.NONE
+        is_leader = check_event_permission(event_id, self.request) != EventRole.NONE
         today = timezone.now()
-
-        print('is_leader')
-        print(is_leader)
 
         # handle bookable range
         if is_leader:
             booking_item = event_models.BookingOption.objects.filter(event=event_id)
         else:
             booking_item = event_models.BookingOption.objects.filter(
-                (Q(event=event_id))
-                & (
-                (Q(bookable_from__lte=today) | Q(bookable_from__isnull=True))
+                Q(event=event_id)
+                & (Q(bookable_from__lte=today) | Q(bookable_from__isnull=True))
                 & (Q(bookable_till__gte=today) | Q(bookable_till__isnull=True))
-                )
+            ).order_by(
+                "bookable_from"
             )
         return booking_item
 

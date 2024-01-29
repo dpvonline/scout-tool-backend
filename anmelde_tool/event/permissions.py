@@ -17,6 +17,7 @@ UPDATE_METHODS = ('UPDATE', 'PATCH')
 
 User = get_user_model()
 
+
 class LeadershipRole(str, Enum):
     NONE = "None",
     RING_LEADER = "Ringführung",
@@ -27,6 +28,7 @@ class EventRole(str, Enum):
     NONE = None,
     VIEW_ROLE = "View",
     ADMIN_ROLE = "Admin",
+
 
 def get_keycloak_permission(user: User, keycloak_role: Group) -> bool:
     return user.groups.filter(name=keycloak_role).exists()
