@@ -2,6 +2,7 @@ from copy import deepcopy
 from queue import Queue
 
 from django.db.models import Q, QuerySet
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.exceptions import NotFound, MethodNotAllowed
@@ -15,6 +16,7 @@ from anmelde_tool.event import models as event_models
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event import serializers as event_serializers
 from anmelde_tool.event.models import StandardEventTemplate, Event, EventModule, EventLocation
+from anmelde_tool.event.permissions import check_leader_permission, EventRole
 from basic.helper.get_property_ids import get_zipcode
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
@@ -214,17 +216,19 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         event_id = self.kwargs.get("event_pk", None)
         if not event_helper.is_valid_uuid(event_id):
             raise event_api_exceptions.NoUUID(event_id)
-        
-        is_leader = # hagi muss mir helfen
-        today = event_helper.get_today()
-        
-        bookingitem = event_models.BookingOption.objects.filter(event=event_id)
+
+        is_leader = check_leader_permission(event_id, self.request.user) != EventRole.NONE
+        today = timezone.now()
 
         # handle bookable range
-        bookingitem = bookingitem.filter(Q(bookable_from__gte=today) | Q(bookable_from__isnull=True) | is_leader)
-        bookingitem = bookingitem.filter(Q(bookable_till__lte=today) | Q(bookable_from__isnull=True) | is_leader)
-
-        return bookingitem
+        booking_item = event_models.BookingOption.objects.filter(
+            Q(event=event_id)
+            & (Q(is_leader)
+               | (Q(bookable_from__gte=today) | Q(bookable_from__isnull=True))
+               | (Q(bookable_till__lte=today) | Q(bookable_till__isnull=True))
+               )
+        )
+        return booking_item
 
     def create(self, request, *args, **kwargs) -> Response:
         if request.data.get('name', None) is None:
