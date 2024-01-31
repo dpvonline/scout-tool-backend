@@ -170,13 +170,14 @@ class FullGroupSerializer(serializers.ModelSerializer):
     def get_permission(self, obj: KeycloakGroup) -> str:
         request = self.context.get('request')
         if request:
+            if request.user.is_staff:
+                return "Administrator"
             admin_perm = request_group_access(request, obj.keycloak_id, PermissionType.ADMIN)
             if admin_perm:
                 return "Administrator"
             view_perm = request_group_access(request, obj.keycloak_id, PermissionType.VIEW)
             if view_perm:
                 return "Ansicht"
-            return PermissionType.NONE
         return PermissionType.NONE
 
     def get_is_member(self, obj: KeycloakGroup) -> bool:

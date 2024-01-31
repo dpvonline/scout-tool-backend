@@ -80,7 +80,8 @@ class AllGroupsViewSet(viewsets.ViewSet):
             else:
                 parent_group = parent_group.first()
 
-        if not request_group_access(request, parent_group.keycloak_id, PermissionType.ADMIN):
+        if (not request.user.is_staff
+                and not request_group_access(request, parent_group.keycloak_id, PermissionType.ADMIN)):
             raise NotAuthorized()
 
         group_exits = KeycloakGroup.objects.filter(name__iexact=group_name, parent__keycloak_id=parent_id).exists()
