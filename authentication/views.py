@@ -707,7 +707,7 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
             gender_value = None
             # handle gender
             for gender in Gender.choices:
-                if data_line["gender"] == gender[1]:
+                if item["gender"] == gender[1]:
                     gender_value = gender[0]
                     break
 
