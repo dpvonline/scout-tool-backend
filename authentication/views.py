@@ -58,6 +58,9 @@ User: CustomUser = get_user_model()
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 50
 
+class BigResultsSetPagination(PageNumberPagination):
+    page_size = 300
+
 
 def clean_str(input):
     if type(input) != str:
@@ -572,16 +575,12 @@ class MyMembersViewSet(viewsets.ModelViewSet):
         token = self.request.META.get("HTTP_AUTHORIZATION")
         scout_group = self.request.user.person.scout_group
 
-        if not scout_group or not scout_group.keycloak:
+        if not scout_group:
             return Person.objects.none()
 
         group_id = scout_group.keycloak.keycloak_id
 
         all_users = True
-        try:
-            keycloak_user.get_group_users(token, group_id)
-        except KeycloakGetError:
-            all_users = False
 
         if all_users:
             users = Person.objects.filter(
@@ -610,7 +609,7 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
         token = self.request.META.get("HTTP_AUTHORIZATION")
         scout_group = request.user.person.scout_group
 
-        if not scout_group or not scout_group.keycloak:
+        if not scout_group:
             return Response(
                 {"status": "Du hast keinen gültigen Stamm", "verified": False},
                 status=status.HTTP_200_OK,
@@ -759,7 +758,7 @@ class MyTribeVerifiedViewSet(viewsets.ViewSet):
 
 class AddablePersons(viewsets.ModelViewSet):
     serializer_class = auth_serializer.MemberSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = BigResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
     def get_queryset(self):
