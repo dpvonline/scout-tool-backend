@@ -58,6 +58,9 @@ User: CustomUser = get_user_model()
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 50
 
+class BigResultsSetPagination(PageNumberPagination):
+    page_size = 300
+
 
 def clean_str(input):
     if type(input) != str:
@@ -429,7 +432,7 @@ class MyDecidableRequestGroupAccessViewSet(
 class UserGroupViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = FullGroupSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = BigResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
     def get_queryset(self):
@@ -566,7 +569,7 @@ class CheckPassword(viewsets.ViewSet):
 class MyMembersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = MemberSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = BigResultsSetPagination
 
     def get_queryset(self):
         token = self.request.META.get("HTTP_AUTHORIZATION")
@@ -759,7 +762,7 @@ class MyTribeVerifiedViewSet(viewsets.ViewSet):
 
 class AddablePersons(viewsets.ModelViewSet):
     serializer_class = auth_serializer.MemberSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = BigResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
     def get_queryset(self):
