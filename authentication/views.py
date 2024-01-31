@@ -432,7 +432,7 @@ class MyDecidableRequestGroupAccessViewSet(
 class UserGroupViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = FullGroupSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = BigResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
     def get_queryset(self):
@@ -569,7 +569,7 @@ class CheckPassword(viewsets.ViewSet):
 class MyMembersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = MemberSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = BigResultsSetPagination
 
     def get_queryset(self):
         token = self.request.META.get("HTTP_AUTHORIZATION")
