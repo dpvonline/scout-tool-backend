@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 import openpyxl
 from django.contrib.auth import get_user_model
@@ -58,12 +59,15 @@ User: CustomUser = get_user_model()
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 50
 
+
 class BigResultsSetPagination(PageNumberPagination):
     page_size = 300
 
 
 def clean_str(input):
-    if type(input) != str:
+    if input is None:
+        return None
+    if isinstance(input, str) or isinstance(input, datetime):
         return input
     if input.strip() == "-":
         return None
@@ -640,6 +644,41 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
             if clean_str(row[2].value) == "" or not row[2].value:
                 continue
             data_line = {}
+            error = False
+
+            if not isinstance(row[2].value, str) or row[2].value.isspace():
+                error = True
+                report.append(
+                    f"Reihe {row[1].row}: {row[2].value} ist kein gültiger Vorname"
+                )
+            if not isinstance(row[3].value, str) or row[3].value.isspace():
+                error = True
+                report.append(
+                    f"Reihe {row[1].row}: {row[3].value} ist kein gültiger Nachname"
+                )
+            if not isinstance(row[4].value, str) or row[4].value.isspace():
+                error = True
+                report.append(
+                    f"Reihe {row[1].row}: {row[4].value} ist kein gültige Addresse"
+                )
+            if not isinstance(row[5].value, int):
+                try:
+                    int(row[5].value)
+                except Exception as exc:
+                    print(exc)
+                    error = True
+                    report.append(
+                        f"Reihe {row[1].row}: {row[5].value} ist keine gültige Postleitzahl"
+                    )
+            if not isinstance(row[7].value, datetime):
+                error = True
+                report.append(
+                    f"Reihe {row[1].row}: {row[7].value} ist kein gültiges Geburtstag"
+                )
+
+            if error:
+                continue
+
             data_line["scout_name"] = clean_str(row[1].value)  # B
             data_line["first_name"] = clean_str(row[2].value)  # C
             data_line["last_name"] = clean_str(row[3].value)  # D
@@ -668,8 +707,9 @@ class MyMembersUploadViewSet(viewsets.ViewSet):
             gender_value = None
             # handle gender
             for gender in Gender.choices:
-                if data_line["gender"] == gender[1]:
+                if item["gender"] == gender[1]:
                     gender_value = gender[0]
+                    break
 
             # handle zip_code
             zip_code = ZipCode.objects.filter(zip_code=item["zip_code"]).first()
