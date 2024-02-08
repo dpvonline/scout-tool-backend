@@ -217,7 +217,7 @@ class BookingOptionViewSet(viewsets.ModelViewSet):
         if not event_helper.is_valid_uuid(event_id):
             raise event_api_exceptions.NoUUID(event_id)
 
-        is_leader = check_event_permission(event_id, self.request) != EventRole.NONE
+        is_leader = check_event_permission(event_id, self.request) == EventRole.ADMIN_ROLE
         today = timezone.now()
 
         # handle bookable range
