@@ -24,7 +24,8 @@ event_summary_router.register(r'summary/kpi/largest-registrations', kpi_views.La
                               basename='largest-registrations')
 event_summary_router.register(r'summary/kpi/booking-options', kpi_views.BookingOptionViewSet,
                               basename='booking-options')
-
+event_summary_router.register(r'summary/registration-by-date', kpi_views.RegistrationByDateViewSet,
+                              basename='registration-by-date')
 event_summary_router.register(r'summary/participant-locations', views.RegistrationLocationViewSet,
                               basename='participant-locations')
 event_summary_router.register(r'summary/event-location', views.EventLocationViewSet, basename='event-location')
