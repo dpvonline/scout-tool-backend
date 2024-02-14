@@ -87,6 +87,17 @@ def get_attribute_params(kwargs, post_serializer):
     return attribute_module, registration
 
 
+def check_for_double_participants(request, event_id):
+    if RegistrationParticipant.objects.filter(
+            first_name=request.data.get("first_name"),
+            last_name=request.data.get("last_name"),
+            birthday=request.data.get("birthday"),
+            registration__event=event_id,
+    ).exists():
+        raise ParticipantAlreadyExists()
+    return False
+
+
 class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
     permission_classes = [event_permissions.IsSubRegistrationResponsiblePerson]
 
@@ -95,16 +106,6 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
         return RegistrationParticipant.objects.filter(
             registration=registration_id
         ).order_by("birthday")
-
-    @staticmethod
-    def check_for_double_participants(request, event_id):
-        if RegistrationParticipant.objects.filter(
-                first_name=request.data.get("first_name"),
-                last_name=request.data.get("last_name"),
-                birthday=request.data.get("birthday"),
-                registration__event=event_id,
-        ).exists():
-            raise ParticipantAlreadyExists()
 
     def create(self, request, *args, **kwargs) -> Response:
         # handle eat_habit
@@ -135,7 +136,7 @@ class RegistrationSingleParticipantViewSet(viewsets.ModelViewSet):
 
         registration: Registration = self.participant_initialization(request)
         event_id = registration.event.id
-        self.check_for_double_participants(request, event_id)
+        check_for_double_participants(request, event_id)
 
         if request.data.get("age"):
             request.data["birthday"] = timezone.now() - relativedelta(
@@ -249,20 +250,10 @@ class CheckPersonViewSet(viewsets.ReadOnlyModelViewSet):
 
         return registration
 
-    @staticmethod
-    def check_for_double_participants(request, event_id):
-        if RegistrationParticipant.objects.filter(
-                first_name=request.data.get("first_name"),
-                last_name=request.data.get("last_name"),
-                birthday=request.data.get("birthday"),
-                registration__event=event_id,
-        ).exists():
-            raise ParticipantAlreadyExists()
-
     def create(self, request, *args, **kwargs) -> Response:
         event_id = self.kwargs.get("registration_pk", None)
 
-        self.check_for_double_participants(request, event_id)
+        check_for_double_participants(request, event_id)
 
         return Response('Person ist nicht vorhanden.', status=status.HTTP_200_OK)
 
@@ -482,14 +473,14 @@ class RegistrationViewSet(
             raise event_api_exceptions.TooLate
         elif registration.event.registration_deadline < timezone.now():
             raise event_api_exceptions.TooManyParticipants
-        
+
         BooleanAttribute.objects.filter(registration=registration.id).delete()
         StringAttribute.objects.filter(registration=registration.id).delete()
         DateTimeAttribute.objects.filter(registration=registration.id).delete()
         IntegerAttribute.objects.filter(registration=registration.id).delete()
         FloatAttribute.objects.filter(registration=registration.id).delete()
         TravelAttribute.objects.filter(registration=registration.id).delete()
-        
+
         participants = RegistrationParticipant.objects.filter(registration=registration.id)
         participants.delete()
 
