@@ -14,6 +14,10 @@ registration_router.register(
     basename='single-participant'
 )
 registration_router.register(
+    r'check-person', views.CheckPersonViewSet,
+    basename='check-person'
+)
+registration_router.register(
     r'registration-rating', views.RegistrationRatingViewSet,
     basename='registration-rating'
 )
