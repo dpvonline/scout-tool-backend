@@ -126,6 +126,15 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             self.request, event_id, registrations
         )
 
+        scout_organisation_list = self.request.query_params.getlist("scout-organisation")
+        if scout_organisation_list:
+            registrations = registrations.filter(
+                Q(scout_organisation__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__parent__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__parent__parent__id__in=scout_organisation_list)
+            )
+
         ordering: str = self.request.query_params.get("ordering", None)
         order_desc: bool = (
                 self.request.query_params.get("order-desc", "false") == "true"
