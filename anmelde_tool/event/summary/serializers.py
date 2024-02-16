@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum, Count, F, QuerySet, Q
 from django.utils import timezone
 from rest_framework import serializers
+import uuid
 
 from anmelde_tool.attributes.models import (
     AttributeModule,
@@ -137,6 +138,7 @@ class RegistrationParticipantEventDetailedSummarySerializer(
     )
     scout_organisation = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
+    reg_id = serializers.SerializerMethodField()
 
     class Meta:
         model = RegistrationParticipant
@@ -147,6 +149,9 @@ class RegistrationParticipantEventDetailedSummarySerializer(
 
     def get_scout_organisation(self, participant: RegistrationParticipant) -> str:
         return participant.registration.scout_organisation.name
+
+    def get_reg_id(self, participant: RegistrationParticipant) -> uuid.UUID:
+        return participant.registration.id
 
     def get_age(self, participant: RegistrationParticipant) -> str:
         return relativedelta(timezone.now(), participant.birthday).years

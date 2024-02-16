@@ -75,6 +75,11 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 1000
     page_size = 1000
 
+class LimitedResultsSetPagination(PageNumberPagination):
+    page_size_query_param = "page-size"
+    max_page_size = 50
+    page_size = 50
+
 
 class CharInFilter(BaseInFilter, CharFilter):
     pass
@@ -91,6 +96,7 @@ class EventSummaryFilter(django_filters.FilterSet):
 
 
 class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    pagination_class = LimitedResultsSetPagination
     permission_classes = [
         event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson
     ]
@@ -111,7 +117,6 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         "responsible_persons__person__email",
         "responsible_persons__email",
     ]
-    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self) -> QuerySet:
         event_id = self.kwargs.get("event_pk", None)
@@ -120,6 +125,15 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         registrations = filter_registrations_by_query_params(
             self.request, event_id, registrations
         )
+
+        scout_organisation_list = self.request.query_params.getlist("scout-organisation")
+        if scout_organisation_list:
+            registrations = registrations.filter(
+                Q(scout_organisation__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__parent__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__parent__parent__id__in=scout_organisation_list)
+            )
 
         ordering: str = self.request.query_params.get("ordering", None)
         order_desc: bool = (
@@ -159,9 +173,12 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         "last_name",
         "scout_name",
         "birthday",
+        "-birthday",
         "scout_organisation",
+        "created_at",
+        "-created_at",
     )
-    pagination_class = StandardResultsSetPagination
+    pagination_class = LimitedResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ["booking_option__id", "eat_habit__id"]
     search_fields = [
@@ -188,6 +205,16 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         booking_option_list = self.request.query_params.getlist("booking-option")
         if booking_option_list:
             participants = participants.filter(booking_option__in=booking_option_list)
+
+        scout_organisation_list = self.request.query_params.getlist("scout-organisation")
+        if scout_organisation_list:
+            regs = registrations.filter(
+                Q(scout_organisation__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__parent__id__in=scout_organisation_list) |
+                Q(scout_organisation__parent__parent__parent__id__in=scout_organisation_list)
+            )
+            participants = participants.filter(registration__in=regs)
 
         ordering: str = self.request.query_params.get("ordering", None)
         order_desc: bool = (
