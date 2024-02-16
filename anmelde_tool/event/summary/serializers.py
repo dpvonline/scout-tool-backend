@@ -136,7 +136,6 @@ class RegistrationParticipantEventDetailedSummarySerializer(
         queryset=EatHabit.objects.all(),
         required=False,
     )
-    scout_organisation = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
     reg_id = serializers.SerializerMethodField()
 
@@ -146,9 +145,6 @@ class RegistrationParticipantEventDetailedSummarySerializer(
             "registration",
             "id",
         )
-
-    def get_scout_organisation(self, participant: RegistrationParticipant) -> str:
-        return participant.registration.scout_organisation.name
 
     def get_reg_id(self, participant: RegistrationParticipant) -> uuid.UUID:
         return participant.registration.id
