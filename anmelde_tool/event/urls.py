@@ -11,7 +11,7 @@ router.register(r'event', views.EventViewSet, basename='event')
 router.register(r'event-update-partial', views.EventPartialUpdateViewSet, basename='event-update-partial')
 router.register(r'my-invitations', views.MyInvitationsViewSet, basename='my-invitations')
 router.register(r'event-overview', views.EventOverviewViewSet, basename='event-overview')
-router.register(r'event-read', views.EventReadViewSet)
+router.register(r'event-read', views.EventReadViewSet, basename='event-read')
 router.register(r'email-sets', email_services_views.StandardEmailViewSet)
 router.register(r'travel-type-choices', attributes_views.TravelTypeViewSet, basename='travel-type-choices')
 

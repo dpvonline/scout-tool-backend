@@ -4,10 +4,11 @@ from queue import Queue
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.exceptions import NotFound, MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter
 
 from anmelde_tool.attributes.models import AttributeModule
 from anmelde_tool.event import api_exceptions as event_api_exceptions
@@ -67,8 +68,13 @@ class EventModuleViewSet(viewsets.ModelViewSet):
 
 class EventReadViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = Event.objects.all()
     serializer_class = event_serializers.EventReadSerializer
+
+    def get_queryset(self):
+        technical_name = self.request.query_params.get('technical_name', None)
+        if technical_name is None:
+            return Event.objects.all()
+        return Event.objects.filter(technical_name=technical_name)
 
 
 class MyInvitationsViewSet(viewsets.ReadOnlyModelViewSet):
