@@ -153,6 +153,23 @@ class ResponsiblePersonSerializer(serializers.ModelSerializer):
         return ""
 
 
+class ResponsiblePersonBigSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the User model for searching users
+    and selecting them as responsible person in events/registrations
+    """
+
+    class Meta:
+        model = Person
+        fields = (
+            "first_name",
+            "last_name",
+            "scout_name",
+            "email",
+            "phone_number",
+        )
+
+
 class GroupSerializer(serializers.ModelSerializer):
     """
     Serializer for the Group model
@@ -242,7 +259,7 @@ class PersonSerializer(serializers.ModelSerializer):
 class MemberUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'username')
+        fields = ("id", "email", "username")
 
 
 def get_display_name_user(obj: Person):
@@ -388,7 +405,7 @@ class FullUserSerializer(serializers.ModelSerializer):
             "sms_notification",
             "person",
             "username",
-            "is_valid"
+            "is_valid",
         )
 
     @staticmethod
