@@ -546,6 +546,17 @@ class MealViewSet(viewsets.ModelViewSet):
     queryset = food_models.Meal.objects.all()
     serializer_class = food_serializers.MealSerializer
 
+class CookingPlanViewSet(viewsets.ModelViewSet):
+
+    queryset = food_models.Meal.objects.all()
+    serializer_class = food_serializers.CookingPlanSerializer
+
+    def get_queryset(self) -> QuerySet:
+        eventId: str = self.request.query_params.get("eventId", None)
+        return food_models.Meal.objects.filter(
+            meal_day__meal_event__id=eventId
+        ).order_by("meal_day__date", "day_part_factor")
+
 
 class MealItemViewSet(viewsets.ModelViewSet):
     queryset = food_models.MealItem.objects.all()
