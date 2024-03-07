@@ -28,6 +28,7 @@ router.register(r"my-recipe-read", views.MyRecipeReadViewSet, basename="my-recip
 router.register(r"recipe-item", views.RecipeItemViewSet, basename="recipe-item")
 router.register(r"recipe-clone", views.RecipeCloneViewSet, basename="recipe-clone")
 router.register(r"multiply-recipe-items", views.MultiplyRecipeItemsViewSet, basename="multiply-recipe-items")
+router.register(r"meal-scale", views.MealScaleViewSet, basename="meal-scale")
 
 router.register(r"package", views.PackageViewSet)
 router.register(r"package-read", views.PackageReadViewSet)
@@ -72,6 +73,7 @@ router.register(
 router.register(r"meal-day", views.MealDayViewSet)
 router.register(r"meal-day-read", views.MealDayReadViewSet)
 router.register(r"meal", views.MealViewSet)
+router.register(r"cooking-plan", views.CookingPlanViewSet)
 router.register(r"meal-clone", views.MealCloneViewSet, basename="meal-clone")
 router.register(r"meal-item", views.MealItemViewSet)
 

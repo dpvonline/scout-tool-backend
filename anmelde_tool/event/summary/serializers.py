@@ -13,9 +13,11 @@ from anmelde_tool.attributes.models import (
     FloatAttribute,
     StringAttribute,
     TravelAttribute,
-    AbstractAttribute
+    AbstractAttribute,
 )
 from anmelde_tool.event import models as event_models
+from authentication import models as auth_models
+from authentication import serializers as auth_serializers
 from anmelde_tool.event import serializers as event_serializer
 from anmelde_tool.event import permissions as event_permissions
 from anmelde_tool.event.cash import serializers as cash_serializers
@@ -52,6 +54,7 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
     )
     booking_options = serializers.SerializerMethodField()
     responsible_persons_extended = serializers.SerializerMethodField()
+    responsible_persons_obj = serializers.SerializerMethodField()
     scout_organisation_display = serializers.SerializerMethodField()
 
     class Meta:
@@ -62,6 +65,7 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
             "scout_organisation",
             "responsible_persons",
             "responsible_persons_extended",
+            "responsible_persons_obj",
             "participant_count",
             "price",
             "created_at",
@@ -104,8 +108,22 @@ class RegistrationEventSummarySerializer(serializers.ModelSerializer):
     def get_responsible_persons_extended(self, registration: Registration) -> str:
         return_string = ""
         for person in registration.responsible_persons.all():
-            return_string = return_string + f"{person.first_name} "
+            return_string = return_string + f"{person.first_name} - {person.last_name}"
         return return_string
+
+    def get_responsible_persons_obj(self, registration: Registration) -> str:
+        permission = event_permissions.check_event_permission(
+            registration.event, self.context["request"], admin_only=True
+        )
+        if permission == event_permissions.EventRole.ADMIN_ROLE:
+            person_ids = []
+            for responsible_persons in registration.responsible_persons.all():
+                person_ids.append(responsible_persons)
+            persons = auth_models.Person.objects.filter(user__in=person_ids)
+            return auth_serializers.ResponsiblePersonBigSerializer(
+                persons, many=True, read_only=True
+            ).data
+        return []
 
     def get_scout_organisation_display(self, registration: Registration) -> str:
         return_string = ""
@@ -351,18 +369,22 @@ class AttributeSummarySerializer(serializers.ModelSerializer):
             "attribute_set",
         )
 
-    def filter_attributes_by_leadership(self,
-                                        request,
-                                        event: event_models.Event,
-                                        attributes: QuerySet[AbstractAttribute]
-                                        ) -> QuerySet[AbstractAttribute]:
+    def filter_attributes_by_leadership(
+        self,
+        request,
+        event: event_models.Event,
+        attributes: QuerySet[AbstractAttribute],
+    ) -> QuerySet[AbstractAttribute]:
         user = request.user
         leader_ship = event_permissions.check_leader_permission(event, user)
         event_role = event_permissions.check_event_permission(event, request)
-        if event_role == event_permissions.EventRole.NONE and leader_ship != event_permissions.LeadershipRole.NONE:
+        if (
+            event_role == event_permissions.EventRole.NONE
+            and leader_ship != event_permissions.LeadershipRole.NONE
+        ):
             scout_orga = get_bund_or_ring(
                 user.person.scout_group,
-                leader_ship == event_permissions.LeadershipRole.BUND_LEADER
+                leader_ship == event_permissions.LeadershipRole.BUND_LEADER,
             )
 
             if not scout_orga:
@@ -372,16 +394,19 @@ class AttributeSummarySerializer(serializers.ModelSerializer):
                 Q(registration__scout_organisation=scout_orga)
                 | Q(registration__scout_organisation__parent=scout_orga)
                 | Q(registration__scout_organisation__parent__parent=scout_orga)
-                | Q(registration__scout_organisation__parent__parent__parent=scout_orga))
+                | Q(registration__scout_organisation__parent__parent__parent=scout_orga)
+            )
         return attributes
 
     def get_attribute_set(self, attribute_module: AttributeModule) -> []:
-        request = self.context['request']
+        request = self.context["request"]
         if attribute_module.event_module and attribute_module.event_module.event:
             event = attribute_module.event_module.event
-        elif (request.parser_context
-              and request.parser_context.get("kwargs")
-              and request.parser_context["kwargs"].get("event_pk")):
+        elif (
+            request.parser_context
+            and request.parser_context.get("kwargs")
+            and request.parser_context["kwargs"].get("event_pk")
+        ):
             event = request.parser_context["kwargs"]["event_pk"]
         else:
             return []
@@ -389,27 +414,39 @@ class AttributeSummarySerializer(serializers.ModelSerializer):
         if attribute_module.field_type == "BoA":
             items = BooleanAttribute.objects.filter(attribute_module=attribute_module)
             items = self.filter_attributes_by_leadership(request, event, items)
-            return BooleanAttributeSummarySerializer(items, many=True, read_only=True).data
+            return BooleanAttributeSummarySerializer(
+                items, many=True, read_only=True
+            ).data
         elif attribute_module.field_type == "TiA":
             items = DateTimeAttribute.objects.filter(attribute_module=attribute_module)
             items = self.filter_attributes_by_leadership(request, event, items)
-            return DateTimeAttributeSummarySerializer(items, many=True, read_only=True).data
+            return DateTimeAttributeSummarySerializer(
+                items, many=True, read_only=True
+            ).data
         elif attribute_module.field_type == "InA":
             items = IntegerAttribute.objects.filter(attribute_module=attribute_module)
             items = self.filter_attributes_by_leadership(request, event, items)
-            return IntegerAttributeSummarySerializer(items, many=True, read_only=True).data
+            return IntegerAttributeSummarySerializer(
+                items, many=True, read_only=True
+            ).data
         elif attribute_module.field_type == "FlA":
             items = FloatAttribute.objects.filter(attribute_module=attribute_module)
             items = self.filter_attributes_by_leadership(request, event, items)
-            return FloatAttributeSummarySerializer(items, many=True, read_only=True).data
+            return FloatAttributeSummarySerializer(
+                items, many=True, read_only=True
+            ).data
         elif attribute_module.field_type == "StA":
             items = StringAttribute.objects.filter(attribute_module=attribute_module)
             items = self.filter_attributes_by_leadership(request, event, items)
-            return StringAttributeSummarySerializer(items, many=True, read_only=True).data
+            return StringAttributeSummarySerializer(
+                items, many=True, read_only=True
+            ).data
         elif attribute_module.field_type == "TrA":
             items = TravelAttribute.objects.filter(attribute_module=attribute_module)
             items = self.filter_attributes_by_leadership(request, event, items)
-            return TravelAttributeSummarySerializer(items, many=True, read_only=True).data
+            return TravelAttributeSummarySerializer(
+                items, many=True, read_only=True
+            ).data
 
 
 class EventModuleSummarySerializer(serializers.ModelSerializer):
@@ -421,5 +458,7 @@ class EventModuleSummarySerializer(serializers.ModelSerializer):
 
     def get_attribute_modules(self, module: event_models.EventModule):
         queryset = module.attributemodule_set
-        result = AttributeSummarySerializer(queryset, many=True, context={'request': self.context['request']}).data
+        result = AttributeSummarySerializer(
+            queryset, many=True, context={"request": self.context["request"]}
+        ).data
         return result

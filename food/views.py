@@ -171,6 +171,29 @@ class MultiplyRecipeItemsViewSet(viewsets.ViewSet):
 
         return Response({"Bitte ID mitgeben"}, status=status.HTTP_400_BAD_REQUEST)
 
+class MealScaleViewSet(viewsets.ViewSet):
+    def create(self, request, *args, **kwargs) -> Response:
+        if request.data.get("id", None) is not None:
+            meal_id = request.data.get("id")
+
+            meal_data = food_models.Meal.objects.filter(id=meal_id).first()
+
+            meal = food_serializers.MealReadSerializer(meal_data).data
+            day_part_energy_kj = meal.get("day_part_energy_kj")
+
+            all_items = food_models.MealItem.objects.filter(meal=meal_id)
+
+            for item in all_items:
+                item.factor = round(item.factor / day_part_energy_kj, 2)
+                item.save()
+
+            return Response(
+                {"message": "Meal scaled"},
+                status=status.HTTP_201_CREATED,
+            )
+
+        return Response({"Bitte ID mitgeben"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RecipeFilter(FilterSet):
     nutri_class = NumberFilter(field_name="nutri_class")
@@ -522,6 +545,17 @@ class MealDayReadViewSet(viewsets.ModelViewSet):
 class MealViewSet(viewsets.ModelViewSet):
     queryset = food_models.Meal.objects.all()
     serializer_class = food_serializers.MealSerializer
+
+class CookingPlanViewSet(viewsets.ModelViewSet):
+
+    queryset = food_models.Meal.objects.all()
+    serializer_class = food_serializers.CookingPlanSerializer
+
+    def get_queryset(self) -> QuerySet:
+        eventId: str = self.request.query_params.get("eventId", None)
+        return food_models.Meal.objects.filter(
+            meal_day__meal_event__id=eventId
+        ).order_by("meal_day__date", "day_part_factor")
 
 
 class MealItemViewSet(viewsets.ModelViewSet):
