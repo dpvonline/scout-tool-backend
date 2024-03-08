@@ -1,11 +1,10 @@
 from rest_framework import serializers
 from food import models as food_models
-from django.contrib.auth.models import User
 from food.service.nutri_lib import Nutri
-from rest_framework.fields import CurrentUserDefault
 from food.service.agg_lib import AggLib
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
+from django.db.models import Sum
 
 from food import serializers as food_serializers
 from anmelde_tool.event import serializers as event_serializers
@@ -167,6 +166,29 @@ class RecipeItemReadSerializer(serializers.ModelSerializer):
             count = count + 1
             sum_value = sum_value + (item.get("price_per_kg") * (obj.weight_g / 1000))
         return round(sum_value / count, 2)
+
+    def to_representation(self, instance):
+        data = super(RecipeItemReadSerializer, self).to_representation(instance)
+
+        return data
+
+
+class RecipeItemCookingPlanReadSerializer(serializers.ModelSerializer):
+    portion = serializers.SerializerMethodField()
+
+    class Meta:
+        model = food_models.RecipeItem
+        fields = (
+            "weight_g",
+            "quantity",
+            "portion",
+            "energy_kj",
+        )
+
+    def get_portion(self, obj):
+        return food_models.Portion.objects.filter(id=obj.portion.id).aggregate(
+            Sum("quantity")
+        )
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -685,3 +707,70 @@ class EventReadExtendedSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super(EventReadExtendedSerializer, self).to_representation(instance)
         return data
+
+class CookingPlanSerializer(serializers.ModelSerializer):
+    portions = serializers.SerializerMethodField()
+    norm_persons = serializers.SerializerMethodField()
+    meal_day = serializers.SerializerMethodField()
+
+    class Meta:
+        model = food_models.Meal
+        fields = (
+            "id",
+            "portions",
+            "norm_persons",
+            "name",
+            "day_part_factor",
+            "meal_type",
+            "time_start",
+            "time_end",
+            "meal_day",
+        )
+
+    def get_portions(self, meal):
+        ingredients = []
+        return_data = []
+        meal_items = food_models.MealItem.objects.filter(meal=meal)
+        for meal_item in meal_items:
+            recipe_items = food_models.RecipeItem.objects.filter(
+                recipe=meal_item.recipe
+            )
+            for recipe_item in recipe_items:
+                portions = food_models.Portion.objects.filter(id=recipe_item.portion.id)
+                for portion in portions:
+                    ings = food_models.Ingredient.objects.filter(
+                        id=portion.ingredient.id
+                    )
+                    for ing in ings:
+                        ingredients.append(ing.id)
+
+        unique_ingredients = list(set(ingredients))
+
+        key_return = food_models.Ingredient.objects.filter(id__in=unique_ingredients)
+
+        return_data = []
+
+        for ingedient_key in key_return:
+            recipe_items_ing = food_models.RecipeItem.objects.filter(
+                portion__ingredient=ingedient_key
+            ).filter(
+                recipe__in=food_models.MealItem.objects.filter(meal=meal).values_list(
+                    "recipe", flat=True
+                )
+            )
+
+            return_data.append(
+                {
+                    "ingredient": ingedient_key.name,
+                    "weight_g": recipe_items_ing.aggregate(Sum("weight_g")),
+                }
+            )
+        return return_data
+    
+    def get_norm_persons(self, meal):
+        return meal.meal_day.meal_event.norm_portions
+    
+    def get_meal_day(self, meal):
+        meal_day = food_models.MealDay.objects.filter(meal=meal).first()
+        return MealDayShortSerializer(meal_day, many=False).data
+

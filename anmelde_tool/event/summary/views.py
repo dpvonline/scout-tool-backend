@@ -1,6 +1,7 @@
 import django_filters
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet, Q
+from dateutil.relativedelta import relativedelta
 from django_filters import BaseInFilter, CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, status
@@ -8,6 +9,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.db.models import Prefetch, Sum
+from django.utils import timezone
 import decimal
 
 from anmelde_tool.attributes.models import (
@@ -37,6 +39,8 @@ from anmelde_tool.registration.models import RegistrationParticipant, Registrati
 from basic.models import ScoutHierarchy
 from basic.serializers import ScoutHierarchySerializer
 
+from food.service.norm_person import NormPerson
+
 User = get_user_model()
 
 
@@ -54,18 +58,25 @@ class WorkshopEventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
             registration__event__id=event_id
         )
 
-        leader_ship = event_permissions.check_leader_permission(event, self.request.user)
+        leader_ship = event_permissions.check_leader_permission(
+            event, self.request.user
+        )
         event_role = event_permissions.check_event_permission(event, self.request)
-        if event_role == event_permissions.EventRole.NONE and leader_ship != event_permissions.LeadershipRole.NONE:
+        if (
+            event_role == event_permissions.EventRole.NONE
+            and leader_ship != event_permissions.LeadershipRole.NONE
+        ):
             orga = get_bund_or_ring(
                 self.request.user.userextended.scout_organisation,
-                leader_ship == event_permissions.LeadershipRole.BUND_LEADER
+                leader_ship == event_permissions.LeadershipRole.BUND_LEADER,
             )
             workshops = workshops.filter(
                 Q(registration__scout_organisation__parent=orga)
                 | Q(registration__scout_organisation__parent__parent=orga)
                 | Q(registration__scout_organisation__parent__parent__parent=orga)
-                | Q(registration__scout_organisation__parent__parent__parent__parent=orga)
+                | Q(
+                    registration__scout_organisation__parent__parent__parent__parent=orga
+                )
             )
         return workshops
 
@@ -74,6 +85,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     page_size_query_param = "page-size"
     max_page_size = 1000
     page_size = 1000
+
 
 class LimitedResultsSetPagination(PageNumberPagination):
     page_size_query_param = "page-size"
@@ -126,18 +138,22 @@ class EventSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             self.request, event_id, registrations
         )
 
-        scout_organisation_list = self.request.query_params.getlist("scout-organisation")
+        scout_organisation_list = self.request.query_params.getlist(
+            "scout-organisation"
+        )
         if scout_organisation_list:
             registrations = registrations.filter(
-                Q(scout_organisation__id__in=scout_organisation_list) |
-                Q(scout_organisation__parent__id__in=scout_organisation_list) |
-                Q(scout_organisation__parent__parent__id__in=scout_organisation_list) |
-                Q(scout_organisation__parent__parent__parent__id__in=scout_organisation_list)
+                Q(scout_organisation__id__in=scout_organisation_list)
+                | Q(scout_organisation__parent__id__in=scout_organisation_list)
+                | Q(scout_organisation__parent__parent__id__in=scout_organisation_list)
+                | Q(
+                    scout_organisation__parent__parent__parent__id__in=scout_organisation_list
+                )
             )
 
         ordering: str = self.request.query_params.get("ordering", None)
         order_desc: bool = (
-                self.request.query_params.get("order-desc", "false") == "true"
+            self.request.query_params.get("order-desc", "false") == "true"
         )
         camel_case = to_snake_case(ordering, order_desc, self.ordering_fields)
 
@@ -206,19 +222,23 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         if booking_option_list:
             participants = participants.filter(booking_option__in=booking_option_list)
 
-        scout_organisation_list = self.request.query_params.getlist("scout-organisation")
+        scout_organisation_list = self.request.query_params.getlist(
+            "scout-organisation"
+        )
         if scout_organisation_list:
             regs = registrations.filter(
-                Q(scout_organisation__id__in=scout_organisation_list) |
-                Q(scout_organisation__parent__id__in=scout_organisation_list) |
-                Q(scout_organisation__parent__parent__id__in=scout_organisation_list) |
-                Q(scout_organisation__parent__parent__parent__id__in=scout_organisation_list)
+                Q(scout_organisation__id__in=scout_organisation_list)
+                | Q(scout_organisation__parent__id__in=scout_organisation_list)
+                | Q(scout_organisation__parent__parent__id__in=scout_organisation_list)
+                | Q(
+                    scout_organisation__parent__parent__parent__id__in=scout_organisation_list
+                )
             )
             participants = participants.filter(registration__in=regs)
 
         ordering: str = self.request.query_params.get("ordering", None)
         order_desc: bool = (
-                self.request.query_params.get("order-desc", "false") == "true"
+            self.request.query_params.get("order-desc", "false") == "true"
         )
         camel_case = to_snake_case(
             ordering, order_desc, self.ordering_fields, "last_name"
@@ -227,24 +247,29 @@ class EventDetailedSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         check_case = ("-" if order_desc else "") + "scout_organisation"
         if camel_case == check_case:
             camel_case = (
-                             "-" if order_desc else ""
-                         ) + "registration__scout_organisation__name"
+                "-" if order_desc else ""
+            ) + "registration__scout_organisation__name"
 
         return participants.order_by(camel_case)
 
 
 class EventModuleSummaryViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
+    permission_classes = [
+        event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson
+    ]
     serializer_class = EventModuleSummarySerializer
 
     def get_queryset(self):
         event_id = self.kwargs.get("event_pk", None)
         return EventModule.objects.filter(event__id=event_id).exclude(
-            name__in=["Participants", "Introduction", "Summary"])
+            name__in=["Participants", "Introduction", "Summary"]
+        )
 
 
 class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
+    permission_classes = [
+        event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson
+    ]
 
     def list(self, request, *args, **kwargs) -> Response:
         participants: QuerySet[RegistrationParticipant] = self.get_queryset()
@@ -270,7 +295,30 @@ class EventFoodSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             }
             formatted_eat_habits.append(result)
 
-        return Response(formatted_eat_habits, status=status.HTTP_200_OK)
+        norm_persons_low = 0
+        norm_persons_high = 0
+        norm_person_count = 0
+        for participant in participants.all():
+
+            age = relativedelta(timezone.now(), participant.birthday).years
+            norm_persons_low += NormPerson().get_norm_person(
+                participant.gender, age, 1.3
+            )
+            norm_persons_high += NormPerson().get_norm_person(
+                participant.gender, age, 1.7
+            )
+            norm_person_count += 1
+
+        result = {
+            "eat_habits": formatted_eat_habits,
+            "norm_persons": {
+                "low": norm_persons_low,
+                "high": norm_persons_high,
+                "count": norm_person_count,
+            },
+        }
+
+        return Response(result, status=status.HTTP_200_OK)
 
     def get_queryset(self) -> QuerySet[RegistrationParticipant]:
         event_id = self.kwargs.get("event_pk", None)
@@ -318,7 +366,7 @@ class EventLeaderTypesSummaryViewSet(EventFoodSummaryViewSet):
         return Response(result, status=status.HTTP_200_OK)
 
     def get_leder_type_count(
-            self, leader_type, participants: QuerySet[RegistrationParticipant]
+        self, leader_type, participants: QuerySet[RegistrationParticipant]
     ):
         return participants.filter(leader=leader_type).count()
 
@@ -553,7 +601,9 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request, *args, **kwargs) -> Response:
         registrations: QuerySet[Registration] = self.get_queryset()
         event_id = self.kwargs.get("event_pk", None)
-        registrations = filter_registration_by_leadership(request, event_id, registrations)
+        registrations = filter_registration_by_leadership(
+            request, event_id, registrations
+        )
         total = registrations.aggregate(
             sum=Sum("registrationparticipant__booking_option__price")
         )["sum"]
@@ -579,7 +629,9 @@ class CashSummaryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class CashSummaryListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = [event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson]
+    permission_classes = [
+        event_permissions.IsSubEventResponsiblePerson | event_permissions.IsLeaderPerson
+    ]
     serializer_class = summary_serializers.RegistrationCashSummarySerializer
 
     def list(self, request, *args, **kwargs) -> Response:
@@ -606,15 +658,17 @@ class CashSummaryListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         event_id = self.kwargs.get("event_pk", None)
         search = self.request.query_params.get("search", None)
 
-        registrations = registration_models.Registration.objects.filter(event_id=event_id)
+        registrations = registration_models.Registration.objects.filter(
+            event_id=event_id
+        )
 
         if search:
-            registrations = registrations.filter(scout_organisation__name__icontains=search)
+            registrations = registrations.filter(
+                scout_organisation__name__icontains=search
+            )
 
         registrations = filter_registration_by_leadership(
-            request=self.request,
-            event_id=event_id,
-            registrations=registrations
+            request=self.request, event_id=event_id, registrations=registrations
         )
         return registrations.order_by("scout_organisation__name")
 
@@ -667,7 +721,7 @@ class EmailRegistrationResponsiblePersonsViewSet(
 
         confirmed: bool = self.request.query_params.get("confirmed", "true") == "true"
         unconfirmed: bool = (
-                self.request.query_params.get("unconfirmed", "true") == "true"
+            self.request.query_params.get("unconfirmed", "true") == "true"
         )
         # all_participants: bool = self.request.query_params.get('all-participants', False)
 
@@ -756,11 +810,13 @@ class MergeRegistrationsViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet
             secondary_list.update(registration=reg_id_primary)
 
         # copy responsible persons from secondary to primary
-        if data['copy_responsible_persons']:
-            reg_primary.responsible_persons.add(*reg_secondary.responsible_persons.all())
+        if data["copy_responsible_persons"]:
+            reg_primary.responsible_persons.add(
+                *reg_secondary.responsible_persons.all()
+            )
 
         # delete secondary registration
-        if data['delete_secondary']:
+        if data["delete_secondary"]:
             reg_secondary.delete()
 
         return Response({"id": reg_primary.event.id}, status=status.HTTP_200_OK)
