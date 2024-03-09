@@ -226,7 +226,7 @@ class NormPerson:
                 ) / 2
             return weightInKg
         except:
-            return 69.0
+            return 73.0
 
     def getHeigthByAgeAndGender(self, ageInYear: int, gender: str) -> int:
         """
@@ -455,7 +455,7 @@ class NormPerson:
                 ) / 2
             return heigthInCm
         except:
-            return 173.0
+            return 178.0
 
     def energyByStJeorEquation(
         self,
