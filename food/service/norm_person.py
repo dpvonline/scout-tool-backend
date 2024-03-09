@@ -216,15 +216,17 @@ class NormPerson:
                 "99": 69.0,
             },
         }
-
-        if gender in weightData.keys():
-            weightInKg = weightData[gender][str(ageInYear)]
-        else:
-            weightInKg = (
-                weightData["M"][str(ageInYear)]
-                + weightData["F"][str(ageInYear)]
-            ) / 2
-        return weightInKg
+        try:
+            if gender in weightData.keys():
+                weightInKg = weightData[gender][str(ageInYear)]
+            else:
+                weightInKg = (
+                    weightData["M"][str(ageInYear)]
+                    + weightData["F"][str(ageInYear)]
+                ) / 2
+            return weightInKg
+        except:
+            return 69.0
 
     def getHeigthByAgeAndGender(self, ageInYear: int, gender: str) -> int:
         """
@@ -443,14 +445,17 @@ class NormPerson:
                 "99": 173.0,
             },
         }
-        if gender in heightData.keys():
-            heigthInCm = heightData[gender][str(ageInYear)]
-        else:
-            heigthInCm = (
-                heightData["M"][str(ageInYear)]
-                + heightData["M"][str(ageInYear)]
-            ) / 2
-        return heigthInCm
+        try:
+            if gender in heightData.keys():
+                heigthInCm = heightData[gender][str(ageInYear)]
+            else:
+                heigthInCm = (
+                    heightData["M"][str(ageInYear)]
+                    + heightData["M"][str(ageInYear)]
+                ) / 2
+            return heigthInCm
+        except:
+            return 173.0
 
     def energyByStJeorEquation(
         self,
