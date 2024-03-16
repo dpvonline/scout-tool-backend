@@ -4,7 +4,7 @@ from food.service.nutri_lib import Nutri
 from food.service.agg_lib import AggLib
 from keycloak_auth.helper import get_groups_of_user
 from keycloak_auth.models import KeycloakGroup
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 from food import serializers as food_serializers
 from anmelde_tool.event import serializers as event_serializers
@@ -721,15 +721,32 @@ class CookingPlanSerializer(serializers.ModelSerializer):
             "norm_persons",
             "name",
             "day_part_factor",
-            "meal_type",
+            "get_meal_type_display",
             "time_start",
             "time_end",
             "meal_day",
         )
 
+    def sum_weights(self, ingredients):
+        # get all unique names of ingredients
+        return_list = []
+        uniqueValues = set(item["ingredient"] for item in ingredients)
+        sum_weight = 0
+        for ingredient in uniqueValues:
+            items = [item for item in ingredients if item["ingredient"] == ingredient]
+            sum_weight += sum(item["weight_g"] for item in items)
+
+            return_list.append(
+                {
+                    "ingredient": ingredient,
+                    "weight_g": sum(item["weight_g"] for item in items),
+                    "unit": items[0]["unit"],
+                }
+            )
+        return return_list
+
     def get_portions(self, meal):
-        ingredients = []
-        return_data = []
+        return_list = []
         meal_items = food_models.MealItem.objects.filter(meal=meal)
         for meal_item in meal_items:
             recipe_items = food_models.RecipeItem.objects.filter(
@@ -738,34 +755,20 @@ class CookingPlanSerializer(serializers.ModelSerializer):
             for recipe_item in recipe_items:
                 portions = food_models.Portion.objects.filter(id=recipe_item.portion.id)
                 for portion in portions:
-                    ings = food_models.Ingredient.objects.filter(
-                        id=portion.ingredient.id
+                    return_list.append(
+                        {
+                            "ingredient": portion.ingredient.name,
+                            "weight_g": recipe_item.weight_g * meal_item.factor,
+                            "unit": portion.measuring_unit.name,
+                        }
                     )
-                    for ing in ings:
-                        ingredients.append(ing.id)
 
-        unique_ingredients = list(set(ingredients))
+        # sum all weights of the same ingredient and return list with unique ingredients
+        return_list = self.sum_weights(return_list)
 
-        key_return = food_models.Ingredient.objects.filter(id__in=unique_ingredients)
+        return return_list
 
-        return_data = []
-
-        for ingedient_key in key_return:
-            recipe_items_ing = food_models.RecipeItem.objects.filter(
-                portion__ingredient=ingedient_key
-            ).filter(
-                recipe__in=food_models.MealItem.objects.filter(meal=meal).values_list(
-                    "recipe", flat=True
-                )
-            )
-
-            return_data.append(
-                {
-                    "ingredient": ingedient_key.name,
-                    "weight_g": recipe_items_ing.aggregate(Sum("weight_g")),
-                }
-            )
-        return return_data
+      
     
     def get_norm_persons(self, meal):
         return meal.meal_day.meal_event.norm_portions
