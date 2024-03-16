@@ -676,6 +676,7 @@ class ShoppingListViewSet(viewsets.ViewSet):
                                 }
                             )
 
+        # sort by ingredient name
         return_list = sorted(
             return_list, key=lambda x: x["ingredient_name"], reverse=False
         )
