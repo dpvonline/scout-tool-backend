@@ -171,7 +171,6 @@ class MultiplyRecipeItemsViewSet(viewsets.ViewSet):
 
         return Response({"Bitte ID mitgeben"}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class MealScaleViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs) -> Response:
         if request.data.get("id", None) is not None:
@@ -494,7 +493,6 @@ class MyMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
             created_by__id=self.request.user.id
         ).exclude(created_by=None)
 
-
 class MyMealEventSmallReadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = food_serializers.MealEventSmallSerializer
 
@@ -512,7 +510,6 @@ class PublicMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
             Q(is_public=True) | Q(created_by__id=self.request.user.id)
         )
 
-
 class PublicMealEventSmallReadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = food_serializers.MealEventSmallSerializer
 
@@ -527,7 +524,6 @@ class ApprovedMealEventReadViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         return food_models.MealEvent.objects.filter(is_approved=True, is_public=True)
-
 
 class ApprovedMealEventSmallReadViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = food_serializers.MealEventSmallSerializer
@@ -549,7 +545,6 @@ class MealDayReadViewSet(viewsets.ModelViewSet):
 class MealViewSet(viewsets.ModelViewSet):
     queryset = food_models.Meal.objects.all()
     serializer_class = food_serializers.MealSerializer
-
 
 class CookingPlanViewSet(viewsets.ModelViewSet):
 
@@ -597,8 +592,6 @@ def add_agg_to_list(items):
     sum_dict = {}
     weight_g = round(sum(item["weight_g"] for item in items), 0)
     weight_kg = round(sum(item["weight_kg"] for item in items), 2)
-    price = round(sum(item["price"] for item in items), 2)
-    sum_dict["price"] = price
     sum_dict["weight_g"] = weight_g
     sum_dict["weight_kg"] = weight_kg
     sum_dict["recipe_name"] = ", ".join(str(x["recipe_name"]) for x in items)
@@ -643,13 +636,11 @@ class ShoppingListViewSet(viewsets.ViewSet):
                         for recipe_item in meal_item["recipe"].get("recipe_items"):
                             weight_g = round(
                                 recipe_item.get("weight_g")
-                                * meal_item.get("factor", 1.0)
                                 * serializer.data.get("norm_portions"),
                                 1,
                             )
                             weight_kg = round(
                                 recipe_item.get("weight_g")
-                                * meal_item.get("factor", 1.0)
                                 * serializer.data.get("norm_portions")
                                 / 1000,
                                 3,
@@ -663,16 +654,11 @@ class ShoppingListViewSet(viewsets.ViewSet):
                                     .get("ingredient")
                                     .get("get_major_class_display"),
                                     "recipe_name": meal_item["recipe"].get("name"),
-                                    "price": recipe_item.get("price", 0)
-                                    * meal_item.get("factor", 1.0)
-                                    * serializer.data.get("norm_portions"),
                                     "weight_g": weight_g,
                                     "weight_kg": weight_kg,
-                                    "weight_show": (
-                                        f"{weight_kg} Kg"
-                                        if weight_g >= 1000
-                                        else f"{weight_g} g"
-                                    ),
+                                    "weight_show": f"{weight_kg} Kg"
+                                    if weight_g >= 1000
+                                    else f"{weight_g} g",
                                 }
                             )
 
