@@ -15,11 +15,16 @@ from keycloak_auth.permissions import request_group_access
 
 User: CustomUser = get_user_model()
 
+
 def get_display_name_user(obj: User):
     if hasattr(obj, 'person') and obj.person.scout_name:
-        return obj.person.scout_name
+        name = obj.person.scout_name
     else:
-        return obj.username
+        name = obj.username
+
+    if hasattr(obj, 'person') and obj.person.scout_group:
+        name += f" ({obj.person.scout_group.name})"
+    return name
 
 
 def get_display_name_group(obj: KeycloakGroup):

@@ -45,9 +45,9 @@ def check_event_permission(event_id: [str, Event], request, admin_only=False) ->
     event = get_event(event_id)
     token = request.META.get('HTTP_AUTHORIZATION')
     child_ids = get_groups_of_user(token, user.keycloak_id)
-    if not admin_only and any(event.view_group.keycloak_id == child_id for child_id in child_ids):
+    if not admin_only and event.view_group and any(event.view_group.keycloak_id == child_id for child_id in child_ids):
         return EventRole.VIEW_ROLE
-    if any(event.admin_group.keycloak_id == child_id for child_id in child_ids):
+    if event.admin_group and any(event.admin_group.keycloak_id == child_id for child_id in child_ids):
         return EventRole.ADMIN_ROLE
     if get_responsible_person_permission(user, event):
         return EventRole.ADMIN_ROLE

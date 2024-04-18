@@ -27,9 +27,7 @@ class IssueReadViewSet(viewsets.ModelViewSet):
             try:
                 token = self.request.META.get('HTTP_AUTHORIZATION')
                 keycloak_groups = keycloak_user.get_user_groups(token, self.request.user.keycloak_id)
-                print(keycloak_groups)
                 ids = [val['id'] for val in keycloak_groups]
-                print(ids)
                 return Issue.objects.filter(
                     Q(created_by=self.request.user)
                     | Q(issue_type__responsable_groups__keycloak_id__in=ids)
