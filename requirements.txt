@@ -45,7 +45,7 @@ gunicorn==22.0.0
 humanize==4.6.0
 idna==3.7
 jmespath==1.0.1
-josepy==1.13.0
+josepy==1.14.0
 jsonfield==3.1.0
 kombu==5.3.4
 marshmallow==3.19.0
@@ -58,10 +58,11 @@ Pillow==10.3.0
 prometheus-client==0.15.0
 prompt-toolkit==3.0.36
 psycopg2-binary==2.9.6
+
 pyasn1==0.4.8
 pycodestyle==2.10.0
 pycparser==2.21
-pyOpenSSL==23.2.0
+pyOpenSSL==24.1.0
 pyparsing==3.0.9
 python-dateutil==2.8.2
 python-jose==3.3.0
