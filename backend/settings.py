@@ -110,6 +110,8 @@ if env.bool('USE_RDS_DB'):
             'PASSWORD': env('RDS_PASSWORD'),
             'HOST': env('RDS_HOSTNAME'),
             'PORT': env('RDS_PORT'),
+            'CONN_MAX_AGE': 600,
+            'OPTIONS': {'sslmode': 'require'},
         }
     }
 else:
@@ -164,16 +166,25 @@ if env.bool('USE_S3'):
     # s3 static settings
     STATIC_LOCATION = 'static'
     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-    STATICFILES_STORAGE = 'backend.storage_backends.StaticStorage'
     # s3 public media settings
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
-    DEFAULT_FILE_STORAGE = 'backend.storage_backends.PublicMediaStorage'
     # s3 private media settings
     PRIVATE_MEDIA_LOCATION = 'private'
-    PRIVATE_FILE_STORAGE = 'backend.storage_backends.PrivateMediaStorage'
     PRIVATE_MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PRIVATE_MEDIA_LOCATION}/'
     AWS_S3_REGION_NAME = 'eu-central-1'
+
+    STORAGES = {
+        "default": {
+            "BACKEND": 'backend.storage_backends.PublicMediaStorage'
+        },
+        "staticfiles": {
+            "BACKEND": 'backend.storage_backends.StaticStorage'
+        },
+        "private": {
+            "BACKEND": 'backend.storage_backends.PrivateMediaStorage'
+        },
+    }
 else:
     STATIC_URL = '/staticfiles/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -256,7 +267,7 @@ GRAPHENE = {
 
 CELERY_BROKER_URL = env('CELERY_BROKER')
 CELERY_RESULT_BACKEND = env('CELERY_BROKER')
-USE_CELERY = env.bool('USE_CELERY')
+USE_CELERY = False
 CELERY_TIMEZONE = 'Europe/Berlin'
 CELERY_BEAT_SCHEDULE = {
     "import_keycloak_members": {
