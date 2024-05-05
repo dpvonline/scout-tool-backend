@@ -17,7 +17,7 @@ event_summary_router.register(r'summary/alcohol-groups', views.EventAlcoholAgeGr
 event_summary_router.register(r'summary/kpi/total-participants', kpi_views.TotalParticipantsViewSet,
                               basename='total-participants')
 event_summary_router.register(r'summary/kpi/total-registrations', kpi_views.TotalRegistrationsViewSet,
-                              basename='total-participants')
+                              basename='total-registrations')
 event_summary_router.register(r'summary/kpi/last-registrations', kpi_views.LastRegistrationsViewSet,
                               basename='last-registrations')
 event_summary_router.register(r'summary/kpi/largest-registrations', kpi_views.LargestRegistrationsViewSet,
@@ -30,7 +30,7 @@ event_summary_router.register(r'summary/participant-locations', views.Registrati
                               basename='participant-locations')
 event_summary_router.register(r'summary/event-location', views.EventLocationViewSet, basename='event-location')
 event_summary_router.register(r'summary/detailed', views.EventDetailedSummaryViewSet, basename='detailed')
-event_summary_router.register(r'summary/parents', views.RegistrationParentViewSet, basename='detailed')
+event_summary_router.register(r'summary/parents', views.RegistrationParentViewSet, basename='parents')
 event_summary_router.register(r'summary/workshop', views.WorkshopEventSummaryViewSet, basename='workshop')
 event_summary_router.register(r'summary/attributes', views.EventModuleSummaryViewSet, basename='attributes')
 event_summary_router.register(r'summary/food', views.EventFoodSummaryViewSet, basename='food')

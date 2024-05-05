@@ -4,7 +4,7 @@ from rest_framework_nested import routers
 from . import views
 
 router = routers.SimpleRouter()
-router.register(r'scout-hierarchy', views.ScoutHierarchyViewSet)
+router.register(r'scout-hierarchy', views.ScoutHierarchyViewSet, basename='scout-hierarchy')
 router.register(r'scout-hierarchy-detail', views.ScoutHierarchyDetailedViewSet)
 router.register(r'zip-code', views.ZipCodeViewSet)
 router.register(r'check-zip-code', views.CheckZipCodeViewSet,

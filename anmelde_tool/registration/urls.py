@@ -5,7 +5,7 @@ from anmelde_tool.event.summary import views as event_summary_views
 
 router = routers.SimpleRouter()
 router.register('registration', views.RegistrationViewSet, basename='registration')
-router.register('registration-read', views.RegistrationReadViewSet, basename='registration')
+router.register('registration-read', views.RegistrationReadViewSet, basename='registration-read')
 router.register('my-registrations', views.MyRegistrationViewSet, basename='my-registrations')
 
 registration_router = routers.NestedSimpleRouter(router, r'registration', lookup='registration')
