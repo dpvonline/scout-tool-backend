@@ -14,5 +14,8 @@ echo "Load test data"
 echo "Load food inspi data"
 #python manage.py loaddata data/food-init/*.json
 
+echo "Collect static data"
+python manage.py collectstatic --noinput
+
 echo "Start server"
 gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers=5 --threads=8

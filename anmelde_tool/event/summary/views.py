@@ -662,9 +662,28 @@ class CashSummaryListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             event_id=event_id
         )
 
+        scout_organisation_list = self.request.query_params.getlist(
+            "scout-organisation"
+        )
+
+        if scout_organisation_list:
+            registrations = registrations.filter(
+                Q(scout_organisation__id__in=scout_organisation_list)
+                | Q(scout_organisation__parent__id__in=scout_organisation_list)
+                | Q(scout_organisation__parent__parent__id__in=scout_organisation_list)
+                | Q(
+                    scout_organisation__parent__parent__parent__id__in=scout_organisation_list
+                )
+            )
+
         if search:
             registrations = registrations.filter(
-                scout_organisation__name__icontains=search
+                Q(scout_organisation__name__icontains=search) |
+                Q(responsible_persons__person__scout_name__icontains=search) |
+                Q(responsible_persons__first_name__icontains=search) |
+                Q(responsible_persons__last_name__icontains=search) |
+                Q(responsible_persons__person__email__icontains=search) |
+                Q(responsible_persons__email__icontains=search)
             )
 
         registrations = filter_registration_by_leadership(
