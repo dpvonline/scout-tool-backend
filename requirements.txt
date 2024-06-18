@@ -79,7 +79,7 @@ tornado==6.4
 typing-inspect==0.8.0
 typing_extensions==4.9.0
 tzdata==2022.7
-urllib3==1.26.18
+urllib3==1.26.19
 utm==0.7.0
 vine==5.1.0
 wcwidth==0.2.6
