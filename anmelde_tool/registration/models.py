@@ -67,14 +67,12 @@ class RegistrationParticipant(basic_models.TimeStampMixin):
         choices=event_choices.LeaderTypes.choices,
         default=event_choices.LeaderTypes.KeineFuehrung,
     )
-    scout_level = models.CharField(
-        max_length=6,
-        choices=event_choices.ScoutLevelTypes.choices,
-        default=event_choices.ScoutLevelTypes.Unbekannt,
-    )
+    scout_level = models.CharField(max_length=50, blank=True, null=True)
     person = models.ForeignKey(
         auth_models.Person, on_delete=models.PROTECT, null=True, blank=True
     )
+    id_number = models.CharField(max_length=50, blank=True, null=True)
+    scout_function = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return f"{self.registration}: {self.last_name}, {self.first_name}"

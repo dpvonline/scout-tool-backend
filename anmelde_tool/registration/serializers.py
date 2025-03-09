@@ -131,6 +131,9 @@ class RegistrationParticipantReadSerializer(serializers.ModelSerializer):
             'get_gender_display',
             'eat_habit',
             'booking_option',
+            'scout_function',
+            'id_number',
+            'scout_level',
         )
 
     def get_age(self, obj: RegistrationParticipant):
