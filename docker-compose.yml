@@ -13,8 +13,8 @@ services:
 
   nginx-proxy:
     container_name: nginx-proxy
-    image: jwilder/nginx-proxy:latest
-    restart: unless-stopped
+    image: nginxproxy/nginx-proxy:latest
+    restart: always
     ports:
       - "443:443"
       - "80:80"
@@ -27,7 +27,7 @@ services:
       - web
 
   nginx-proxy-letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
+    image: nginxproxy/acme-companion:latest
     restart: unless-stopped
     env_file:
       - .env
@@ -37,8 +37,6 @@ services:
       - html:/usr/share/nginx/html
       - vhost:/etc/nginx/vhost.d
       - acme:/etc/acme.sh
-    depends_on:
-      - nginx-proxy
 
   celery:
     build: ./
